@@ -1535,6 +1535,7 @@ const STADIUM_MODALFIELDS = [
             // lwc_si_type has a value, and validateRequiredFields only checks visible
             // fields, so this is "required if TYPE filled" with no engine change. Stops
             // printed at 0). Deepanjan (6th September 2026)
+            
             {"apiName": "lwc_si_value", "label": "VALUE", "type": "number", "colSpan": 3, "controllingField": "lwc_si_type", "controllingValues": ["Price", "Weight"], "required": true},
             {"apiName": "lwc_si_show_separate", "label": "Show separate in offer", "type": "checkbox", "colSpan": 3},
             {"apiName": "lwc_si_price_add", "type": "hidden", "formula": "(lwc_si_show_separate ? 0 : (lwc_si_type == 'Price' ? (lwc_si_value || 0) : 0))"},
