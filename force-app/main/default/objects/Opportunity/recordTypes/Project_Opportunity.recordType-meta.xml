@@ -375,6 +375,43 @@
         </values>
     </picklistValues>
     <picklistValues>
+        <picklist>Po_Upload_Status__c</picklist>
+        <values>
+            <fullName>Not Started Yet</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Uploaded Successfully</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Refer_to_Dealer_PO_upload__c</picklist>
+        <values>
+            <fullName>Delivery from stock</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PO is required</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Sub_Stage__c</picklist>
+        <values>
+            <fullName>Active</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Budgetary</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tender</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
         <picklist>Type</picklist>
         <values>
             <fullName>Existing Business</fullName>

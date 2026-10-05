@@ -131,6 +131,7 @@ public class QuoteExportController {
     public String buildingRoofMonitorDesc  { get; set; }
     public Boolean showRoofMonitorSection  { get; set; }
     public List<ParamTableRow> paramTableRows { get; set; }
+    public List<DocSection>    docSections    { get; set; }
 
 
 
@@ -1186,6 +1187,7 @@ public class QuoteExportController {
         buildingRoofMonitorDesc    = '1.2 m Throat Width x 1.0 m Height x 105.0 m Length';
         showRoofMonitorSection     = true;
         paramTableRows             = new List<ParamTableRow>();
+        docSections                = new List<DocSection>();
 
         try {
     Map<String, Object> bd = null;
@@ -1368,6 +1370,12 @@ public class QuoteExportController {
             }
             if (!rows.isEmpty()) paramTableRows = rows;
         }
+
+        // ── docSections: Dynamic Building Description sections from (A) DESIGN CRITERIA to end ──
+        if (bd.get('docSections') instanceof List<Object>) {
+            List<DocSection> secs = buildDocSectionsFromParsed(bd.get('docSections'));
+            if (!secs.isEmpty()) docSections = secs;
+        }
         
         showRoofMonitorSection = String.isNotBlank(buildingRoofMonitorDesc);
         if (pebAccessories != null) {
@@ -1382,6 +1390,69 @@ public class QuoteExportController {
 } catch (Exception e) {
     System.debug('PEB bank-doc building description parse error: ' + e.getMessage());
 }
+    }
+
+    private List<DocSection> buildDocSectionsFromParsed(Object raw) {
+        List<DocSection> out = new List<DocSection>();
+        if (!(raw instanceof List<Object>)) return out;
+        for (Object secObj : (List<Object>) raw) {
+            if (!(secObj instanceof Map<String, Object>)) continue;
+            Map<String, Object> sm = (Map<String, Object>) secObj;
+            DocSection s   = new DocSection();
+            s.title        = pebStr(sm.get('title'));
+            s.subtitle     = pebStr(sm.get('subtitle'));
+            s.sectionType  = pebStr(sm.get('sectionType'));
+            if (sm.get('colCount') != null) {
+                try {
+                    s.colCount = Integer.valueOf(String.valueOf(sm.get('colCount')));
+                } catch (Exception e) {
+                    s.colCount = 2;
+                }
+            } else {
+                s.colCount = 2;
+            }
+
+            s.tableHeaders = new List<String>();
+            if (sm.get('tableHeaders') instanceof List<Object>) {
+                for (Object th : (List<Object>) sm.get('tableHeaders')) {
+                    s.tableHeaders.add(pebStr(th));
+                }
+            }
+
+            s.tableRows = new List<DocRow>();
+            if (sm.get('tableRows') instanceof List<Object>) {
+                for (Object ro : (List<Object>) sm.get('tableRows')) {
+                    if (!(ro instanceof Map<String, Object>)) continue;
+                    Map<String, Object> rm = (Map<String, Object>) ro;
+                    DocRow r      = new DocRow();
+                    r.c1          = pebStr(rm.get('c1'));
+                    r.c2          = pebStr(rm.get('c2'));
+                    r.c3          = pebStr(rm.get('c3'));
+                    r.c4          = pebStr(rm.get('c4'));
+                    r.c5          = pebStr(rm.get('c5'));
+                    r.c6          = pebStr(rm.get('c6'));
+                    r.isSubHeader = (rm.get('isSubHeader') == true);
+                    s.tableRows.add(r);
+                }
+            }
+
+            s.listItems = new List<String>();
+            if (sm.get('listItems') instanceof List<Object>) {
+                for (Object li : (List<Object>) sm.get('listItems')) {
+                    s.listItems.add(pebStr(li));
+                }
+            }
+
+            s.notes = new List<String>();
+            if (sm.get('notes') instanceof List<Object>) {
+                for (Object n : (List<Object>) sm.get('notes')) {
+                    s.notes.add(pebStr(n));
+                }
+            }
+
+            out.add(s);
+        }
+        return out;
     }
 
     private List<PebRow> buildPebRowsFromParsed(Object raw) {
@@ -1493,5 +1564,47 @@ public class QuoteExportController {
         public String  dataFrom  { get; set; }
         public String  remark    { get; set; }
         public Boolean isHeader  { get; set; }
+    }
+
+    public class DocSection {
+        public String title        { get; set; }
+        public String subtitle     { get; set; }
+        public String sectionType  { get; set; }
+        public Integer colCount    { get; set; }
+        public List<String> tableHeaders { get; set; }
+        public List<DocRow> tableRows    { get; set; }
+        public List<String> listItems    { get; set; }
+        public List<String> notes        { get; set; }
+
+        public Boolean isChapter   { get { return sectionType == 'chapter'; } }
+        public Boolean isTable     { get { return sectionType == 'table'; } }
+        public Boolean isList      { get { return sectionType == 'list'; } }
+        public Boolean hasHeaders  { get { return tableHeaders != null && !tableHeaders.isEmpty(); } }
+        public Boolean hasSubtitle { get { return String.isNotBlank(subtitle); } }
+        public Boolean hasNotes    { get { return notes != null && !notes.isEmpty(); } }
+
+        public Boolean hasCol2     { get { return colCount != null && colCount >= 2; } }
+        public Boolean hasCol3     { get { return colCount != null && colCount >= 3; } }
+        public Boolean hasCol4     { get { return colCount != null && colCount >= 4; } }
+        public Boolean hasCol5     { get { return colCount != null && colCount >= 5; } }
+        public Boolean hasCol6     { get { return colCount != null && colCount >= 6; } }
+        public String  colSpanStr  { get { return String.valueOf(colCount != null && colCount > 0 ? colCount : 1); } }
+
+        public String h1 { get { return tableHeaders != null && tableHeaders.size() > 0 ? tableHeaders[0] : ''; } }
+        public String h2 { get { return tableHeaders != null && tableHeaders.size() > 1 ? tableHeaders[1] : ''; } }
+        public String h3 { get { return tableHeaders != null && tableHeaders.size() > 2 ? tableHeaders[2] : ''; } }
+        public String h4 { get { return tableHeaders != null && tableHeaders.size() > 3 ? tableHeaders[3] : ''; } }
+        public String h5 { get { return tableHeaders != null && tableHeaders.size() > 4 ? tableHeaders[4] : ''; } }
+        public String h6 { get { return tableHeaders != null && tableHeaders.size() > 5 ? tableHeaders[5] : ''; } }
+    }
+
+    public class DocRow {
+        public String c1 { get; set; }
+        public String c2 { get; set; }
+        public String c3 { get; set; }
+        public String c4 { get; set; }
+        public String c5 { get; set; }
+        public String c6 { get; set; }
+        public Boolean isSubHeader { get; set; }
     }
 }

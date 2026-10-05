@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Is_Draft__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>TRUE when the quotation was saved with the Save as Draft button and has not been applied yet. Cleared by APPLY. Drives the DRAFT badge and the same-department draft check on CREATE.</description>
+    <inlineHelpText>This quotation was saved as a draft and has not been applied yet.</inlineHelpText>
+    <label>Is Draft</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

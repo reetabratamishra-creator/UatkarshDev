@@ -11,6 +11,7 @@
     <columns>tp_segment__c</columns>
     <columns>man_riding_lift__c</columns>
     <columns>GST__c</columns>
+    <columns>DeveloperName</columns>
     <filterScope>Everything</filterScope>
     <label>All</label>
 </ListView>

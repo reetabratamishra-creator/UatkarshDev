@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Can_View_IM_Approvals__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Ticked = this user sees the PENDING APPROVALS tab inside International Marketing. Independent of the domestic Can View Approvals.</description>
+    <label>Can View IM Approvals</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

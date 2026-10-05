@@ -4,7 +4,10 @@
    several High Mast products (_HM_Products in Quote_Value__c). HMScopeCombinedController
    itself is not touched. Used by the page HMScopeCombinedCP.
    A quote WITHOUT _HM_Products takes exactly HMScopeCombinedController's path, line for
-   line, so it prints the same document. Every addition is tagged [hm-cross].
+   line, so it prints the same document - except that a STADIUM MAST quote with
+   2+ Man Riding Lifts / Ladders With Cage also prints lifts / ladders 2..n (lift /
+   ladder 1 exactly as before). Every addition is tagged [hm-cross]; the STADIUM
+   MAST lift / ladder copies (29th September 2026) are tagged [hm-stadium].
    ═══════════════════════════════════════════════════════════════════════════ */
 public class HMScopeCombinedControllerCP {
 
@@ -172,7 +175,7 @@ public class HMScopeCombinedControllerCP {
                 System.debug('JSON Parse Error: ' + e.getMessage());
             }
         }
-        hmDecodeV2(jsonData);   // [hm-cross] a compact 2+ product JSON back to the plain shape; any other JSON untouched
+        hmDecodeV2(jsonData);   // [hm-cross] a compact JSON (2+ products, or one very large product) back to the plain shape; any other JSON untouched
         Boolean useShippingAddress = jsonData.get('override_existing_address') == true;
         buyerAddress = buildAddress(jsonData, 'def_');
         deliveryAddress = buildAddress(jsonData, useShippingAddress ? 'ovr_' : 'def_');
@@ -226,6 +229,8 @@ public class HMScopeCombinedControllerCP {
                 jsonData       = pm;
                 mastGroups     = new List<MastGroupWrapper>();
                 cmProductStart = new List<Integer>();
+                typeOfMast     = null;   // set by the Lighting Pole builder only: each product starts it
+                                         // unset, as a one-product quote does (no 'J Type' carry-over)
                 hmInitProduct();
                 hmDispatch(gstPct, freight);
                 for (MastGroupWrapper g : mastGroups) { g.subLabel = mastTypeLabel; g.accLabel = accessoriesLabel; }
@@ -385,15 +390,17 @@ public class HMScopeCombinedControllerCP {
     //
     // hmProductMap() rebuilds one product as its own flat map - the quote-level
     // keys + the product's own keys + only its own lines (the untagged lines go
-    // with the LAST product, so Transportation Charges prints once, at the end,
-    // as today) - and the constructor runs the untouched single-product code once
+    // with the LAST product, and every other product's transportation_as is left
+    // blank, so Transportation Charges prints once, at the end, as today) - and
+    // the constructor runs the untouched single-product code once
     // per product, building each map only when its turn comes (one product's copy
     // in memory at a time). hmProductCount() is 0 for a quote without _HM_Products,
     // which takes exactly the old path, so every existing quote prints as before.
     //
-    // A large 2+ product quote is saved in the COMPACT shape (_HM_V = 2); hmDecodeV2()
-    // turns it back into the plain shape above right after the JSON is read, so
-    // nothing below sees any difference.
+    // A large quote (2+ products, or one product too large for the plain shape) is
+    // saved in the COMPACT shape (_HM_V = 2); hmDecodeV2() turns it back into the
+    // plain shape above right after the JSON is read, so nothing below sees any
+    // difference (one product comes back as the plain one-product JSON: count 0).
     // ═══════════════════════════════════════════════════════════════════════
     private Integer hmProductCount(Map<String, Object> root) {
         hmDecodeV2(root);
@@ -486,9 +493,9 @@ public class HMScopeCombinedControllerCP {
         return outL;
     }
 
-    // [hm-cross] COMPACT SHAPE (_HM_V = 2). createQuote writes a 2+ product quote this way
-    // only when the plain shape would not fit comfortably in Quote_Value__c - the same
-    // data, nothing dropped:
+    // [hm-cross] COMPACT SHAPE (_HM_V = 2). createQuote writes a quote this way (2+
+    // products, or one product too large for the plain shape) only when the plain shape
+    // would not fit comfortably in Quote_Value__c - the same data, nothing dropped:
     //   _HM_T         row-key templates, front-coded: "12:height" = the first 12
     //                 characters of the entry before + "height"; a template is a row key
     //                 with ~ for the row number ("r~_lm_height_of_mast")
@@ -692,7 +699,9 @@ public class HMScopeCombinedControllerCP {
         if (!(listObj instanceof List<Object>)) return outL;
         String prev = '';
         for (Object e : (List<Object>) listObj) {
-            String t = String.valueOf(e);
+            // a null entry (never written by createQuote; only a damaged JSON) reads as
+            // 'null', as String(e) does in createQuote - never a null pointer here
+            String t = (e == null) ? 'null' : String.valueOf(e);
             Integer i = t.indexOf(':');
             String cur = t;
             if (i > 0 && Pattern.matches('[0-9]{1,9}', t.substring(0, i))) {
@@ -2747,8 +2756,10 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
         // the legacy base_amount key. base_amount itself is being hidden in the estimator
         // (it duplicates BASE MAN RIDING PRICE / LADDER WITH CAGE BASE PRICE on screen),
         // so it can no longer be the only source. Deepanjan (21st Aug 2026)
-        Decimal basePrice = decVal(m, p == 'mrl_' ? 'mrl_man_riding_base_price'
-                                                  : 'lwc_ladder_cage_base_price', 0);
+        // [hm-stadium] p + ...: the same key for lift / ladder 1 (only Segment Above 5 reaches
+        // here, and it has no copies), the copy's own key for lift / ladder k
+        Decimal basePrice = decVal(m, p.endsWith('mrl_') ? p + 'man_riding_base_price'
+                                                         : p + 'ladder_cage_base_price', 0);
         return basePrice > 0 ? basePrice : decVal(m, p + 'base_amount', 0);
     }
 
@@ -3135,7 +3146,27 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
             // accessories, lwc_ is the mast with its foundation bolts and ladder.
             // Deepanjan (18th August 2026)
             if (cmBool(m, 'man_riding_lift'))  { cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, 'mrl_'); }
+            // [hm-stadium] Man Riding Lift 2..n (m<k>_mrl_): each its own product, with its KIT group
+            if (cmBool(m, 'man_riding_lift')) {
+                for (Integer k = 2; k <= hmStadiumCount(m, 'man_riding_lift_count'); k++) {
+                    String pk = hmStadiumPrefix('mrl_', k);
+                    if (decVal(m, pk + 'no_of_segment', 0) <= 0) continue;
+                    cmProductStart.add(mastGroups.size());
+                    hmStadiumLift = k;
+                    sl = cmStadiumGroups(m, gstPct, freight, sl, pk);
+                    hmStadiumLift = 1;
+                }
+            }
             if (cmBool(m, 'ladder_with_cage')) { cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, 'lwc_'); }
+            // [hm-stadium] Ladder With Cage 2..n (l<k>_lwc_): each its own product
+            if (cmBool(m, 'ladder_with_cage')) {
+                for (Integer k = 2; k <= hmStadiumCount(m, 'ladder_with_cage_count'); k++) {
+                    String pk = hmStadiumPrefix('lwc_', k);
+                    if (decVal(m, pk + 'no_of_segment', 0) <= 0) continue;
+                    cmProductStart.add(mastGroups.size());
+                    sl = cmStadiumGroups(m, gstPct, freight, sl, pk);
+                }
+            }
         } else if (isFlagMast) {
             // SEGMENT ABOVE 5 recipe: r{n}_lm_* rows. cmFlagGroups() reads
             // r{n}_fm_* and would emit nothing. Deepanjan (22nd July 2026)
@@ -3334,6 +3365,42 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
             .replace('>', '&gt;').replace('"', '&quot;');
     }
  
+// ═══════════════════════════════════════════════════════════════════════
+// [hm-stadium] STADIUM MAST - up to 10 Man Riding Lifts and 10 Ladders With Cage.
+// Deepanjan (29th September 2026)
+// The Stadium estimator repeats the Man Riding Lift block (mrl_) as m2_mrl_ ..
+// m10_mrl_ for MAN RIDING LIFT COUNT >= k, and the Ladder With Cage block (lwc_) as
+// l2_lwc_ .. l10_lwc_ for LADDER WITH CAGE COUNT >= k; every key of a copy is the
+// block's key with the copy's prefix. Each copy is a mast of its own, so it prints
+// with the same builder as lift / ladder 1, under its own prefix, as its own line
+// item, and Man Riding Lift k takes KIT line k (createQuote builds KIT line k from
+// lift k). Lift / ladder 1 print exactly as before; a quote without the counts
+// (saved before them, or Segment Above 5 Stadium) is one lift and one ladder.
+// ═══════════════════════════════════════════════════════════════════════
+    private Integer hmStadiumLift = 1;   // [hm-stadium] the Man Riding Lift being printed (its KIT group)
+
+    // [hm-stadium] how many copies of the block the quote carries (1..10; no count key = 1)
+    private Integer hmStadiumCount(Map<String,Object> m, String countKey) {
+        Integer n = decVal(m, countKey, 1).intValue();
+        if (n < 1) n = 1;
+        if (n > 10) n = 10;
+        return n;
+    }
+
+    // [hm-stadium] the key prefix of copy k: mrl_, m2_mrl_ .. m10_mrl_ / lwc_, l2_lwc_ .. l10_lwc_
+    private String hmStadiumPrefix(String base, Integer k) {
+        if (k == null || k <= 1) return base;
+        return (base == 'mrl_' ? 'm' : 'l') + String.valueOf(k) + '_' + base;
+    }
+
+    // [hm-stadium] the KIT line of Man Riding Lift `lift`. Lift 1 keeps the height search it
+    // always had; lift k (2..10) reads kit_line_k, when that line is for this lift's height.
+    private Integer hmKitLineForLift(Map<String,Object> m, Integer lift, Decimal mastHt) {
+        if (lift == null || lift <= 1) return findKitLineForHeight(m, mastHt);
+        Decimal kitHt = decVal(m, 'kit_line_' + String.valueOf(lift) + '_lm_mast_height', 0);
+        return (kitHt > 0 && (kitHt == mastHt || kitHt == mastHt * 10)) ? lift : 0;
+    }
+
     // ── STADIUM MAST: prefix 'mrl_' (Man Riding Lift) or 'lwc_' (Ladder With Cage)
     private Integer cmStadiumGroups(Map<String,Object> m, Decimal gstPct,
                                      String freight, Integer sl, String p) {
@@ -3355,14 +3422,15 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
             return sl;
         }
  
-        Boolean isMrl   = (p == 'mrl_');
+        Boolean isMrl   = p.endsWith('mrl_');   // [hm-stadium] mrl_ or a lift copy m<k>_mrl_ (was p == 'mrl_')
         String  variant = isMrl ? 'MAN RIDING LIFT' : 'LADDER WITH CAGE';
 
-        Decimal segPrice  = decVal(m, isMrl ? 'mrl_man_riding_unit_price'
-                                            : 'lwc_ladder_cage_unit_price', 0)
+        // [hm-stadium] p + ...: the same key for lift / ladder 1, the copy's own key for k
+        Decimal segPrice  = decVal(m, isMrl ? p + 'man_riding_unit_price'
+                                            : p + 'ladder_cage_unit_price', 0)
                                 .setScale(2, RoundingMode.HALF_UP);
-        Decimal segWeight = decVal(m, isMrl ? 'mrl_man_riding_total_weight'
-                                            : 'lwc_ladder_cage_weight', 0);
+        Decimal segWeight = decVal(m, isMrl ? p + 'man_riding_total_weight'
+                                            : p + 'ladder_cage_weight', 0);   // [hm-stadium]
         Decimal qty = decVal(m, p + 'quantity', 1);
         if (qty == 0) qty = 1;
 
@@ -3510,11 +3578,12 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
         }
         // ── Accessories ──
         if (isMrl) {
-            Decimal accRate = decVal(m, 'mrl_mast_acc_foundation_unit_price', 0)
+            // [hm-stadium] p + ...: the lift's own Manrider System (mrl_ for lift 1, as before)
+            Decimal accRate = decVal(m, p + 'mast_acc_foundation_unit_price', 0)
                                 .setScale(2, RoundingMode.HALF_UP);
-            Decimal accQty  = decVal(m, 'mrl_mast_acc_quantity', 1);
+            Decimal accQty  = decVal(m, p + 'mast_acc_quantity', 1);
             if (accQty == 0) accQty = 1;
-            String  accDesc = strVal(m, 'mrl_mast_acc_description', '');
+            String  accDesc = strVal(m, p + 'mast_acc_description', '');
             if (accRate > 0 || String.isNotBlank(accDesc)) {
                 mastGroups.add(cmGroup(String.valueOf(sl++),
                     'Supply of standard Manrider System'
@@ -3522,9 +3591,10 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
                     '', accRate, gstPct, accQty, freight));
             }
         } else {
-            String  accDesc = strVal(m, 'lwc_acc_description', '');
-            Decimal accWt   = decVal(m, 'lwc_acc_weight', 0);
-            Decimal accRate = decVal(m,'lwc_unit_price',0).setScale(2, RoundingMode.HALF_UP);
+            // [hm-stadium] p + ...: the ladder's own accessory (lwc_ for ladder 1, as before)
+            String  accDesc = strVal(m, p + 'acc_description', '');
+            Decimal accWt   = decVal(m, p + 'acc_weight', 0);
+            Decimal accRate = decVal(m, p + 'unit_price', 0).setScale(2, RoundingMode.HALF_UP);
             if (String.isNotBlank(accDesc) || accWt > 0) {
                 mastGroups.add(cmGroup(String.valueOf(sl++),
                     'Supply of standard Man-Riding Ladder with Safety Cage system'
@@ -4194,7 +4264,7 @@ private Integer findKitLineForHeight(Map<String,Object> m, Decimal mastHt) {
 // kit_line_N exists and is priced. Returns the updated sl counter.
 private Integer addMrlKitAccessoryGroup(Map<String,Object> m, Decimal mastHt, Decimal qty,
                                          Integer segCount, Decimal gstPct, String freight, Integer sl) {
-    Integer kitLineNum = findKitLineForHeight(m, mastHt);
+    Integer kitLineNum = hmKitLineForLift(m, hmStadiumLift, mastHt);   // [hm-stadium] lift k -> KIT line k (lift 1: the height search, as before)
     if (kitLineNum == 0) return sl;   // no KIT data -> unchanged behavior
  
     String kit = 'kit_line_' + kitLineNum + '_';

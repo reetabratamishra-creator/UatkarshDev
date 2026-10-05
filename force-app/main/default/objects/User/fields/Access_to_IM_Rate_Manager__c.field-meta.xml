@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Access_to_IM_Rate_Manager__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Ticked = this user sees the RATES screen inside International Marketing and can update the exchange rates (Price Calculator &quot;International Marketing&quot; row). Independent of the domestic Access to Quote Rate Manager.</description>
+    <label>Access to IM Rate Manager</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

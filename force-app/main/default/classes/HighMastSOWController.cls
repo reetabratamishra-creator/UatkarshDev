@@ -353,11 +353,36 @@ public class HighMastSOWController {
  
         List<Object> apexLines = getList(jsonData, '_Final_Apex_Lines');
         Set<String> mhpFdnSeen = fdnItemsPresent(apexLines);
+        // MID HINGE - EACH POLE'S ACCESSORY PRINTS WITH THAT POLE. Deepanjan (1st October 2026)
+        // Accessories are built per pole: accessory column N belongs to pole N, and its saved
+        // line is "... - ACCESSORIES - Accessories Details (Item N)". The saved list is section
+        // by section (every pole, then every foundation, ... then every accessory), so it is
+        // first put into one-set-per-pole order with the same helper Custom Lighting Pole uses
+        // (a list that is already pole by pole comes back unchanged). Each pole's accessory
+        // then sits in that pole's own line item, and is printed ONLY when its unit price > 0.
+        apexLines = mhpOrderByPole(apexLines);   // one set per pole, keyed on (Item N) only. Deepanjan (1st Oct 2026)
+        Map<Integer, Decimal> mhpAccByItem = mhpAccessoryTotalsByItem(apexLines);
+        Set<Integer> mhpAccDone = new Set<Integer>();
+        Integer mhpPrevIx = null;   // pole of the previous saved line. Deepanjan (1st October 2026)
+        Set<Integer> mhpPolesSeen = new Set<Integer>();   // poles that printed a line. Deepanjan (1st Oct 2026)
         if (!apexLines.isEmpty()) {
             for (Object lineObj : apexLines) {
                 Map<String, Object> line = (Map<String, Object>) lineObj;
                 String itemName = strVal(line, 'name', 'Mid Hinge Pole Item');
-                markFlatGroup(itemName);   // Reetabrata (18th Aug 2026)
+                // A saved accessory line is never printed as a row of its own (it used to come
+                // out as a copy of the pole text). Each pole's accessory is printed ONCE, by
+                // addMhpAccessoryForPole below, when that pole's group closes. Deepanjan (1st Oct 2026)
+                if (isMhpAccessoryLine(itemName)) continue;
+                // Pole N's accessory prints at the END of pole N's group: when the next line
+                // belongs to another pole or is freight, close pole N with its accessory row.
+                Integer curIx = null;
+                if (!isFreightLine(itemName)) curIx = itemIndexOf(itemName);
+                if (curIx != null) mhpPolesSeen.add(curIx);
+                if (mhpPrevIx != null && curIx != mhpPrevIx) {
+                    slCounter = addMhpAccessoryForPole(mhpPrevIx, mhpAccByItem, mhpAccDone, gstPct, freight, slCounter);
+                }
+                mhpPrevIx = curIx;
+                markMhpGroup(itemName);    // one line item per pole: N.1 pole ... N.x accessories. Deepanjan (1st Oct 2026)
  
                 if (isFreightLine(itemName)) {
                     Decimal freightAmt = decVal(line, 'expenses', 0).setScale(2, RoundingMode.HALF_UP);
@@ -388,17 +413,32 @@ public class HighMastSOWController {
                                                        gstPct, freight, slCounter);
                 }
             }
+            slCounter = addMhpAccessoryForPole(mhpPrevIx, mhpAccByItem, mhpAccDone, gstPct, freight, slCounter);   // last pole. Deepanjan (1st Oct 2026)
+            slCounter = addMhpAccessoryOrphans(mhpAccByItem, mhpAccDone, mhpPolesSeen, gstPct, freight, slCounter);   // Deepanjan (1st Oct 2026)
             //appendFreightRow(gstPct, freight, slCounter, totalPoleQty);
             return;
         }
  
         List<Object> tableRows = getList(jsonData, '_Saved_Table_Rows');
         mhpFdnSeen = fdnItemsPresent(tableRows);
+        tableRows = mhpOrderByPole(tableRows);                 // same as the _Final_Apex_Lines path above
+        mhpAccByItem = mhpAccessoryTotalsByItem(tableRows);    // Deepanjan (1st October 2026)
+        mhpAccDone.clear();
+        mhpPrevIx = null;
+        mhpPolesSeen.clear();
         if (!tableRows.isEmpty()) {
             for (Object rowObj : tableRows) {
                 Map<String, Object> row = (Map<String, Object>) rowObj;
                 String itemName = strVal(row, 'name', 'Mid Hinge Pole Item');
-                markFlatGroup(itemName);   // Reetabrata (18th Aug 2026)
+                if (isMhpAccessoryLine(itemName)) continue;  // printed once per pole, see above
+                Integer curIx = null;                        // see the _Final_Apex_Lines loop
+                if (!isFreightLine(itemName)) curIx = itemIndexOf(itemName);
+                if (curIx != null) mhpPolesSeen.add(curIx);
+                if (mhpPrevIx != null && curIx != mhpPrevIx) {
+                    slCounter = addMhpAccessoryForPole(mhpPrevIx, mhpAccByItem, mhpAccDone, gstPct, freight, slCounter);
+                }
+                mhpPrevIx = curIx;
+                markMhpGroup(itemName);    // one line item per pole. Deepanjan (1st Oct 2026)
  
                 if (isFreightLine(itemName)) {
                     Decimal freightAmt = decVal(row, 'expenses', 0).setScale(2, RoundingMode.HALF_UP);
@@ -425,6 +465,8 @@ public class HighMastSOWController {
                                                        gstPct, freight, slCounter);
                 }
             }
+            slCounter = addMhpAccessoryForPole(mhpPrevIx, mhpAccByItem, mhpAccDone, gstPct, freight, slCounter);   // last pole. Deepanjan (1st Oct 2026)
+            slCounter = addMhpAccessoryOrphans(mhpAccByItem, mhpAccDone, mhpPolesSeen, gstPct, freight, slCounter);   // Deepanjan (1st Oct 2026)
             //appendFreightRow(gstPct, freight, slCounter, totalPoleQty);
             return;
         }
@@ -523,13 +565,7 @@ public class HighMastSOWController {
 
                 String descFnd = fbNisMhp
                     ? fdnNotInScopeDesc(fbDia, fbLen, fbNisQtyMhp, pcd)
-                    : ('Supply of FOUNDATION BOLTS - M' + fbDia + 'mm'
-                    + ' x ' + fbLen.intValue() +'mm'
-                    + ' (' + fbQty.intValue() + ' Nos.)'
-                    + (pcd > 0 ? ' with PCD: ' + pcd.intValue() + ' mm,' : '')
-                    + ' with Template and Anchor Plate'
-                    + (template != '' ? '. Template: ' + template : '')
-                    + '.');
+                    : 'Supply of FOUNDATION BOLTS - ' + 'J Type' + ' Bolts M' + fbDia + ' x ' + fbLen.intValue() + 'mm (' + fbQty.intValue() + ' Nos).';
  
                 lineItems.add(buildRow(String.valueOf(slCounter++), descFnd, fndUnitPrice, gstPct, qty, freight));
             }
@@ -556,6 +592,16 @@ public class HighMastSOWController {
                     + '.';
  
                 lineItems.add(buildRow(String.valueOf(slCounter++), descBrk, brkUnitPrice, gstPct, qty, freight));
+            }
+
+            // This pole's own accessory (column N of the accessory grid = pole N), only when
+            // it carries a unit price. Unit price = cost + realization %, charged once (Qty 1),
+            // not multiplied by the pole quantity. Deepanjan (1st October 2026)
+            Decimal accUnitPriceMhp = mhpAccUnitPrice(col);
+            if (accUnitPriceMhp > 0) {
+                lineItems.add(buildRow(String.valueOf(slCounter++),
+                              mhpAccText(col),
+                              accUnitPriceMhp, gstPct, 1, freight));
             }
         }
  
@@ -636,14 +682,8 @@ public class HighMastSOWController {
                 return fdnNotInScopeDesc(nrDia, fbLen, nrQty, pcd);
             }
 
-            return 'Supply of FOUNDATION BOLTS'
-                + (fbDia != '' ? ' - M' + fbDia+'mm' : '')
-                + (fbLen > 0   ? ' x ' + fbLen.intValue() + 'mm' : '')
-                + (fbQty > 0   ? ' (' + fbQty.intValue() + ' Nos.)' : '')
-                + (pcd > 0     ? ' with PCD: ' + pcd.intValue() + ' mm,' : '')
-                + ' with Template and Anchor Plate'
-                + (template != '' ? '. Template: ' + template : '')
-                + '.';
+            return 'Supply of FOUNDATION BOLTS - ' + 'J Type' + ' Bolts M' + fbDia + ' x ' + fbLen.intValue() + 'mm (' + fbQty.intValue() + ' Nos.).' ;
+                
         }
     
         if (isBracket) {
@@ -708,6 +748,380 @@ public class HighMastSOWController {
         return description;
     }
  
+    // ═══════════════════════════════════════════════════════════════════════
+    // MID HINGE ACCESSORIES - PER POLE - Deepanjan (1st October 2026)
+    //
+    // Accessory column N belongs to Mid Hinge pole N. Each pole's accessories print as ONE
+    // row inside that pole's own line item - "Supply of MID-HINGE ACCESSORIES - <names>" -
+    // and only when their unit price is above 0. Unit price = the user's cost + realization
+    // %, charged ONCE (Qty 1): it is not multiplied by quantity, because the accessory
+    // quantity only mirrors the pole quantity. The row never counts as a pole and never
+    // triggers the "foundation not in our scope" row. The Combined scope prints the same
+    // accessory inside the same pole's line item, at the same amount.
+    // ═══════════════════════════════════════════════════════════════════════
+    private Boolean isMhpAccessoryLine(String itemName) {
+        // Any saved line whose name mentions an accessory - "ACCESSORIES", "Accessories",
+        // "Accessory Details" ... (the old test only knew the upper-case word and missed the
+        // per-pole accessory sections, which then printed as copies of the pole text). A
+        // Foundation line is never one, so "Foundation accessories" can not be taken for it.
+        return String.isNotBlank(itemName)
+            && itemName.containsIgnoreCase('ACCESSOR')
+            && !itemName.containsIgnoreCase('Foundation');
+    }
+
+    // Which pole a saved accessory line belongs to: "(Item N)"; else a pole number at the very
+    // end of its name ("... Accessory Details 2"); else the pole whose saved accessory unit
+    // price equals the line's price; else the K-th accessory line -> pole K.
+    private Integer mhpAccLineIndex(String nm, Decimal up, Integer seq, Set<Integer> claimed) {
+        if (String.isNotBlank(nm)) {
+            Matcher mIx = Pattern.compile('\\(Item\\s*(\\d+)\\)').matcher(nm);
+            if (mIx.find()) {
+                try { return Integer.valueOf(mIx.group(1)); } catch (Exception ex) {}
+            }
+            Matcher mEnd = Pattern.compile('(\\d+)\\s*\\)?\\s*$').matcher(nm);
+            if (mEnd.find()) {
+                try {
+                    Integer t = Integer.valueOf(mEnd.group(1));
+                    if (t >= 1 && t <= MAX_REPEATER_COLS) return t;
+                } catch (Exception ex) {}
+            }
+        }
+        if (up != null && up > 0) {
+            Decimal upR = up.setScale(2, RoundingMode.HALF_UP);
+            for (Integer k = 1; k <= MAX_REPEATER_COLS; k++) {
+                if (claimed.contains(k)) continue;
+                if (mhpAccUnitPrice(k) == upR) return k;
+            }
+        }
+        return (seq >= 1 && seq <= MAX_REPEATER_COLS) ? seq : 1;
+    }
+
+    // Sum of the accessory unit prices per pole, positive prices only.
+    private Map<Integer, Decimal> mhpAccessoryTotalsByItem(List<Object> flat) {
+        Map<Integer, Decimal> out = new Map<Integer, Decimal>();
+        if (flat == null) return out;
+        Integer seq = 0;
+        Set<Integer> claimed = new Set<Integer>();
+        for (Object o : flat) {
+            Map<String, Object> l = null;
+            try { l = (Map<String, Object>) o; } catch (Exception e) { continue; }
+            if (l == null) continue;
+            String nm = strVal(l, 'name', '');
+            if (!isMhpAccessoryLine(nm)) continue;
+            Decimal up = decVal(l, 'unitPrice', 0);
+            if (up <= 0) continue;
+            seq++;
+            Integer ix = mhpAccLineIndex(nm, up, seq, claimed);
+            claimed.add(ix);
+            Decimal prev = out.get(ix);
+            out.put(ix, prev == null ? up : prev + up);
+        }
+        return out;
+    }
+
+    // An accessory whose pole printed no line at all (should not happen) is not lost: it gets
+    // a line item of its own after the poles - the same as the Combined scope's separate row.
+    private Integer addMhpAccessoryOrphans(Map<Integer, Decimal> accByItem, Set<Integer> done,
+                                           Set<Integer> polesSeen, Decimal gstPct, String freight,
+                                           Integer slCounter) {
+        List<Integer> ixs = new List<Integer>(accByItem.keySet());
+        ixs.sort();
+        for (Integer ix : ixs) {
+            if (done.contains(ix) || polesSeen.contains(ix)) continue;
+            markMhpGroup('(Item ' + ix + ')');
+            slCounter = addMhpAccessoryForPole(ix, accByItem, done, gstPct, freight, slCounter);
+        }
+        return slCounter;
+    }
+
+    // ── MID HINGE: ONE LINE ITEM PER POLE ── Deepanjan (1st October 2026)
+    // Every saved row of pole N - pole, foundation, bracket, accessories - carries "(Item N)"
+    // (a single pole may carry no suffix at all, which reads as pole 1). The generic
+    // orderFlatLinesByItem / markFlatGroup also key on a SECTION number parsed from the name,
+    // which can split one pole into several line items and push its accessories into a line
+    // item of their own (e.g. "11" after ten poles). Mid Hinge keys on the pole alone, so pole
+    // N is always ONE line item: N.1 pole, N.2 foundation, N.3 bracket, N.4 accessories.
+    // Freight keeps its own place and its own plain group, exactly as before.
+    private List<Object> mhpOrderByPole(List<Object> flat) {
+        if (flat == null || flat.size() < 2) return flat;
+        List<String>              keyOrder = new List<String>();
+        Map<String, List<Object>> buckets  = new Map<String, List<Object>>();
+        Integer loneSeq = 0;
+        for (Object o : flat) {
+            Map<String, Object> line = null;
+            try { line = (Map<String, Object>) o; } catch (Exception e) { line = null; }
+            String key;
+            if (line == null) {
+                key = 'X|' + String.valueOf(loneSeq++);
+            } else {
+                String nm = strVal(line, 'name', '');
+                key = isFreightLine(nm) ? 'F|' + String.valueOf(loneSeq++)
+                                        : 'P|' + String.valueOf(itemIndexOf(nm));
+            }
+            if (!buckets.containsKey(key)) {
+                buckets.put(key, new List<Object>());
+                keyOrder.add(key);
+            }
+            buckets.get(key).add(o);
+        }
+        List<Object> ordered = new List<Object>();
+        for (String k : keyOrder) ordered.addAll(buckets.get(k));
+        return ordered.size() == flat.size() ? ordered : flat;   // never lose a row
+    }
+
+    private void markMhpGroup(String itemName) {
+        if (isFreightLine(itemName)) { markFlatGroup(itemName); return; }   // plain freight group, as before
+        Integer ix = itemIndexOf(itemName);
+        if (curGroup == 0 || ix != lastFlatItem || lastFlatSection != 1) {
+            startGroup();
+            lastFlatItem    = ix;
+            lastFlatSection = 1;
+        }
+    }
+
+    // Pole N's accessory unit price from the saved estimator values - for a quote whose saved
+    // line list has no separate ACCESSORIES line (the accessory is entered with the pole).
+    // c{N}_mhp_acc_unit_price first, then c{N}_op_mhp_acc_unit_price. Deepanjan (1st Oct 2026)
+    private Decimal mhpAccUnitPrice(Integer ix) {
+        Decimal v = decVal(jsonData, 'c' + ix + '_mhp_acc_unit_price', 0);
+        if (v == null || v <= 0) v = decVal(jsonData, 'c' + ix + '_op_mhp_acc_unit_price', 0);
+        return (v == null ? 0 : v).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    // Closes pole N's group with its accessory row - once, only when it has a price. The
+    // price is pole N's own saved accessory unit price (c{N}_mhp_acc_unit_price, then
+    // c{N}_op_mhp_acc_unit_price = cost + realization %); only when the pole has none is the
+    // total of its saved ACCESSORIES line(s) used. Qty 1 - never multiplied by the pole qty.
+    // Called while pole N's group is still the open one, so the row lands inside that pole's
+    // line item. Deepanjan (1st October 2026)
+    private Integer addMhpAccessoryForPole(Integer ix, Map<Integer, Decimal> accByItem,
+                                           Set<Integer> done, Decimal gstPct, String freight,
+                                           Integer slCounter) {
+        if (ix == null || done.contains(ix)) return slCounter;
+        Decimal amt = mhpAccUnitPrice(ix);
+        if (amt == null || amt <= 0) amt = accByItem.get(ix);
+        if (amt == null || amt <= 0) return slCounter;
+        done.add(ix);
+        lineItems.add(buildRow(String.valueOf(slCounter++),
+                      mhpAccText(ix),
+                      amt.setScale(2, RoundingMode.HALF_UP), gstPct, 1, freight));
+        return slCounter;
+    }
+
+    // Pole N's accessory text - "Supply of MID-HINGE ACCESSORIES - ..." - built from the
+    // accessory names AND their units. Deepanjan (1st October 2026)
+    private String mhpAccText(Integer ix) {
+        List<String> names = new List<String>();
+        List<String> units = new List<String>();
+        mhpAccessoryEntries(ix, names, units);
+        return mhpAccessoryDescription(names, units);
+    }
+
+    // Accessory names of pole N, and next to each name the UNIT the user entered for it
+    // (blank when none). c{N}_mhp_acc_accessory first (one value, a ';' / ',' list or a
+    // multi-select array) with its unit c{N}_mhp_acc_unit. When that is empty, every other
+    // saved c{N}_mhp_acc... value that holds an accessory NAME is read (keys with "accessor" /
+    // "name" / "item" in them, never a price, rate, cost, qty, weight, uom, unit ... key), each
+    // with its own unit key (..._accessory_2 -> ..._unit_2), and ticked accessory checkboxes
+    // such as c{N}_mhp_acc_winch = true (unit c{N}_mhp_acc_winch_unit). Trimmed, blanks and
+    // repeats dropped. Deepanjan (1st October 2026)
+    private void mhpAccessoryEntries(Integer ix, List<String> names, List<String> units) {
+        Set<String> seen = new Set<String>();
+        String pre = 'c' + ix + '_mhp_acc';
+        // Winch and wire rope are entered as their own SIZE fields: c{N}_mhp_acc_winch_value
+        // (KG) and c{N}_mhp_acc_wire_rope_value (mm). A value above 0 adds that accessory with
+        // its size - 600 -> "600 KG WINCH", 6 -> "6mm WIRE ROPE WITH FASTENERS". Read first, so
+        // the same accessory named again below keeps its size. Deepanjan (1st October 2026)
+        mhpAddValueAcc(pre + '_winch_value',     'WINCH',     names, units, seen);
+        mhpAddValueAcc(pre + '_wire_rope_value', 'WIRE ROPE', names, units, seen);
+        String nameKey = pre + '_accessory';
+        mhpAddAccEntries(jsonData.get(nameKey), mhpAccUnitOf(nameKey), names, units, seen);
+        if (names.isEmpty()) {
+            List<String> keys = new List<String>(jsonData.keySet());
+            keys.sort();
+            for (String k : keys) {
+                String kl = k.toLowerCase();
+                if (!kl.startsWith(pre)) continue;
+                Object v = jsonData.get(k);
+                if (v == null) continue;
+                String rest = kl.substring(pre.length());
+                String sv = String.valueOf(v).trim();
+                if (v instanceof Boolean || sv.equalsIgnoreCase('true') || sv.equalsIgnoreCase('false')) {
+                    if (sv.equalsIgnoreCase('true')
+                            && (rest.contains('winch') || rest.contains('rope')
+                                || rest.contains('lock') || rest.contains('handle'))) {
+                        mhpAddAccEntries(rest.replaceAll('^[_0-9]+', '').replace('_', ' ').trim().toUpperCase(),
+                                         mhpAccUnitOf(k + '_accessory'), names, units, seen);
+                    }
+                    continue;
+                }
+                if (!(rest.contains('accessor') || rest.contains('name') || rest.contains('item'))) continue;
+                if (rest.contains('price') || rest.contains('rate') || rest.contains('cost')
+                        || rest.contains('qty') || rest.contains('quantity') || rest.contains('weight')
+                        || rest.contains('realization') || rest.contains('uom') || rest.contains('unit')
+                        || rest.contains('amount') || rest.contains('total') || rest.contains('no_of')) continue;
+                mhpAddAccEntries(v, mhpAccUnitOf(k), names, units, seen);
+            }
+        }
+        // Every saved c{N}_mhp_acc... key with its value, so a missing name or unit can be
+        // traced in the Apex debug log (Setup > Debug Logs - never shown on the page).
+        List<String> accKeys = new List<String>();
+        for (String k : jsonData.keySet()) {
+            String kl = k.toLowerCase();
+            if (kl.startsWith(pre) || kl.startsWith('c' + ix + '_op_mhp_acc')) {
+                accKeys.add(k + '=' + String.valueOf(jsonData.get(k)));
+            }
+        }
+        System.debug('MHP ACC pole ' + ix + ' names=' + names + ' units=' + units + ' keys=' + accKeys);
+    }
+
+    // Adds accessory accName with the size saved under key - only when a size above 0 was
+    // entered (blank / 0 = accessory not supplied). Deepanjan (1st October 2026)
+    private void mhpAddValueAcc(String key, String accName, List<String> names,
+                                List<String> units, Set<String> seen) {
+        Object v = jsonData.get(key);
+        if (v == null || v instanceof Boolean) return;
+        String u = String.valueOf(v).trim();
+        if (String.isBlank(u) || String.isBlank(mhpSizeText(u, ''))) return;
+        if (seen.contains(accName.toUpperCase())) return;
+        seen.add(accName.toUpperCase());
+        names.add(accName);
+        units.add(u);
+    }
+
+    // The unit entered for the accessory saved under nameKey: the same key with "accessory"
+    // replaced by "unit" (c1_mhp_acc_accessory -> c1_mhp_acc_unit, ..._accessory_2 ->
+    // ..._unit_2), then "unit_value", "size", "capacity". A bare number gets the matching
+    // ..._uom appended when one was saved. Blank when nothing was entered.
+    private String mhpAccUnitOf(String nameKey) {
+        if (String.isBlank(nameKey)) return '';
+        Integer cut = nameKey.toLowerCase().lastIndexOf('accessory');
+        String base = cut < 0 ? nameKey + '_' : nameKey.substring(0, cut);
+        String tail = cut < 0 ? '' : nameKey.substring(cut + 'accessory'.length());
+        for (String word : new List<String>{ 'unit', 'unit_value', 'size', 'capacity' }) {
+            Object v = jsonData.get(base + word + tail);
+            if (v == null || v instanceof Boolean) continue;
+            String u = String.valueOf(v).trim();
+            if (String.isBlank(u) || u.equalsIgnoreCase('N.R.') || u.equalsIgnoreCase('NONE')) continue;
+            Object uom = jsonData.get(base + 'uom' + tail);
+            String uomTxt = uom == null ? '' : String.valueOf(uom).trim();
+            if (u.replace('.', '').isNumeric() && String.isNotBlank(uomTxt)
+                    && !uomTxt.replace('.', '').isNumeric()
+                    && !uomTxt.equalsIgnoreCase('NOS') && !uomTxt.equalsIgnoreCase('EA')) {
+                u = u + ' ' + uomTxt;
+            }
+            return u;
+        }
+        return '';
+    }
+
+    // One saved value into names/units: a list (multi-select) or a ';' / ',' separated string.
+    // Several units ("350;6") are matched to the names by position; a single unit goes to the
+    // only name, or - with several names - to the single winch / wire rope among them. Numbers, true/false and "none"-style names are skipped.
+    private void mhpAddAccEntries(Object v, String unitRaw, List<String> names,
+                                  List<String> units, Set<String> seen) {
+        if (v == null) return;
+        List<String> parts = new List<String>();
+        if (v instanceof List<Object>) {
+            for (Object o : (List<Object>) v) {
+                if (o != null) parts.add(String.valueOf(o));
+            }
+        } else {
+            parts.addAll(String.valueOf(v).split('[;,]'));
+        }
+        List<String> clean   = new List<String>();
+        List<Integer> partIx = new List<Integer>();   // position of each kept name in the saved value
+        for (Integer pi = 0; pi < parts.size(); pi++) {
+            String t = parts[pi] == null ? '' : parts[pi].trim();
+            if (String.isBlank(t)) continue;
+            String u = t.toUpperCase();
+            if (u == 'TRUE' || u == 'FALSE' || u == 'N.R.' || u == 'NR' || u == 'NONE'
+                    || u == 'NA' || u == 'N/A' || u == 'SELECT' || u == '--NONE--') continue;
+            if (t.replace('.', '').replace('-', '').isNumeric()) continue;
+            clean.add(t);
+            partIx.add(pi);
+        }
+        // Units keep their position (blanks too): "350;6;" pairs 350 with the 1st name and
+        // 6 with the 2nd and nothing with the 3rd.
+        List<String> unitParts = new List<String>();
+        Integer unitFilled = 0;
+        String  onlyUnit   = '';
+        if (String.isNotBlank(unitRaw)) {
+            for (String p : unitRaw.split('[;,]', -1)) {
+                String q = p == null ? '' : p.trim();
+                unitParts.add(q);
+                if (String.isNotBlank(q)) { unitFilled++; onlyUnit = q; }
+            }
+        }
+        Integer sized = 0;
+        for (String t : clean) {
+            if (t.containsIgnoreCase('WINCH') || t.containsIgnoreCase('WIRE ROPE')) sized++;
+        }
+        for (Integer i = 0; i < clean.size(); i++) {
+            String t = clean[i];
+            Boolean isSized = t.containsIgnoreCase('WINCH') || t.containsIgnoreCase('WIRE ROPE');
+            String u = '';
+            if (unitParts.size() > 1) {
+                Integer at2 = partIx[i];
+                u = at2 < unitParts.size() ? unitParts[at2] : '';
+            } else if (unitFilled == 1 && (clean.size() == 1 || (sized == 1 && isSized))) {
+                u = onlyUnit;
+            }
+            if (seen.contains(t.toUpperCase())) continue;
+            seen.add(t.toUpperCase());
+            names.add(t);
+            units.add(u);
+        }
+    }
+
+    // "Supply of MID-HINGE ACCESSORIES - <parts>". The winch and wire-rope sizes come from the
+    // unit the user entered - never fixed text: unit 350 -> "350 KG WINCH", unit 6 -> "6mm
+    // WIRE ROPE WITH FASTENERS" (a unit typed with its own measure, e.g. "500 KG", prints as
+    // typed); no unit -> "WINCH" / "WIRE ROPE WITH FASTENERS". Lock & manual handle closes the
+    // text ("... alongwith LOCK & MANUAL HANDLE"); any other accessory prints as named.
+    // Twin of HMScopeCombinedController.mhpAccessoryDescriptionFor - keep the two in step.
+    private static String mhpAccessoryDescription(List<String> names, List<String> units) {
+        if (names == null || names.isEmpty()) return 'Supply of MID-HINGE ACCESSORIES';
+        List<String> mainParts = new List<String>();
+        String tailPart = null;
+        for (Integer i = 0; i < names.size(); i++) {
+            String nm = names[i];
+            if (String.isBlank(nm)) continue;
+            String n = nm.trim();
+            String u = (units != null && i < units.size() && String.isNotBlank(units[i])) ? units[i].trim() : '';
+                tailPart = 'LOCK & MANUAL HANDLE';
+            if (n.containsIgnoreCase('WIRE ROPE')) {
+                String sz = mhpSizeText(u, 'mm');
+                mainParts.add(String.isBlank(sz) ? 'WIRE ROPE WITH FASTENERS' : sz + ' WIRE ROPE WITH FASTENERS');
+            } else if (n.containsIgnoreCase('WINCH')) {
+                String sz = mhpSizeText(u, ' KG');
+                mainParts.add(String.isBlank(sz) ? 'WINCH' : sz + ' WINCH');
+            } else {
+                mainParts.add(n);
+            }
+        }
+        String joined = String.join(mainParts, ', ');
+        if (tailPart != null) joined = String.isBlank(joined) ? tailPart : joined + ' alongwith ' + tailPart;
+        return String.isBlank(joined) ? 'Supply of MID-HINGE ACCESSORIES'
+                                      : 'Supply of MID-HINGE ACCESSORIES - ' + joined;
+    }
+
+    // A unit as printed: a bare number gets its measure (350 + ' KG' -> "350 KG", 6 + 'mm' ->
+    // "6mm"); 0 counts as not entered; anything typed with its own measure prints as typed.
+    private static String mhpSizeText(String u, String measure) {
+        if (String.isBlank(u)) return '';
+        String t = u.trim();
+        if (t.replace('.', '').isNumeric()) {
+            try {
+                if (Decimal.valueOf(t) == 0) return '';
+            } catch (Exception ex) {
+                return t;
+            }
+            return t + measure;
+        }
+        return t;
+    }
+
     // ═══════════════════════════════════════════════════════════════════════
     // TRANSMISSION POLE BUILDER
     // ═══════════════════════════════════════════════════════════════════════
@@ -1001,7 +1415,7 @@ public class HighMastSOWController {
         String cp2 ='c' + colIdx + '_tp_s' + segmentNum + '_';
         
         TPDescResult result = new TPDescResult();
-    	result.specialUnitPriceAdd = 0;
+        result.specialUnitPriceAdd = 0;
 
         if(segmentNum == 1){
             String  poleType    = strVal(jsonData, cp + 'pole_type',                  'Polygonal');
@@ -1122,7 +1536,7 @@ public class HighMastSOWController {
             }
             
             result.description = descPole2;
-        	return result;
+            return result;
         }
         return result;
     }
@@ -1131,8 +1545,8 @@ public class HighMastSOWController {
     // LIGHTING POLE BUILDER
     // ═══════════════════════════════════════════════════════════════════════
     private void buildLightingPoleLineItems() {
-		
-		System.debug('Inside buildLightingPoleLineItems');
+        
+        System.debug('Inside buildLightingPoleLineItems');
         
         Decimal gstPct    = 18;
         String  freight   = strVal(jsonData, 'freight_incoterms', 'Ex-works');
@@ -1282,8 +1696,8 @@ public class HighMastSOWController {
                                       strVal(jsonData, csCus + 'solar_structure',
                                       strVal(jsonData, csCus + 'solar_description', ''))));
                 String  batteryBox  = strVal(jsonData, cs + 'battery_box',             strVal(jsonData, csCus + 'battery_box', ''));
-                String  laddar  	= strVal(jsonData, cs + 'ladder',             strVal(jsonData, csCus + 'ladder', ''));
-                String  addDes  	= strVal(jsonData, cs + 'ad_description',             strVal(jsonData, csCus + 'ad_description', ''));
+                String  laddar      = strVal(jsonData, cs + 'ladder',             strVal(jsonData, csCus + 'ladder', ''));
+                String  addDes      = strVal(jsonData, cs + 'ad_description',             strVal(jsonData, csCus + 'ad_description', ''));
                 
                 // Core Metrics with Standard -> Op -> Custom Op fallback chain
                 Decimal qty = decVal(jsonData, 'c' + col + '_lp_s' + sec + '_quantity',
@@ -1314,7 +1728,7 @@ public class HighMastSOWController {
                 Decimal realization = decVal(jsonData, 'c' + col + '_lp_s' + sec + '_realization_on_segment_price', 
                                         decVal(jsonData, cCusS + 'realization_on_segment_price', 5));
                 
-				System.debug('addDes --> '+ addDes);
+                System.debug('addDes --> '+ addDes);
                 System.debug('doorHeight --> '+doorHeight);
                 
                 String descPole =
@@ -1515,11 +1929,11 @@ public class HighMastSOWController {
                               strVal(jsonData, prefixCus + 'solar_structure',
                               strVal(jsonData, prefixCus + 'solar_description', ''))));
         String  batteryBox  = strVal(jsonData, prefix + 'battery_box',             strVal(jsonData, prefixCus + 'battery_box', ''));
-        String  laddar  	= strVal(jsonData, prefix + 'ladder_description',             strVal(jsonData, prefixCus + 'ladder_description', ''));
+        String  laddar      = strVal(jsonData, prefix + 'ladder_description',             strVal(jsonData, prefixCus + 'ladder_description', ''));
         Decimal bpSize = decVal(jsonData, prefix + 'size_dia_of_base_plate',  decVal(jsonData, prefixCus + 'size_dia_of_base_plate', 0));
         Decimal bpThk  = decVal(jsonData, prefix + 'thickness_of_base_plate', decVal(jsonData, prefixCus + 'thickness_of_base_plate', 0));
         String  bpType = strVal(jsonData, prefix + 'base_plate_type',         strVal(jsonData, prefixCus + 'base_plate_type', 'Square'));
-		String  addDes  	= strVal(jsonData, prefix + 'ad_description',             strVal(jsonData, prefixCus + 'ad_description', ''));
+        String  addDes      = strVal(jsonData, prefix + 'ad_description',             strVal(jsonData, prefixCus + 'ad_description', ''));
         
         String descPole = 'Supply of ' + poleHeight + ' MTR ' 
                         + shapeLabel + ' Pole as per Dimension: '
@@ -1549,14 +1963,14 @@ public class HighMastSOWController {
         }
 
         descPole += buildBasePlateDesc(bpType, bpSize, bpThk) 
-            		+ (extraMicron != '' ? ', with ' + extraMicron + ' micron'                : '')
+                    + (extraMicron != '' ? ', with ' + extraMicron + ' micron'                : '')
                     + (puPaintPole != '' ? '. PU Paint: ' + puPaintPole                    : '')
                     + (solarStruct != '' ? '. Solar Structure: ' + solarStruct             : '')
                     + (batteryBox  != '' ? '. Battery Box: ' + batteryBox                  : '')
                     + (laddar  != '' ? '. Laddar: ' + laddar                  : '')
-            		+ (addDes  != '' ? '. Additional Item: ' + addDes                  : '')
-                	+'.';
-            		
+                    + (addDes  != '' ? '. Additional Item: ' + addDes                  : '')
+                    +'.';
+                    
 
         String suffix = getWindSpeedSuffix();
         if (String.isNotBlank(suffix)) {
@@ -1574,7 +1988,7 @@ public class HighMastSOWController {
         String  freight = strVal(jsonData, 'freight_incoterms', 'Ex-works');
         Integer slCounter = 1;
         Decimal totalPoleQty = 0;
- 		
+        
         for (Integer m = 1; m <= 10; m++) {
             String p   = 'r' + m + '_';
             String kit = 'kit_line_' + m + '_';
@@ -1753,7 +2167,7 @@ public class HighMastSOWController {
                 + (isCustomLightningMast ? buildSpecialAdditionsClause(jsonData, p) : '');
 
             if(isSignageMast){
-               	Decimal adUnit = decVal(jsonData, p + 'lm_ad_unit_price',  0);
+                Decimal adUnit = decVal(jsonData, p + 'lm_ad_unit_price',  0);
                 String  adDesc = strVal(jsonData, p + 'lm_ad_description', '');
                 String s_a_d = '';
                 System.debug('adUnit --> '+adUnit +'| adDesc --> '+adDesc );
@@ -2068,8 +2482,8 @@ public class HighMastSOWController {
         return String.join(head, ', ') + ' & ' + last;
     }
 
-   	// New buildAccessoriesDesc overload method with optional electric items for consideration.
-   	private String buildAccessoriesDesc(Boolean withSupplyOf, Decimal mastHeight, String winchSpec,
+    // New buildAccessoriesDesc overload method with optional electric items for consideration.
+    private String buildAccessoriesDesc(Boolean withSupplyOf, Decimal mastHeight, String winchSpec,
                                         String toolSpec, String ropeSpec, String cableSets, String cableSpec,
                                         Boolean hasOptionalElectrical, String aolValue,
                                         String controlSwitchValue, String feederPillarValue) {
@@ -2181,10 +2595,10 @@ public class HighMastSOWController {
         if (String.isBlank(transportAs)) return;
  
         Decimal charge = decVal(jsonData, 'transportation_charges', 0);
-		if (charge <= 0) return;
+        if (charge <= 0) return;
  
         String taLower = transportAs.toLowerCase();
- 		if (taLower.contains('Lump sum') || taLower.contains('lump sum')) {
+        if (taLower.contains('Lump sum') || taLower.contains('lump sum')) {
             Decimal qty = 1;
             Decimal actGst = gstPct; 
             System.debug('inside if chcek block --> ');
@@ -2521,13 +2935,13 @@ public class HighMastSOWController {
                                                  w.gstAmountRaw   = 0;
                                                  w.unitAmountRaw  = 0;
                                                  w.totalAmountRaw = 0;
-                                                 w.gstPct 		 = '-';
-                                                 w.qty    		 = '-';
+                                                 w.gstPct        = '-';
+                                                 w.qty           = '-';
                                                  w.unitRate       = '-';
                                                  w.gstAmount      = '-';
                                                  w.unitAmount     = '-';
                                                  w.totalAmount    = '-';
-                                                 w.freight		  = '-';
+                                                 w.freight        = '-';
                                              }
 
         // ANNEXURE GROUPING: while a group is open the slNo handed in above
@@ -3019,7 +3433,7 @@ private Integer cmFlagRowLines(Map<String,Object> m, String rPfx, Integer segCou
         // Weight clause removed from the Single Scope description. Deepanjan (16th July 2026)
         + (String.isNotBlank(micron) ? ' with ' + micron + ' micron.' : '')
         + (hasPu && String.isNotBlank(puNote) ? ' PU PAINT - ' + puNote.trim() + '.' : '')
-		+ sdText;
+        + sdText;
         
     String suffix = getWindSpeedSuffix();
     if (String.isNotBlank(suffix)) {
@@ -3490,8 +3904,8 @@ private void addMrlKitAccessoryLine(Decimal mastHt, Decimal qty, Integer segCoun
     String toolSpec  = specOrBlank(accSpecRaw(jsonData, kit, 'hm_type_of_power_tool', 'lm_type_of_power_tool', 'G=Motor,3PH'));
     String ropeSpec  = specOrBlank(accSpecRaw(jsonData, kit, 'hm_wire_rope', 'lm_type_of_wire_rope', '5=5mm dia'));
                                          
- 	// check kit optional electric details
- 	Boolean hasOptElec       = hasOptionalElectricalItems(jsonData, kit, '');
+    // check kit optional electric details
+    Boolean hasOptElec       = hasOptionalElectricalItems(jsonData, kit, '');
     String  aolVal           = hasOptElec ? optElecVal(jsonData, kit, '', 'lm_type_of_aol') : '';
     String  controlSwitchVal = hasOptElec ? optElecVal(jsonData, kit, '', 'lm_no_of_aviation_light') : '';
     String  feederPillarVal  = hasOptElec ? optElecVal(jsonData, kit, '', 'lm_feeder_piller_control') : '';

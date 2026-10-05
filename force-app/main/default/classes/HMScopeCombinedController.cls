@@ -623,6 +623,54 @@ private void buildMidHingePoleGroups(Map<String,Object> m,
             }
         }
     }
+    // A quote saved with _Saved_Table_Rows only (no _Final_Apex_Lines) printed no accessory
+    // at all - same fallback as the Single scope. Deepanjan (1st October 2026)
+    if (apexLines.isEmpty()) {
+        for (Object rowObj : getList(m, '_Saved_Table_Rows')) {
+            Map<String, Object> row = (Map<String, Object>) rowObj;
+            String itemName = strVal(row, 'name', '');
+            if (String.isNotBlank(itemName) && itemName.contains('ACCESSORIES')
+                    && !itemName.containsIgnoreCase('Foundation')) {
+                accessoryLines.add(row);
+            }
+        }
+    }
+    // MID HINGE - EACH POLE'S ACCESSORY GOES INTO THAT POLE'S LINE ITEM. Deepanjan (1st Oct 2026)
+    // Accessories are built per pole: accessory N belongs to pole N. Every saved accessory line
+    // ("ACCESSORIES", "Accessories", "Accessory Details" ...; never a Foundation line) is given
+    // to its pole - "(Item N)", else a pole number at the end of its name, else the pole whose
+    // saved accessory unit price equals the line's price, else the K-th line -> pole K - and
+    // summed per pole (positive prices only). The pole loop below adds pole N's accessory -
+    // once, NOT multiplied by quantity - to pole N's combined line, reading the pole's own
+    // c{N}_mhp_acc_unit_price / c{N}_op_mhp_acc_unit_price first and this sum only when the
+    // pole has none. Same rule, same amounts as the Single scope.
+    List<Object> mhpAccSrc = !apexLines.isEmpty() ? apexLines : getList(m, '_Saved_Table_Rows');
+    List<Map<String, Object>> mhpAccLines = new List<Map<String, Object>>();
+    List<Integer>             mhpAccLineIx = new List<Integer>();
+    Map<Integer, Decimal> mhpAccByItem = new Map<Integer, Decimal>();
+    Integer mhpAccSeq = 0;
+    Set<Integer> mhpAccClaimed = new Set<Integer>();
+    for (Object accObj : mhpAccSrc) {
+        Map<String, Object> accLine = null;
+        try { accLine = (Map<String, Object>) accObj; } catch (Exception e) { continue; }
+        if (accLine == null) continue;
+        String accName = strVal(accLine, 'name', '');
+        if (String.isBlank(accName) || !accName.containsIgnoreCase('ACCESSOR')
+                || accName.containsIgnoreCase('Foundation')) continue;
+        Decimal up = decVal(accLine, 'unitPrice', 0);
+        Integer ix = null;
+        if (up > 0) {
+            mhpAccSeq++;
+            ix = mhpAccLineIndexFor(m, accName, up, mhpAccSeq, mhpAccClaimed);
+            mhpAccClaimed.add(ix);
+            Decimal prev = mhpAccByItem.get(ix);
+            mhpAccByItem.put(ix, prev == null ? up : prev + up);
+        }
+        mhpAccLines.add(accLine);
+        mhpAccLineIx.add(ix);
+    }
+    Set<Integer> mhpAccUsed = new Set<Integer>();
+    Set<Integer> mhpPolesPrinted = new Set<Integer>();
  
     for (Integer n = 1; n <= MAX_REPEATER_COLS; n++) {
         String cp = 'c' + n + '_mhp_';
@@ -712,12 +760,7 @@ private void buildMidHingePoleGroups(Map<String,Object> m,
                 .replace('\u0001FDN_NIS_OFF\u0001', '</span>');
         } else if (fbLen > 0 || fbQty > 0) {
             descBolt =
-                'Standard Bolts M' + fbDia
-                + ' x ' + fbLen.intValue()
-                + ' (' + fbQty.intValue() + ' Nos.)'
-                + (pcd > 0 ? ' PCD: ' + pcd.intValue() + ' mm' : '')
-                + (template != '' ? '. Template: ' + template : '')
-                + '.';
+                 + 'J Type' + ' Bolts M' + fbDia + ' x ' + fbLen.intValue() + 'mm (' + fbQty.intValue() + ' Nos)'+ '.';
         }
  
         // ── Bracket details ──
@@ -782,6 +825,41 @@ System.debug(' br desc '+ brPudesc);
         Decimal brkGST = (roundedBrkUnitPrice * gstPct / 100).setScale(2, RoundingMode.HALF_UP);
 
         Decimal combinedGST      = ((segGST * qty) + (fbnGST * fbfdnQty) + (brkGST * brkQty)) / cmQty;
+
+        // This pole's own accessory - only when it has a unit price. Charged once (cost +
+        // realization %, NOT x quantity), so it is spread over the pole quantity here and
+        // comes back exactly as itself in combinedTotal = unit x qty. Deepanjan (1st Oct 2026)
+        // Pole N's saved accessory unit price first - c{N}_mhp_acc_unit_price, then
+        // c{N}_op_mhp_acc_unit_price - and only when it has none, the sum of the saved
+        // accessory lines given to pole N above. Same order as the Single scope.
+        mhpPolesPrinted.add(n);
+        Decimal mhpAccAmt = decVal(m, cp + 'acc_unit_price', 0);
+        if (mhpAccAmt == null || mhpAccAmt <= 0) mhpAccAmt = decVal(m, op + 'acc_unit_price', 0);
+        if (mhpAccAmt == null || mhpAccAmt <= 0) mhpAccAmt = mhpAccByItem.get(n);
+        if (mhpAccAmt != null && mhpAccAmt > 0) {
+            Decimal accR = mhpAccAmt.setScale(2, RoundingMode.HALF_UP);
+            Decimal accG = (accR * gstPct / 100).setScale(2, RoundingMode.HALF_UP);
+            combinedUnitRate += accR ;
+            combinedGST      += accG ;
+            // Own block, on its own line under a separator - the same desc-bolt block the
+            // "not in our scope" sentence and the foundation bolts use - and printed LAST:
+            // so the foundation bolts of this pole move into the description just above it
+            // (same label, same block), instead of the separate bolt row that would print
+            // after the accessory. Poles without an accessory are untouched.
+            if (String.isNotBlank(descBolt)) {
+                descPole += '<span class="desc-bolt">'
+                          + '<span class="desc-label" style="font-weight:bold;">Supply of FOUNDATION BOLTS - </span>'
+                          + cmEsc(descBolt) + '</span>';
+                descBolt = '';
+            }
+            String accHead = 'Supply of MID-HINGE ACCESSORIES';
+            String accTxt  = mhpAccTextFor(m, n);
+            String accBody = accTxt.startsWith(accHead) ? accTxt.substring(accHead.length()) : ' - ' + accTxt;
+            descPole += '<span class="desc-bolt">'
+                      + '<span class="desc-label" style="font-weight:bold;">' + accHead + '</span>'
+                      + cmEsc(accBody) + '.</span>';
+            mhpAccUsed.add(n);
+        }
         Decimal combinedUnit     = combinedUnitRate + combinedGST;
         Decimal combinedTotal    = (combinedUnit * cmQty).setScale(2, RoundingMode.HALF_UP);
         
@@ -819,6 +897,20 @@ System.debug(' br desc '+ brPudesc);
         grp.totalAmountRaw = combinedTotal;
         mastGroups.add(grp);
     }
+    // Accessories already printed inside their own pole's line item are not printed again
+    // in the consolidated row below - only an accessory whose pole printed no line at all is
+    // left for it (and any Foundation accessory line, exactly as before). Deepanjan (1st Oct 2026)
+    List<Map<String, Object>> mhpAccLeft = new List<Map<String, Object>>();
+    for (Map<String, Object> accLine : accessoryLines) {
+        if (strVal(accLine, 'name', '').containsIgnoreCase('Foundation')) mhpAccLeft.add(accLine);
+    }
+    for (Integer i = 0; i < mhpAccLines.size(); i++) {
+        Integer usedIx = mhpAccLineIx[i];
+        if (usedIx == null) continue;                       // no price -> never printed anyway
+        if (mhpAccUsed.contains(usedIx) || mhpPolesPrinted.contains(usedIx)) continue;
+        mhpAccLeft.add(mhpAccLines[i]);
+    }
+    accessoryLines = mhpAccLeft;
  
     // ═══════════════════════════════════════════════════════════
     // ADD ACCESSORIES as a SINGLE consolidated line item
@@ -4403,6 +4495,252 @@ private String getWindSpeedSuffix() {
             return 'Supply of MID-HINGE ACCESSORIES';
         }
         return 'Supply of MID-HINGE ACCESSORIES - ' + joined;
+    }
+
+    // Pole N's accessory text - "Supply of MID-HINGE ACCESSORIES - ..." - built from the
+    // accessory names AND their units. Deepanjan (1st October 2026)
+    private String mhpAccTextFor(Map<String, Object> m, Integer ix) {
+        List<String> names = new List<String>();
+        List<String> units = new List<String>();
+        mhpAccessoryEntriesFor(m, ix, names, units);
+        return mhpAccessoryDescriptionFor(names, units);
+    }
+
+    // Accessory names of pole N, and next to each name the UNIT the user entered for it
+    // (blank when none). c{N}_mhp_acc_accessory first (one value, a ';' / ',' list or a
+    // multi-select array) with its unit c{N}_mhp_acc_unit. When that is empty, every other
+    // saved c{N}_mhp_acc... value that holds an accessory NAME is read (keys with "accessor" /
+    // "name" / "item" in them, never a price, rate, cost, qty, weight, uom, unit ... key), each
+    // with its own unit key (..._accessory_2 -> ..._unit_2), and ticked accessory checkboxes
+    // such as c{N}_mhp_acc_winch = true (unit c{N}_mhp_acc_winch_unit). Trimmed, blanks and
+    // repeats dropped. Deepanjan (1st October 2026)
+    private void mhpAccessoryEntriesFor(Map<String, Object> m, Integer ix, List<String> names, List<String> units) {
+        Set<String> seen = new Set<String>();
+        String pre = 'c' + ix + '_mhp_acc';
+        // Winch and wire rope are entered as their own SIZE fields: c{N}_mhp_acc_winch_value
+        // (KG) and c{N}_mhp_acc_wire_rope_value (mm). A value above 0 adds that accessory with
+        // its size - 600 -> "600 KG WINCH", 6 -> "6mm WIRE ROPE WITH FASTENERS". Read first, so
+        // the same accessory named again below keeps its size. Deepanjan (1st October 2026)
+        mhpAddValueAccFor(m, pre + '_winch_value',     'WINCH',     names, units, seen);
+        mhpAddValueAccFor(m, pre + '_wire_rope_value', 'WIRE ROPE', names, units, seen);
+        String nameKey = pre + '_accessory';
+        mhpAddAccEntriesFor(m.get(nameKey), mhpAccUnitOfFor(m, nameKey), names, units, seen);
+        if (names.isEmpty()) {
+            List<String> keys = new List<String>(m.keySet());
+            keys.sort();
+            for (String k : keys) {
+                String kl = k.toLowerCase();
+                if (!kl.startsWith(pre)) continue;
+                Object v = m.get(k);
+                if (v == null) continue;
+                String rest = kl.substring(pre.length());
+                String sv = String.valueOf(v).trim();
+                if (v instanceof Boolean || sv.equalsIgnoreCase('true') || sv.equalsIgnoreCase('false')) {
+                    if (sv.equalsIgnoreCase('true')
+                            && (rest.contains('winch') || rest.contains('rope')
+                                || rest.contains('lock') || rest.contains('handle'))) {
+                        mhpAddAccEntriesFor(rest.replaceAll('^[_0-9]+', '').replace('_', ' ').trim().toUpperCase(),
+                                         mhpAccUnitOfFor(m, k + '_accessory'), names, units, seen);
+                    }
+                    continue;
+                }
+                if (!(rest.contains('accessor') || rest.contains('name') || rest.contains('item'))) continue;
+                if (rest.contains('price') || rest.contains('rate') || rest.contains('cost')
+                        || rest.contains('qty') || rest.contains('quantity') || rest.contains('weight')
+                        || rest.contains('realization') || rest.contains('uom') || rest.contains('unit')
+                        || rest.contains('amount') || rest.contains('total') || rest.contains('no_of')) continue;
+                mhpAddAccEntriesFor(v, mhpAccUnitOfFor(m, k), names, units, seen);
+            }
+        }
+        // Every saved c{N}_mhp_acc... key with its value, so a missing name or unit can be
+        // traced in the Apex debug log (Setup > Debug Logs - never shown on the page).
+        List<String> accKeys = new List<String>();
+        for (String k : m.keySet()) {
+            String kl = k.toLowerCase();
+            if (kl.startsWith(pre) || kl.startsWith('c' + ix + '_op_mhp_acc')) {
+                accKeys.add(k + '=' + String.valueOf(m.get(k)));
+            }
+        }
+        System.debug('MHP ACC pole ' + ix + ' names=' + names + ' units=' + units + ' keys=' + accKeys);
+    }
+
+    // Adds accessory accName with the size saved under key - only when a size above 0 was
+    // entered (blank / 0 = accessory not supplied). Deepanjan (1st October 2026)
+    private void mhpAddValueAccFor(Map<String, Object> m, String key, String accName, List<String> names,
+                                List<String> units, Set<String> seen) {
+        Object v = m.get(key);
+        if (v == null || v instanceof Boolean) return;
+        String u = String.valueOf(v).trim();
+        if (String.isBlank(u) || String.isBlank(mhpSizeTextFor(u, ''))) return;
+        if (seen.contains(accName.toUpperCase())) return;
+        seen.add(accName.toUpperCase());
+        names.add(accName);
+        units.add(u);
+    }
+
+    // The unit entered for the accessory saved under nameKey: the same key with "accessory"
+    // replaced by "unit" (c1_mhp_acc_accessory -> c1_mhp_acc_unit, ..._accessory_2 ->
+    // ..._unit_2), then "unit_value", "size", "capacity". A bare number gets the matching
+    // ..._uom appended when one was saved. Blank when nothing was entered.
+    private String mhpAccUnitOfFor(Map<String, Object> m, String nameKey) {
+        if (String.isBlank(nameKey)) return '';
+        Integer cut = nameKey.toLowerCase().lastIndexOf('accessory');
+        String base = cut < 0 ? nameKey + '_' : nameKey.substring(0, cut);
+        String tail = cut < 0 ? '' : nameKey.substring(cut + 'accessory'.length());
+        for (String word : new List<String>{ 'unit', 'unit_value', 'size', 'capacity' }) {
+            Object v = m.get(base + word + tail);
+            if (v == null || v instanceof Boolean) continue;
+            String u = String.valueOf(v).trim();
+            if (String.isBlank(u) || u.equalsIgnoreCase('N.R.') || u.equalsIgnoreCase('NONE')) continue;
+            Object uom = m.get(base + 'uom' + tail);
+            String uomTxt = uom == null ? '' : String.valueOf(uom).trim();
+            if (u.replace('.', '').isNumeric() && String.isNotBlank(uomTxt)
+                    && !uomTxt.replace('.', '').isNumeric()
+                    && !uomTxt.equalsIgnoreCase('NOS') && !uomTxt.equalsIgnoreCase('EA')) {
+                u = u + ' ' + uomTxt;
+            }
+            return u;
+        }
+        return '';
+    }
+
+    // One saved value into names/units: a list (multi-select) or a ';' / ',' separated string.
+    // Several units ("350;6") are matched to the names by position; a single unit goes to the
+    // only name, or - with several names - to the single winch / wire rope among them. Numbers, true/false and "none"-style names are skipped.
+    private void mhpAddAccEntriesFor(Object v, String unitRaw, List<String> names,
+                                  List<String> units, Set<String> seen) {
+        if (v == null) return;
+        List<String> parts = new List<String>();
+        if (v instanceof List<Object>) {
+            for (Object o : (List<Object>) v) {
+                if (o != null) parts.add(String.valueOf(o));
+            }
+        } else {
+            parts.addAll(String.valueOf(v).split('[;,]'));
+        }
+        List<String> clean   = new List<String>();
+        List<Integer> partIx = new List<Integer>();   // position of each kept name in the saved value
+        for (Integer pi = 0; pi < parts.size(); pi++) {
+            String t = parts[pi] == null ? '' : parts[pi].trim();
+            if (String.isBlank(t)) continue;
+            String u = t.toUpperCase();
+            if (u == 'TRUE' || u == 'FALSE' || u == 'N.R.' || u == 'NR' || u == 'NONE'
+                    || u == 'NA' || u == 'N/A' || u == 'SELECT' || u == '--NONE--') continue;
+            if (t.replace('.', '').replace('-', '').isNumeric()) continue;
+            clean.add(t);
+            partIx.add(pi);
+        }
+        // Units keep their position (blanks too): "350;6;" pairs 350 with the 1st name and
+        // 6 with the 2nd and nothing with the 3rd.
+        List<String> unitParts = new List<String>();
+        Integer unitFilled = 0;
+        String  onlyUnit   = '';
+        if (String.isNotBlank(unitRaw)) {
+            for (String p : unitRaw.split('[;,]', -1)) {
+                String q = p == null ? '' : p.trim();
+                unitParts.add(q);
+                if (String.isNotBlank(q)) { unitFilled++; onlyUnit = q; }
+            }
+        }
+        Integer sized = 0;
+        for (String t : clean) {
+            if (t.containsIgnoreCase('WINCH') || t.containsIgnoreCase('WIRE ROPE')) sized++;
+        }
+        for (Integer i = 0; i < clean.size(); i++) {
+            String t = clean[i];
+            Boolean isSized = t.containsIgnoreCase('WINCH') || t.containsIgnoreCase('WIRE ROPE');
+            String u = '';
+            if (unitParts.size() > 1) {
+                Integer at2 = partIx[i];
+                u = at2 < unitParts.size() ? unitParts[at2] : '';
+            } else if (unitFilled == 1 && (clean.size() == 1 || (sized == 1 && isSized))) {
+                u = onlyUnit;
+            }
+            if (seen.contains(t.toUpperCase())) continue;
+            seen.add(t.toUpperCase());
+            names.add(t);
+            units.add(u);
+        }
+    }
+
+    // "Supply of MID-HINGE ACCESSORIES - <parts>". The winch and wire-rope sizes come from the
+    // unit the user entered - never fixed text: unit 350 -> "350 KG WINCH", unit 6 -> "6mm
+    // WIRE ROPE WITH FASTENERS" (a unit typed with its own measure, e.g. "500 KG", prints as
+    // typed); no unit -> "WINCH" / "WIRE ROPE WITH FASTENERS". Lock & manual handle closes the
+    // text ("... alongwith LOCK & MANUAL HANDLE"); any other accessory prints as named.
+    // Twin of HighMastSOWController.mhpAccessoryDescription - keep the two in step.
+    private static String mhpAccessoryDescriptionFor(List<String> names, List<String> units) {
+        if (names == null || names.isEmpty()) return 'Supply of MID-HINGE ACCESSORIES';
+        List<String> mainParts = new List<String>();
+        String tailPart = null;
+        for (Integer i = 0; i < names.size(); i++) {
+            String nm = names[i];
+            if (String.isBlank(nm)) continue;
+            String n = nm.trim();
+            String u = (units != null && i < units.size() && String.isNotBlank(units[i])) ? units[i].trim() : '';
+            if (n.containsIgnoreCase('LOCK') && n.containsIgnoreCase('MANUAL HANDLE')) {
+                tailPart = 'LOCK & MANUAL HANDLE';
+            } else if (n.containsIgnoreCase('WIRE ROPE')) {
+                String sz = mhpSizeTextFor(u, 'mm');
+                mainParts.add(String.isBlank(sz) ? 'WIRE ROPE WITH FASTENERS' : sz + ' WIRE ROPE WITH FASTENERS');
+            } else if (n.containsIgnoreCase('WINCH')) {
+                String sz = mhpSizeTextFor(u, ' KG');
+                mainParts.add(String.isBlank(sz) ? 'WINCH' : sz + ' WINCH');
+            } else {
+                mainParts.add(n);
+            }
+        }
+        String joined = String.join(mainParts, ', ');
+        if (tailPart != null) joined = String.isBlank(joined) ? tailPart : joined + ' alongwith ' + tailPart;
+        return String.isBlank(joined) ? 'Supply of MID-HINGE ACCESSORIES'
+                                      : 'Supply of MID-HINGE ACCESSORIES - ' + joined;
+    }
+
+    // A unit as printed: a bare number gets its measure (350 + ' KG' -> "350 KG", 6 + 'mm' ->
+    // "6mm"); 0 counts as not entered; anything typed with its own measure prints as typed.
+    private static String mhpSizeTextFor(String u, String measure) {
+        if (String.isBlank(u)) return '';
+        String t = u.trim();
+        if (t.replace('.', '').isNumeric()) {
+            try {
+                if (Decimal.valueOf(t) == 0) return '';
+            } catch (Exception ex) {
+                return t;
+            }
+            return t + measure;
+        }
+        return t;
+    }
+
+    // Which Mid Hinge pole a saved accessory line belongs to: "(Item N)"; else a pole number
+    // at the very end of its name; else the pole whose saved accessory unit price
+    // (c{K}_mhp_acc_unit_price, then c{K}_op_mhp_acc_unit_price) equals the line's price;
+    // else the K-th accessory line -> pole K. Twin of HighMastSOWController.mhpAccLineIndex.
+    private Integer mhpAccLineIndexFor(Map<String, Object> m, String nm, Decimal up,
+                                       Integer seq, Set<Integer> claimed) {
+        if (String.isNotBlank(nm)) {
+            Matcher mIx = Pattern.compile('\\(Item\\s*(\\d+)\\)').matcher(nm);
+            if (mIx.find()) {
+                try { return Integer.valueOf(mIx.group(1)); } catch (Exception ex) {}
+            }
+            Matcher mEnd = Pattern.compile('(\\d+)\\s*\\)?\\s*$').matcher(nm);
+            if (mEnd.find()) {
+                try {
+                    Integer t = Integer.valueOf(mEnd.group(1));
+                    if (t >= 1 && t <= MAX_REPEATER_COLS) return t;
+                } catch (Exception ex) {}
+            }
+        }
+        if (up != null && up > 0) {
+            Decimal upR = up.setScale(2, RoundingMode.HALF_UP);
+            for (Integer k = 1; k <= MAX_REPEATER_COLS; k++) {
+                if (claimed.contains(k)) continue;
+                Decimal kp = decVal(m, 'c' + k + '_mhp_acc_unit_price', 0);
+                if (kp == null || kp <= 0) kp = decVal(m, 'c' + k + '_op_mhp_acc_unit_price', 0);
+                if (kp != null && kp > 0 && kp.setScale(2, RoundingMode.HALF_UP) == upR) return k;
+            }
+        }
+        return (seq >= 1 && seq <= MAX_REPEATER_COLS) ? seq : 1;
     }
     
     /* Every group in mastGroups is one line item by this point - the Customized Mast path

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Approval_Triggers__c</fullName>
+    <description>JSON list of the line items and matrix rules that caused the current approval. Written on every submit (overwrites the previous one), kept after approve/reject for audit. Read by createQuote to highlight the triggering rows.</description>
+    <inlineHelpText>Which product lines on this quote caused it to need approval, and under which rule.</inlineHelpText>
+    <label>Approval Triggers</label>
+    <length>131072</length>
+    <trackHistory>false</trackHistory>
+    <type>LongTextArea</type>
+    <visibleLines>3</visibleLines>
+</CustomField>

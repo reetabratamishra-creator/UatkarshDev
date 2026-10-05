@@ -17,13 +17,19 @@
 *   whatever its product count. The CP classes print a compact one-product quote exactly
 *   as the original classes print the plain one.
 *
+*   [hm-stadium] A one-product STADIUM MAST quote with 2+ Man Riding Lifts or 2+ Ladders
+*   With Cage takes the same path too (Deepanjan, 29 September 2026): the mapped pages
+*   print lift / ladder 1 only, the CP pages print every lift and ladder.
+*
 *   Every method here first asks "is this a cross-product quote?". If NOT, it hands the
 *   call straight to the existing CreateQuoteController method with the same arguments,
 *   so every other quote (and every other department) behaves exactly as today. Only a
 *   cross-product quote takes the new path, which is a line-for-line copy of the
-*   existing method with the CP controller / CP pages swapped in.
+*   existing method with the CP controller / CP pages swapped in. ("Cross-product" here
+*   = what isCrossProduct() says: 2+ High Mast products, the compact shape, or - see
+*   [hm-stadium] - a Stadium with 2+ lifts / ladders.)
 *
-*   Methods (same names and signatures as in CreateQuoteController):
+*   Methods (the first three: same names and signatures as in CreateQuoteController):
 *     captureQuoteTotal(quoteId)                       - APPLY: Final_Quote_Amount__c only
 *     captureOfferTotal(quoteId, opportunityId)        - approval: + Opportunity.Amount + stage rule
 *     finalizeQuoteAndAttachDocs(opportunityId, quoteId) - Finalize: attaches the CP pages
@@ -49,11 +55,36 @@ public class HMCrossProductController {
             if (!dept.containsIgnoreCase('High Mast')) return false;
             // compact shape: only the CP classes can read it (one product or more)
             if (qv.get('_HM_V') != null && String.valueOf(qv.get('_HM_V')) == '2') return true;
+            // [hm-stadium] a Stadium with 2+ Man Riding Lifts or 2+ Ladders With Cage: the mapped
+            // pages print lift / ladder 1 only, the CP pages print every one. Deepanjan (29th September 2026)
+            if (hmStadiumCopies(qv)) return true;
             Object prods = qv.get('_HM_Products');
             return (prods instanceof List<Object>) && ((List<Object>) prods).size() > 1;
         } catch (Exception e) {
             return false;
         }
+    }
+
+    // [hm-stadium] Customized Mast / STADIUM MAST with MAN RIDING LIFT COUNT or LADDER WITH
+    // CAGE COUNT above 1 (and that type ticked). Deepanjan (29th September 2026)
+    @TestVisible
+    private static Boolean hmStadiumCopies(Map<String, Object> qv) {
+        if (qv == null) return false;
+        String t = qv.get('type_of_mast') == null ? '' : String.valueOf(qv.get('type_of_mast')).trim();
+        String c = qv.get('mast_customized') == null ? '' : String.valueOf(qv.get('mast_customized')).trim();
+        if (!t.equalsIgnoreCase('Customized Mast') || !c.equalsIgnoreCase('STADIUM MAST')) return false;
+        return (hmOn(qv.get('man_riding_lift')) && hmNum(qv.get('man_riding_lift_count')) > 1)
+            || (hmOn(qv.get('ladder_with_cage')) && hmNum(qv.get('ladder_with_cage_count')) > 1);
+    }
+    // ticked = true / 'true' / '1' - the same reading cmBool gives the documents
+    private static Boolean hmOn(Object v) {
+        if (v == null) return false;
+        String s = String.valueOf(v).trim();
+        return s.equalsIgnoreCase('true') || s == '1';
+    }
+    private static Decimal hmNum(Object v) {
+        if (v == null) return 0;
+        try { return Decimal.valueOf(String.valueOf(v).trim()); } catch (Exception e) { return 0; }
     }
 
     // Same figure the existing High Mast branch of resolveOfferTotal computes, read

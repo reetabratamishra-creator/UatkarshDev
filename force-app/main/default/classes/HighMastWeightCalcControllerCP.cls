@@ -4,7 +4,10 @@
    several High Mast products (_HM_Products in Quote_Value__c). HighMastWeightCalcController
    itself is not touched. Used by the page HMWeightCalaculationMACP.
    A quote WITHOUT _HM_Products takes exactly HighMastWeightCalcController's path, line for
-   line, so it prints the same document. Every addition is tagged [hm-cross].
+   line, so it prints the same document - except that a STADIUM MAST quote with
+   2+ Man Riding Lifts / Ladders With Cage also prints lifts / ladders 2..n (lift /
+   ladder 1 exactly as before). Every addition is tagged [hm-cross]; the STADIUM
+   MAST lift / ladder copies (29th September 2026) are tagged [hm-stadium].
    ═══════════════════════════════════════════════════════════════════════════ */
 public class HighMastWeightCalcControllerCP {
     
@@ -140,7 +143,7 @@ public class HighMastWeightCalcControllerCP {
             }
         }
 
-        hmDecodeV2(jd);   // [hm-cross] a compact 2+ product JSON back to the plain shape; any other JSON untouched
+        hmDecodeV2(jd);   // [hm-cross] a compact JSON (2+ products, or one very large product) back to the plain shape; any other JSON untouched
 
         // [hm-cross] one product (every existing quote): the old flags + dispatch, once, and
         // one sheet. 2+ products: flags + dispatch once per product on its own flat map, a
@@ -267,15 +270,17 @@ public class HighMastWeightCalcControllerCP {
     //
     // hmProductMap() rebuilds one product as its own flat map - the quote-level
     // keys + the product's own keys + only its own lines (the untagged lines go
-    // with the LAST product, so Transportation Charges prints once, at the end,
-    // as today) - and the constructor runs the untouched single-product code once
+    // with the LAST product, and every other product's transportation_as is left
+    // blank, so Transportation Charges prints once, at the end, as today) - and
+    // the constructor runs the untouched single-product code once
     // per product, building each map only when its turn comes (one product's copy
     // in memory at a time). hmProductCount() is 0 for a quote without _HM_Products,
     // which takes exactly the old path, so every existing quote prints as before.
     //
-    // A large 2+ product quote is saved in the COMPACT shape (_HM_V = 2); hmDecodeV2()
-    // turns it back into the plain shape above right after the JSON is read, so
-    // nothing below sees any difference.
+    // A large quote (2+ products, or one product too large for the plain shape) is
+    // saved in the COMPACT shape (_HM_V = 2); hmDecodeV2() turns it back into the
+    // plain shape above right after the JSON is read, so nothing below sees any
+    // difference (one product comes back as the plain one-product JSON: count 0).
     // ═══════════════════════════════════════════════════════════════════════
     private Integer hmProductCount(Map<String, Object> root) {
         hmDecodeV2(root);
@@ -368,9 +373,9 @@ public class HighMastWeightCalcControllerCP {
         return outL;
     }
 
-    // [hm-cross] COMPACT SHAPE (_HM_V = 2). createQuote writes a 2+ product quote this way
-    // only when the plain shape would not fit comfortably in Quote_Value__c - the same
-    // data, nothing dropped:
+    // [hm-cross] COMPACT SHAPE (_HM_V = 2). createQuote writes a quote this way (2+
+    // products, or one product too large for the plain shape) only when the plain shape
+    // would not fit comfortably in Quote_Value__c - the same data, nothing dropped:
     //   _HM_T         row-key templates, front-coded: "12:height" = the first 12
     //                 characters of the entry before + "height"; a template is a row key
     //                 with ~ for the row number ("r~_lm_height_of_mast")
@@ -574,7 +579,9 @@ public class HighMastWeightCalcControllerCP {
         if (!(listObj instanceof List<Object>)) return outL;
         String prev = '';
         for (Object e : (List<Object>) listObj) {
-            String t = String.valueOf(e);
+            // a null entry (never written by createQuote; only a damaged JSON) reads as
+            // 'null', as String(e) does in createQuote - never a null pointer here
+            String t = (e == null) ? 'null' : String.valueOf(e);
             Integer i = t.indexOf(':');
             String cur = t;
             if (i > 0 && Pattern.matches('[0-9]{1,9}', t.substring(0, i))) {
@@ -2051,14 +2058,49 @@ public class HighMastWeightCalcControllerCP {
     //  3/4/5 (Stadium) and 1..5 (Flag) render correctly with no code change.
     //  `accessories` is left empty -> the page-2 costing table prints headers
     //  only, which is correct for these product types.
+    //  [hm-stadium] Stadium: one RowData per Man Riding Lift and per Ladder With Cage
+    //  (lift / ladder 2..n are rows of their own). Deepanjan (29th September 2026)
     // ═══════════════════════════════════════════════════════════════════════
     private void buildCustomizedMastData() {
         if (isStadiumMast) {
             if (cmBoolK('man_riding_lift')){
+                Integer hmRowsBefore = rowDataList.size();   // [hm-stadium]
                 addCustomizedRow('mrl_', 'MAN RIDING LIFT');
-                applyKitCostingToCustomizedRow(rowDataList[rowDataList.size() - 1]); 
+                // [hm-stadium] lift 1 with no segments adds no row: nothing to cost. Without this
+                // check the next line read rowDataList[-1] (an error page) - more likely now that
+                // lifts 2..n can carry the Stadium on their own.
+                if (rowDataList.size() > hmRowsBefore)
+                    applyKitCostingToCustomizedRow(rowDataList[rowDataList.size() - 1]); 
+                // [hm-stadium] Man Riding Lift 2..n (m<k>_mrl_): a weight row each, with its KIT costing
+                for (Integer k = 2; k <= hmStadiumCount('man_riding_lift_count'); k++) {
+                    String pk = hmStadiumPrefix('mrl_', k);
+                    if (decVal(pk + 'no_of_segment', 0) <= 0) continue;
+                    Integer rowsBefore = rowDataList.size();
+                    addCustomizedRow(pk, 'MAN RIDING LIFT ' + String.valueOf(k));
+                    if (rowDataList.size() > rowsBefore) {
+                        hmStadiumLift = k;
+                        applyKitCostingToCustomizedRow(rowDataList[rowDataList.size() - 1]);
+                        hmStadiumLift = 1;
+                        // the KIT costing titles the row by its KIT code only ("Code No-03 ..."), the
+                        // same for every lift - keep the lift's own name in front so each page says
+                        // which lift it is (lift 1 keeps the original title)
+                        RowData hmRow = rowDataList[rowDataList.size() - 1];
+                        String hmLbl = 'MAN RIDING LIFT ' + String.valueOf(k);
+                        if (hmRow.codeNoTitle != null && !hmRow.codeNoTitle.startsWith(hmLbl)) {
+                            hmRow.codeNoTitle = hmLbl + ' - ' + hmRow.codeNoTitle;
+                        }
+                    }
+                }
             }
             if (cmBoolK('ladder_with_cage')) addCustomizedRow('lwc_', 'LADDER WITH CAGE');
+            // [hm-stadium] Ladder With Cage 2..n (l<k>_lwc_): a weight row each
+            if (cmBoolK('ladder_with_cage')) {
+                for (Integer k = 2; k <= hmStadiumCount('ladder_with_cage_count'); k++) {
+                    String pk = hmStadiumPrefix('lwc_', k);
+                    if (decVal(pk + 'no_of_segment', 0) <= 0) continue;
+                    addCustomizedRow(pk, 'LADDER WITH CAGE ' + String.valueOf(k));
+                }
+            }
         } else if (isFlagMast) {
             buildFlagMastData();      // row-driven, LM shape
             buildFlagMastExtras();    // accessory + additional tables (one set per quote)
@@ -2256,6 +2298,47 @@ public class HighMastWeightCalcControllerCP {
         return fmtDec(sum);
     }
  
+// ═══════════════════════════════════════════════════════════════════════
+// [hm-stadium] STADIUM MAST - up to 10 Man Riding Lifts and 10 Ladders With Cage.
+// Deepanjan (29th September 2026)
+// The Stadium estimator repeats the Man Riding Lift block (mrl_) as m2_mrl_ ..
+// m10_mrl_ for MAN RIDING LIFT COUNT >= k, and the Ladder With Cage block (lwc_) as
+// l2_lwc_ .. l10_lwc_ for LADDER WITH CAGE COUNT >= k; every key of a copy is the
+// block's key with the copy's prefix. Each copy is a mast of its own, so it prints
+// with the same builder as lift / ladder 1, under its own prefix, as its own line
+// item, and Man Riding Lift k takes KIT line k (createQuote builds KIT line k from
+// lift k). Lift / ladder 1 print exactly as before; a quote without the counts
+// (saved before them, or Segment Above 5 Stadium) is one lift and one ladder.
+// ═══════════════════════════════════════════════════════════════════════
+    private Integer hmStadiumLift = 1;   // [hm-stadium] the Man Riding Lift being built (its KIT line)
+
+    // [hm-stadium] how many copies of the block the quote carries (1..10; no count key = 1)
+    private Integer hmStadiumCount(String countKey) {
+        Integer n = decVal(countKey, 1).intValue();
+        if (n < 1) n = 1;
+        if (n > 10) n = 10;
+        return n;
+    }
+
+    // [hm-stadium] the key prefix of copy k: mrl_, m2_mrl_ .. m10_mrl_ / lwc_, l2_lwc_ .. l10_lwc_
+    private String hmStadiumPrefix(String base, Integer k) {
+        if (k == null || k <= 1) return base;
+        return (base == 'mrl_' ? 'm' : 'l') + String.valueOf(k) + '_' + base;
+    }
+
+    // [hm-stadium] Man Riding Lift k (2..10) reads kit_line_k, when that line is for this
+    // row's mast height; 0 = no KIT line (the row keeps no costing block). The height is the
+    // lift's own, unrounded (height of mast, else segment + head frame - as addCustomizedRow
+    // and the offer read it); the row's display text (2 decimals) only when those are blank.
+    private Integer hmKitLineForLiftRow(Integer lift, String mastHtStr) {
+        String lp = hmStadiumPrefix('mrl_', lift);
+        Decimal rowHt = decVal(lp + 'height_of_mast', 0);
+        if (rowHt == 0) rowHt = decVal(lp + 'segment_height', 0) + decVal(lp + 'head_frame_height', 0);
+        if (rowHt == 0) { try { rowHt = Decimal.valueOf(mastHtStr); } catch (Exception ex) {} }
+        Decimal kitHt = decVal('kit_line_' + String.valueOf(lift) + '_lm_mast_height', 0);
+        return (kitHt > 0 && (kitHt == rowHt || kitHt == rowHt * 10)) ? lift : 0;
+    }
+
     private void addCustomizedRow(String p, String variant) {
  
         Boolean isFm = (p == 'fm_');
@@ -2302,12 +2385,12 @@ public class HighMastWeightCalcControllerCP {
         if (isFm) {
             wKey = 'fms_est_weight'; bKey = 'fms_base_price';
             uKey = 'fms_unit_price'; cKey = 'fms_unit_cost';
-        } else if (p == 'mrl_') {
-            wKey = 'mrl_man_riding_total_weight'; bKey = 'mrl_man_riding_base_price';
-            uKey = 'mrl_man_riding_unit_price';   cKey = 'mrl_man_riding_unit_cost';
-        } else {
-            wKey = 'lwc_ladder_cage_weight';    bKey = 'lwc_ladder_cage_base_price';
-            uKey = 'lwc_ladder_cage_unit_price'; cKey = 'lwc_ladder_cage_unit_cost';
+        } else if (p.endsWith('mrl_')) {   // [hm-stadium] mrl_ or a lift copy m<k>_mrl_ (was p == 'mrl_'); p + ... = the same keys for lift 1
+            wKey = p + 'man_riding_total_weight'; bKey = p + 'man_riding_base_price';
+            uKey = p + 'man_riding_unit_price';   cKey = p + 'man_riding_unit_cost';
+        } else {   // [hm-stadium] lwc_ or a ladder copy l<k>_lwc_; p + ... = the same keys for ladder 1
+            wKey = p + 'ladder_cage_weight';    bKey = p + 'ladder_cage_base_price';
+            uKey = p + 'ladder_cage_unit_price'; cKey = p + 'ladder_cage_unit_cost';
         }
  
         Decimal segWt = decVal(wKey, 0);
@@ -2356,7 +2439,8 @@ public class HighMastWeightCalcControllerCP {
 // exactly as addCustomizedRow() built it (showCosting = false).
 // ═══════════════════════════════════════════════════════════════
 private void applyKitCostingToCustomizedRow(RowData rd) {
-    Integer kitLineNum = findKitLineForRow(rd.rowIndex, rd.mastHeight);
+    Integer kitLineNum = hmStadiumLift > 1 ? hmKitLineForLiftRow(hmStadiumLift, rd.mastHeight)   // [hm-stadium] lift k -> KIT line k
+                                           : findKitLineForRow(rd.rowIndex, rd.mastHeight);   // lift 1: as before
     String  kitPfx      = 'kit_line_' + kitLineNum + '_';
  
     // No KIT data for this row -> leave row untouched (no costing)

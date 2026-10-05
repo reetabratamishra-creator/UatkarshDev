@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IM_Product__c</fullName>
+    <description>For International Marketing rows only: which product inside the IM quote this document belongs to. Value = the product&apos;s source template label exactly (e.g. &quot;Transmission Tower - Department&quot;). Blank on every domestic row.
+     Help: Leave blank for domestic departments. For International Marketing, enter the product&apos;s department label so the right PDF is generated for that product.</description>
+    <externalId>false</externalId>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>IM Product</label>
+    <length>255</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

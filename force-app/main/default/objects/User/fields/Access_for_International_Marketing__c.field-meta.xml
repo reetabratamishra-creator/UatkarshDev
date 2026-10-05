@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Access_for_International_Marketing__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Ticked = this user sees the International Marketing tab/component.</description>
+    <label>Access for International Marketing</label>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Offer_Type__c</fullName>
+    <description>Format family of this offer-document row for International Marketing. Blank is treated as Domestic, so rows created before this field keep working unchanged.</description>
+    <fieldManageability>SubscriberControlled</fieldManageability>
+    <inlineHelpText>Domestic = the existing offer format. International = the export format (its own VF pages, mapped separately). Leave blank for Domestic.</inlineHelpText>
+    <label>Offer Type</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Domestic</fullName>
+                <default>false</default>
+                <label>Domestic</label>
+            </value>
+            <value>
+                <fullName>International</fullName>
+                <default>false</default>
+                <label>International</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

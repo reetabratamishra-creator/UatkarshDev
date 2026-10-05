@@ -17,6 +17,11 @@
 *               saved compact too (what the host writes when a one-product quote is too
 *               long for Quote_Value__c): the CP controllers must print it exactly as the
 *               ORIGINAL controllers print the plain quote.
+*               [hm-stadium] A Stadium with 3 Man Riding Lifts and 2 Ladders With Cage
+*               must print every lift and ladder (each lift with its own KIT line) in all
+*               three CP documents, lift 1 exactly as a one-lift quote prints it, and must
+*               take the CP pages; a one-lift, one-ladder Stadium keeps the mapped pages.
+*               Deepanjan (29 September 2026)
 */
 @IsTest
 private class TestHMCrossProduct {
@@ -41,6 +46,7 @@ private class TestHMCrossProduct {
         List<Object> allLines = new List<Object>();
         List<Object> allRows = new List<Object>();
         Id oppId = null;
+        Quote one = null;   // the first payload that parses (product 1); also the one-product compact quote below
 
         for (Quote q : src) {
             if (String.isBlank(q.Quote_Value__c)) continue;
@@ -61,6 +67,7 @@ private class TestHMCrossProduct {
             };
             if (root == null) {
                 root = m;
+                one = q;
             } else {
                 Map<String, Object> vals = new Map<String, Object>();
                 for (String k : m.keySet()) if (!k.startsWith('_')) vals.put(k, m.get(k));
@@ -93,8 +100,7 @@ private class TestHMCrossProduct {
         insert new Quote(Name = COMPACT_NAME, OpportunityId = oppId, Quote_Value__c = compact);
 
         // one product, compact: the first factory quote, same data (Description = its name)
-        Quote one = null;
-        for (Quote q : src) { if (String.isNotBlank(q.Quote_Value__c)) { one = q; break; } }
+        // (one = the quote product 1 came from - a payload that parses, see the loop above)
         Map<String, Object> oneRoot = (Map<String, Object>) JSON.deserializeUntyped(one.Quote_Value__c);
         if (oneRoot.get('_Saved_Template_Name') == null) oneRoot.put('_Saved_Template_Name', 'High Mast - Department');
         oneRoot.put('_HM_Products', new List<Object>{ new Map<String, Object>{
@@ -504,6 +510,12 @@ private class TestHMCrossProduct {
         Test.stopTest();
         System.assertEquals(true, info.crossProduct);
         System.assertNotEquals(null, info.docs);
+        // every mapped High Mast page is served by its CP copy (the CP pages ship with this class)
+        for (HMCrossProductController.DocRow d : info.docs) {
+            if (d.page != null && (d.page.startsWith('HMScope') || d.page.startsWith('HMWeight'))) {
+                System.assert(d.page.endsWith('CP'), 'the CP page is listed, not ' + d.page);
+            }
+        }
         System.assertEquals(false, none.crossProduct);
         System.assertEquals(0, none.docs.size());
     }
@@ -693,6 +705,216 @@ private class TestHMCrossProduct {
     @IsTest static void weightOriginalVsCp0() { Test.startTest(); weightParity(0); Test.stopTest(); }
     @IsTest static void weightOriginalVsCp1() { Test.startTest(); weightParity(1); Test.stopTest(); }
     @IsTest static void weightOriginalVsCp2() { Test.startTest(); weightParity(2); Test.stopTest(); }
+
+    // ── [hm-stadium] STADIUM MAST: several Man Riding Lifts / Ladders With Cage ─────────
+    // Deepanjan (29th September 2026). Lift k is m<k>_mrl_ (lift 1 mrl_), ladder k is
+    // l<k>_lwc_ (ladder 1 lwc_), lift k's KIT is kit_line_k - the keys the Stadium
+    // estimator and createQuote save. Every copy must print as its own line item /
+    // product / weight row, every lift with its own KIT, and lift 1 exactly as a
+    // one-lift quote prints it.
+    private static void stadiumBlock(Map<String, Object> m, String p, Boolean isMrl, Integer ht) {
+        m.put(p + 'no_of_segment', '3');
+        m.put(p + 'segment_height', String.valueOf(ht - 1));
+        m.put(p + 'head_frame_height', '1');
+        m.put(p + 'height_of_mast', String.valueOf(ht));
+        m.put(p + 'quantity', '1');
+        m.put(p + 'top_dia', '150');
+        m.put(p + 'bottom_dia', '450');
+        m.put(p + 'top_segment_length', '7000');
+        m.put(p + 'top_segment_thickness', '4');
+        m.put(p + 'middle_segment_length', '7000');
+        m.put(p + 'middle_segment_thickness', '5');
+        m.put(p + 'bottom_length', '7000');
+        m.put(p + 'bottom_thickness', '6');
+        m.put(p + 'bp_diameter', '650');
+        m.put(p + 'bp_thickness', '32');
+        m.put(p + 'bp_pcd', '550');
+        m.put(p + 'fb_diameter', '30');
+        m.put(p + 'fb_length', '1200');
+        m.put(p + 'fb_no_of_bolt', '12');
+        m.put(p + 'fb_quantity', '1');
+        m.put(p + 'foundation_unit_price', '25000');
+        m.put(p + 'foundation_weight', '150');
+        if (isMrl) {
+            m.put(p + 'man_riding_unit_price', String.valueOf(300000 + ht));
+            m.put(p + 'man_riding_total_weight', '2500');
+            m.put(p + 'man_riding_base_price', '110');
+            m.put(p + 'man_riding_unit_cost', '280000');
+            m.put(p + 'mast_acc_foundation_unit_price', '60000');
+            m.put(p + 'mast_acc_quantity', '1');
+            m.put(p + 'mast_acc_description', 'Lift ' + String.valueOf(ht));
+        } else {
+            m.put(p + 'ladder_cage_unit_price', String.valueOf(200000 + ht));
+            m.put(p + 'ladder_cage_weight', '1800');
+            m.put(p + 'ladder_cage_base_price', '110');
+            m.put(p + 'ladder_cage_unit_cost', '180000');
+            m.put(p + 'acc_description', 'Ladder ' + String.valueOf(ht));
+            m.put(p + 'acc_weight', '120');
+            m.put(p + 'unit_price', '15000');
+        }
+    }
+
+    private static void stadiumKitLine(Map<String, Object> m, Integer k, Integer ht) {
+        String kp = 'kit_line_' + String.valueOf(k) + '_';
+        m.put(kp + 'lm_mast_height', String.valueOf(ht * 10));
+        m.put(kp + 'no_of_segment_select', '3');
+        m.put(kp + 'lm_qty_of_hm', '1');
+        m.put(kp + 'lm_type_of_winch', 'E=350 kg');
+        m.put(kp + 'lm_type_of_power_tool', 'G=Motor,3PH');
+        m.put(kp + 'lm_type_of_wire_rope', '5=5mm dia');
+        m.put(kp + 'lm_cable_type', 'T=2.5 SQmm 5Core');
+        m.put(kp + 'lm_no_of_cable', '1=Single cable');
+        m.put(kp + 'lm_3_kit_unit_price', String.valueOf(40000 + ht));
+        m.put(kp + 'lm_3_kit_base_price', '38000');
+    }
+
+    private static Quote stadiumQuote(String name, Integer lifts, Integer ladders) {
+        Map<String, Object> m = new Map<String, Object>{
+            'type_of_mast' => 'Customized Mast',
+            'mast_customized' => 'STADIUM MAST',
+            'man_riding_lift' => true,
+            'man_riding_lift_count' => String.valueOf(lifts),
+            'ladder_with_cage' => true,
+            'ladder_with_cage_count' => String.valueOf(ladders),
+            'freight_incoterms' => 'Ex-works',
+            '_Saved_Template_Name' => 'High Mast - Department',
+            '_Final_Apex_Lines' => new List<Object>(),
+            '_Saved_Table_Rows' => new List<Object>()
+        };
+        for (Integer k = 1; k <= lifts; k++) {
+            stadiumBlock(m, k == 1 ? 'mrl_' : 'm' + String.valueOf(k) + '_mrl_', true, 20 + k);
+            stadiumKitLine(m, k, 20 + k);
+        }
+        for (Integer k = 1; k <= ladders; k++) {
+            stadiumBlock(m, k == 1 ? 'lwc_' : 'l' + String.valueOf(k) + '_lwc_', false, 15 + k);
+        }
+        Quote src = [SELECT OpportunityId FROM Quote WHERE OpportunityId != null LIMIT 1];
+        Quote q = new Quote(Name = name, OpportunityId = src.OpportunityId, Quote_Value__c = JSON.serialize(m));
+        insert q;
+        return q;
+    }
+
+    private static Integer countContaining(List<String> texts, String needle) {
+        Integer n = 0;
+        for (String t : texts) if (t != null && t.contains(needle)) n++;
+        return n;
+    }
+
+    @IsTest
+    static void stadiumLiftsSingleScope() {
+        Quote many = stadiumQuote('HMCP Stadium 3 lifts 2 ladders', 3, 2);
+        Quote one  = stadiumQuote('HMCP Stadium 1 lift 1 ladder', 1, 1);
+        Test.startTest();
+        HighMastSOWControllerCP a = new HighMastSOWControllerCP(TestHighMastDataFactory.stdCtrl(many.Id));
+        HighMastSOWControllerCP b = new HighMastSOWControllerCP(TestHighMastDataFactory.stdCtrl(one.Id));
+        Test.stopTest();
+        List<String> da = new List<String>();
+        for (HighMastSOWControllerCP.LineItemWrapper w : a.lineItems) da.add(w.description);
+        List<String> db = new List<String>();
+        for (HighMastSOWControllerCP.LineItemWrapper w : b.lineItems) db.add(w.description);
+        System.assertEquals(5, countContaining(da, 'STADIUM MAST FABRICATED PART'), '3 lifts + 2 ladders: 5 mast lines');
+        System.assertEquals(2, countContaining(db, 'STADIUM MAST FABRICATED PART'), '1 lift + 1 ladder: 2 mast lines');
+        System.assertEquals(3, countContaining(da, 'STADIUM MAST ACCESSORIES'), 'every lift prints its own KIT line');
+        System.assertEquals(1, countContaining(db, 'STADIUM MAST ACCESSORIES'), 'one lift: one KIT line');
+        System.assertEquals(3, countContaining(da, 'Manrider System'), 'every lift prints its own Manrider System');
+        System.assertEquals(1, countContaining(da, 'Manrider System - Lift 22'), 'lift 2 reads its own m2_mrl_ keys');
+        System.assertEquals(1, countContaining(da, 'Ladder 17'), 'ladder 2 reads its own l2_lwc_ keys');
+        System.assertEquals(db[0], da[0], 'lift 1 prints the same line whatever the lift count');
+    }
+
+    @IsTest
+    static void stadiumLiftsCombinedScope() {
+        Quote many = stadiumQuote('HMCP Stadium 3 lifts 2 ladders', 3, 2);
+        Quote one  = stadiumQuote('HMCP Stadium 1 lift 1 ladder', 1, 1);
+        Test.startTest();
+        HMScopeCombinedControllerCP a = new HMScopeCombinedControllerCP(TestHighMastDataFactory.stdCtrl(many.Id));
+        HMScopeCombinedControllerCP b = new HMScopeCombinedControllerCP(TestHighMastDataFactory.stdCtrl(one.Id));
+        Test.stopTest();
+        List<String> ga = new List<String>();
+        for (HMScopeCombinedControllerCP.MastGroupWrapper g : a.mastGroups) ga.add(g.descMast);
+        List<String> gb = new List<String>();
+        for (HMScopeCombinedControllerCP.MastGroupWrapper g : b.mastGroups) gb.add(g.descMast);
+        System.assertEquals(5, countContaining(ga, 'STADIUM MAST FABRICATED PART'), 'each lift / ladder is its own line item');
+        System.assertEquals(2, countContaining(gb, 'STADIUM MAST FABRICATED PART'), '1 lift + 1 ladder: 2 line items');
+        System.assertEquals(3, countContaining(ga, 'STADIUM MAST ACCESSORIES'), 'every lift carries its own KIT');
+        System.assertEquals(gb[0], ga[0], 'lift 1 prints the same line item whatever the lift count');
+    }
+
+    @IsTest
+    static void stadiumLiftsWeightSheet() {
+        Quote many = stadiumQuote('HMCP Stadium 3 lifts 2 ladders', 3, 2);
+        Test.startTest();
+        HighMastWeightCalcControllerCP a = new HighMastWeightCalcControllerCP(TestHighMastDataFactory.stdCtrl(many.Id));
+        Test.stopTest();
+        List<HighMastWeightCalcControllerCP.RowData> rows = a.sheets[0].rowDataList;
+        System.assertEquals(5, rows.size(), 'a weight row per lift and per ladder');
+        System.assertEquals('22', rows[1].mastHeight, 'row 2 is lift 2');
+        System.assertEquals(true, rows[0].showCosting, 'lift 1 has its KIT costing');
+        System.assertEquals(true, rows[1].showCosting, 'lift 2 has its KIT costing (kit_line_2)');
+        System.assert(rows[1].codeNoTitle.startsWith('MAN RIDING LIFT 2 - '), 'lift 2 page names its lift: ' + rows[1].codeNoTitle);
+        System.assert(!rows[0].codeNoTitle.startsWith('MAN RIDING LIFT'), 'lift 1 keeps the original title: ' + rows[0].codeNoTitle);
+        System.assertEquals(true, rows[2].showCosting, 'lift 3 has its KIT costing (kit_line_3)');
+        System.assertEquals(false, rows[3].showCosting, 'ladders carry no KIT');
+        System.assertEquals('LADDER WITH CAGE 2', rows[4].codeNoTitle, 'row 5 is ladder 2');
+    }
+
+    @IsTest
+    static void stadiumLiftsUseTheCpDocuments() {
+        Quote many = stadiumQuote('HMCP Stadium 3 lifts 2 ladders', 3, 2);
+        Quote one  = stadiumQuote('HMCP Stadium 1 lift 1 ladder', 1, 1);
+        Test.startTest();
+        Boolean manyCp = HMCrossProductController.isCrossProduct(many.Id);
+        Boolean oneCp  = HMCrossProductController.isCrossProduct(one.Id);
+        Decimal total  = HMCrossProductController.crossProductTotal(many.Id);
+        Test.stopTest();
+        System.assertEquals(true, manyCp, '3 lifts: the CP pages print it');
+        System.assertEquals(false, oneCp, '1 lift + 1 ladder: the mapped pages, as before');
+        System.assert(total != null && total > 0, 'the offer total comes from the CP Single Scope (every lift)');
+    }
+
+    // [hm-stadium] the routing rule itself: a ticked type with a count above 1, read as the
+    // documents read a tick (true / 'true' / '1')
+    @IsTest
+    static void stadiumCopiesRule() {
+        Map<String, Object> m = new Map<String, Object>{
+            'type_of_mast' => 'Customized Mast', 'mast_customized' => 'STADIUM MAST',
+            'man_riding_lift' => false, 'man_riding_lift_count' => '3',
+            'ladder_with_cage' => true, 'ladder_with_cage_count' => '2'
+        };
+        System.assertEquals(true, HMCrossProductController.hmStadiumCopies(m), '2 ladders, no lift: the CP pages');
+        m.put('ladder_with_cage', false);
+        System.assertEquals(false, HMCrossProductController.hmStadiumCopies(m), 'counts above 1 but neither type ticked: the mapped pages');
+        m.put('man_riding_lift', '1');
+        System.assertEquals(true, HMCrossProductController.hmStadiumCopies(m), 'a tick saved as 1 counts, as the documents read it');
+        m.put('man_riding_lift_count', 'x');
+        System.assertEquals(false, HMCrossProductController.hmStadiumCopies(m), 'a count that is not a number is no count');
+        m.put('man_riding_lift_count', '3');
+        m.put('mast_customized', 'FLAG MAST');
+        System.assertEquals(false, HMCrossProductController.hmStadiumCopies(m), 'not a Stadium: the mapped pages');
+        System.assertEquals(false, HMCrossProductController.hmStadiumCopies(null), 'no JSON');
+    }
+
+    // [hm-stadium] lift 1 left without segments: lifts 2..n and the ladders still print, and the
+    // weight sheet does not fail on lift 1 (it has no row to cost)
+    @IsTest
+    static void stadiumLiftOneWithoutSegments() {
+        Quote q = stadiumQuote('HMCP Stadium lift 1 empty', 3, 2);
+        Map<String, Object> m = (Map<String, Object>) JSON.deserializeUntyped(q.Quote_Value__c);
+        m.put('mrl_no_of_segment', '0');
+        update new Quote(Id = q.Id, Quote_Value__c = JSON.serialize(m));
+        Test.startTest();
+        HighMastWeightCalcControllerCP w = new HighMastWeightCalcControllerCP(TestHighMastDataFactory.stdCtrl(q.Id));
+        HighMastSOWControllerCP s = new HighMastSOWControllerCP(TestHighMastDataFactory.stdCtrl(q.Id));
+        Test.stopTest();
+        List<HighMastWeightCalcControllerCP.RowData> rows = w.sheets[0].rowDataList;
+        System.assertEquals(4, rows.size(), 'lifts 2-3 and ladders 1-2');
+        System.assertEquals('22', rows[0].mastHeight, 'the first row is lift 2');
+        System.assertEquals(true, rows[0].showCosting, 'lift 2 keeps its own KIT costing (kit_line_2)');
+        List<String> ds = new List<String>();
+        for (HighMastSOWControllerCP.LineItemWrapper x : s.lineItems) ds.add(x.description);
+        System.assertEquals(4, countContaining(ds, 'STADIUM MAST FABRICATED PART'), 'lifts 2-3 and ladders 1-2');
+        System.assertEquals(2, countContaining(ds, 'STADIUM MAST ACCESSORIES'), 'lifts 2-3 each print their own KIT line');
+    }
 
     // A document controller that throws must not block the offer capture: the total is
     // null and the stage rule still runs, exactly as CreateQuoteController does it.

@@ -490,7 +490,7 @@ div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
 <div class="document-body">
 <div class="document-body-inner">
 
-    <div class="sec-title">Lighting Pole &#8211; Weight &amp; Costing</div>
+    <div class="sec-title"><apex:outputText value="{!s.productPrefix}"/>Lighting Pole &#8211; Weight &amp; Costing</div>
 
     <table class="cost-tbl">
         <thead>
@@ -608,7 +608,7 @@ div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
 <div class="document-body">
 <div class="document-body-inner">
 
-    <div class="sec-title">Transmission Pole &#8211; Weight &amp; Costing</div>
+    <div class="sec-title"><apex:outputText value="{!s.productPrefix}"/>Transmission Pole &#8211; Weight &amp; Costing</div>
 
     <table class="cost-tbl">
         <thead>
@@ -985,7 +985,7 @@ div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
 <div class="document-body-inner">
 
     <div class="sec-title">
-        <apex:outputText value="{!rd.codeNoTitle}"/>
+        <apex:outputText value="{!s.productPrefix}"/><apex:outputText value="{!rd.codeNoTitle}"/>
     </div>
 
     <table class="cfg-tbl">
@@ -1144,7 +1144,7 @@ div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
 <div class="document-body-inner">
 
     <apex:outputPanel rendered="{!s.hasAdditionalAcc}">
-        <div class="sec-title">Additional Accessories</div>
+        <div class="sec-title"><apex:outputText value="{!s.productPrefix}"/>Additional Accessories</div>
         <table class="mast-tbl">
             <tbody>
                 <tr><td class="mast-row-lbl">Rate</td>
@@ -1160,7 +1160,7 @@ div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
     </apex:outputPanel>
 
     <apex:outputPanel rendered="{!s.hasSpecialItem}">
-        <div class="sec-title">Special Items</div>
+        <div class="sec-title"><apex:outputText value="{!s.productPrefix}" rendered="{!NOT(s.hasAdditionalAcc)}"/>Special Items</div>
         <table class="mast-tbl">
             <tbody>
                 <tr><td class="mast-row-lbl">Type</td>

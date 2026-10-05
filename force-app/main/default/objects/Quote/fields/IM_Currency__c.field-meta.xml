@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>IM_Currency__c</fullName>
+    <description>Currency the International Marketing offer is quoted, saved and printed in. Rate-card base values are converted with IM_Exchange_Rate__c at save. INR = rate 1. Add currencies here; no other setup needed.</description>
+    <inlineHelpText>Currency of this offer. Pick INR for a rupee offer (no conversion). The list is maintained by the admin.</inlineHelpText>
+    <label>IM Currency</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>USD - US Dollar</fullName>
+                <default>false</default>
+                <label>USD - US Dollar</label>
+            </value>
+            <value>
+                <fullName>INR - Indian Rupee</fullName>
+                <default>false</default>
+                <label>INR - Indian Rupee</label>
+            </value>
+            <value>
+                <fullName>EUR - Euro</fullName>
+                <default>false</default>
+                <label>EUR - Euro</label>
+            </value>
+            <value>
+                <fullName>GBP - Pound Sterling</fullName>
+                <default>false</default>
+                <label>GBP - Pound Sterling</label>
+            </value>
+            <value>
+                <fullName>CNY - Chinese Yuan</fullName>
+                <default>false</default>
+                <label>CNY - Chinese Yuan</label>
+            </value>
+            <value>
+                <fullName>RUB - Russian Ruble</fullName>
+                <default>false</default>
+                <label>RUB - Russian Ruble</label>
+            </value>
+            <value>
+                <fullName>JPY - Japanese Yen</fullName>
+                <default>false</default>
+                <label>JPY - Japanese Yen</label>
+            </value>
+            <value>
+                <fullName>AED - UAE Dirham</fullName>
+                <default>false</default>
+                <label>AED - UAE Dirham</label>
+            </value>
+            <value>
+                <fullName>SAR - Saudi Riyal</fullName>
+                <default>false</default>
+                <label>SAR - Saudi Riyal</label>
+            </value>
+            <value>
+                <fullName>AUD - Australian Dollar</fullName>
+                <default>false</default>
+                <label>AUD - Australian Dollar</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
