@@ -1121,6 +1121,45 @@ field.fields.forEach(subField => {
         });
     }
  
+    // ═══ TELECOM MARGIN % — max 2 decimal places — Deepanjan (29th Sep 2026) ════
+    // The Telecom approval bands (ED / HOD / Self) are defined to 2 decimals, so a
+    // margin like 4.995 must never reach them. Only the Telecom department and only
+    // fields flagged isMargin in the section JSON (agl_/tub_/tsg_ margin and
+    // margin_awt). Every other department: no-op.
+    _isTelecomMarginField(field) {
+        return !!(field && field.isMargin === true && this._modalConfig
+            && this._modalConfig.department === 'Telecom Tower - Department');
+    }
+    // '' / null pass (required-field check handles blanks); anything with a 3rd
+    // decimal fails. Works on the raw string, so 5.10 and 5.1 both pass.
+    _telecomMarginDecimalsOk(value) {
+        if (value === '' || value === null || value === undefined) return true;
+        return /^-?\d*(\.\d{0,2})?$/.test(String(value).trim());
+    }
+    // Apply-time gate (safety net for values typed, pasted or restored). Toast lists
+    // every offending field; returns false to block APPLY.
+    _validateTelecomMarginDecimals() {
+        if (!this._modalConfig || this._modalConfig.department !== 'Telecom Tower - Department') return true;
+        const bad = [];
+        const seen = new Set();
+        (this.accordionSections || []).forEach(sec => {
+            if (!sec || sec.id === '__cross_modal_context__') return;
+            (sec.fields || []).forEach(f => {
+                if (!f || !f.isVisible || f.type === 'hidden' || seen.has(f.apiName)) return;
+                if (!this._isTelecomMarginField(f)) return;
+                seen.add(f.apiName);
+                if (!this._telecomMarginDecimalsOk(f.value)) bad.push(`${f.label || f.apiName} (${f.value})`);
+            });
+        });
+        if (bad.length === 0) return true;
+        this.dispatchEvent(new ShowToastEvent({
+            title: 'Margin % - 2 decimals only',
+            message: `Margin % accepts up to 2 decimal places. Please correct: ${bad.join(', ')}.`,
+            variant: 'error'
+        }));
+        return false;
+    }
+    // ═══ end TELECOM MARGIN % ═══════════════════════════════════════════════════
     // validate telecom tower composition updated for both tubular/signalling - rajeev 10-09-2026
     _validateTelecomTowerComposition() {
         const groups = [];
@@ -2192,6 +2231,29 @@ field.fields.forEach(subField => {
         try {
             const fieldApiName = event.currentTarget.dataset.name;
             let newValue = this._extractValue(event);
+ 
+            // ── TELECOM margin %: anything past the 2nd decimal is cut at typing time
+            //    and the user is told; the corrected value is what flows on from here.
+            //    Only Telecom, only isMargin fields. Deepanjan (29th September 2026)
+            if (fieldApiName && this._modalConfig && this._modalConfig.department === 'Telecom Tower - Department'
+                && !this._telecomMarginDecimalsOk(newValue)) {
+                let marginField = null;
+                this.accordionSections.some(sec => sec.fields.some(f => {
+                    if (f.apiName === fieldApiName) { marginField = f; return true; }
+                    return false;
+                }));
+                if (this._isTelecomMarginField(marginField)) {
+                    const m = String(newValue).trim().match(/^(-?\d*)(\.\d{0,2})?/);
+                    const fixed = m ? `${m[1]}${m[2] || ''}` : '';
+                    this.dispatchEvent(new ShowToastEvent({
+                        title: 'Margin % - 2 decimals only',
+                        message: `Margin % accepts up to 2 decimal places. ${newValue} was changed to ${fixed}.`,
+                        variant: 'warning'
+                    }));
+                    if (event.target) event.target.value = fixed;
+                    newValue = fixed;
+                }
+            }
  
             // ── Pre-fill OVR fields: when a segment's Override toggle is switched ON,
             //    copy the base Length/Thickness into the OVR fields so they aren't blank - Reetabrata (8th July 2026)
@@ -3493,6 +3555,12 @@ if (this._modalConfig && this._modalConfig.dynamicSegments &&
             }
 
             if (!this._headlessMode && !this._validateTelecomPaymentTerms()) {
+                return; // Blocks save completely, toast already shown inside method
+            }
+
+            // Telecom margin % must not carry more than 2 decimals. No-op on every
+            // other department. Deepanjan (29th September 2026)
+            if (!this._headlessMode && !this._validateTelecomMarginDecimals()) {
                 return; // Blocks save completely, toast already shown inside method
             }
 

@@ -49,6 +49,116 @@ import searchOpportunitiesForClone from '@salesforce/apex/CreateQuoteController.
 import getOpportunityForClone from '@salesforce/apex/CreateQuoteController.getOpportunityForClone';
 import { NavigationMixin } from 'lightning/navigation';
 
+// ═══ TELECOM JSON COMPACTION — Deepanjan (29th September 2026) ════════════════
+// Quote_Value__c is a 131,072-character Long Text Area. With cross-product enabled
+// on Telecom (Angular + Tubular + Tubular Signalling, BOM + AWT, 3 GSM each) the
+// three line arrays alone run past 190,000 characters and the save fails.
+// Every line in those arrays has one fixed shape; most keys sit on a default
+// (0 / "" / false / "EA"), a few price keys always equal unitPrice, and the row id
+// is always temp_<index>. Compaction drops ONLY those provable keys and marks the
+// line with _tc:1; expansion puts every key back, in the original order, with the
+// original value, so memory never sees a compacted line. name / itemName,
+// quantity, unitPrice, margin and discount are never dropped (the Telecom PDF
+// controllers read name / quantity / unitPrice straight from the saved JSON).
+// A line whose shape is not the known one is stored exactly as-is, and nothing
+// outside these three arrays is touched. Runs only for the Telecom department.
+const TEL_COMPACT_DEPT = 'Telecom Tower - Department';
+const TEL_COMPACT_SHAPES = {
+    _pendingLineItems: {
+        keys: ['itemName', 'weight', 'quantity', 'realization', 'unitPrice', 'unitCost', 'listPrice',
+            'discount', 'margin', 'steel_type', 'designation', 'size_nb', 'pipe_class',
+            'standard_spec_grade', 'end_finish', 'uom', 'rate', 'gst', 'price_per_uom', 'total_price',
+            'added_up', 'tolerance', '_modalSource', '_baseUnitPrice', '_baseUnitCost'],
+        defaults: { weight: 0, realization: 0, unitCost: 0, listPrice: 0, discount: 0, margin: 0, steel_type: '', designation: '',
+            size_nb: '', pipe_class: '', standard_spec_grade: '', end_finish: '', uom: '', rate: 0, gst: 0,
+            price_per_uom: 0, total_price: 0, added_up: '', tolerance: '', _baseUnitCost: 0 },
+        priceAlias: ['_baseUnitPrice'],
+        idKey: null
+    },
+    _Final_Apex_Lines: {
+        keys: ['name', 'weight', 'quantity', 'realization', 'unitPrice', 'unitCost', 'unitListPrice',
+            'expenses', 'discount', 'margin', 'added_up', 'tolerance'],
+        defaults: { weight: 0, realization: '', unitCost: 0, expenses: 0, discount: 0, margin: 0, added_up: '', tolerance: '' },
+        refPending: true,   // name/quantity/unitPrice usually equal _pendingLineItems[i] -> stored as a reference
+        priceAlias: ['unitListPrice'],
+        idKey: null
+    },
+    _Saved_Table_Rows: {
+        keys: ['id', 'name', 'billable', 'quantity', 'uom', 'realization', 'unitCost', 'unitPrice',
+            'unitListPrice', 'discount', 'expenses', 'netPrice', 'listPrice', 'cost', 'margin', 'added_up',
+            'tolerance', 'startDate', 'endDate', 'weeks'],
+        defaults: { billable: false, uom: 'EA', realization: '', unitCost: 0, discount: 0, expenses: 0, cost: 0, margin: 0,
+            added_up: '', tolerance: '', startDate: '', endDate: '', weeks: 0 },
+        priceAlias: ['unitListPrice', 'netPrice', 'listPrice'],
+        idKey: 'id'
+    }
+};
+function telCompactLine(line, shape, index, pendingLine) {
+    if (!line || typeof line !== 'object' || Array.isArray(line)) return line;
+    const present = Object.keys(line).filter(k => line[k] !== undefined);
+    // unknown key, or keys not in the known order -> unknown shape, keep as-is
+    if (present.some(k => !shape.keys.includes(k))) return line;
+    if (present.join(',') !== shape.keys.filter(k => present.includes(k)).join(',')) return line;
+    const hasPrice = present.includes('unitPrice');
+    // _tc:2 = name / quantity / unitPrice are the same as _pendingLineItems[index]
+    // (itemName / quantity / unitPrice) and are taken from there on load.
+    const ref = !!(shape.refPending && pendingLine && typeof pendingLine === 'object'
+        && present.includes('name') && present.includes('quantity') && hasPrice
+        && line.name === pendingLine.itemName && line.quantity === pendingLine.quantity
+        && line.unitPrice === pendingLine.unitPrice);
+    const out = { _tc: ref ? 2 : 1 };
+    const missing = [];
+    shape.keys.forEach(k => {
+        if (!present.includes(k)) { missing.push(k); return; }
+        const v = line[k];
+        if (ref && (k === 'name' || k === 'quantity' || k === 'unitPrice')) return;
+        if (Object.prototype.hasOwnProperty.call(shape.defaults, k) && v === shape.defaults[k]) return;
+        if (hasPrice && shape.priceAlias.includes(k) && v === line.unitPrice) return;
+        if (shape.idKey && k === shape.idKey && v === `temp_${index}`) return;
+        out[k] = v;
+    });
+    if (missing.length) out._x = missing;
+    return out;
+}
+function telExpandLine(line, shape, index, pendingLine) {
+    if (!line || typeof line !== 'object' || (line._tc !== 1 && line._tc !== 2)) return line;
+    const missing = Array.isArray(line._x) ? line._x : [];
+    const ref = line._tc === 2 && pendingLine && typeof pendingLine === 'object' ? pendingLine : null;
+    const unitPrice = ref ? ref.unitPrice : line.unitPrice;
+    const out = {};
+    shape.keys.forEach(k => {
+        if (missing.includes(k)) return;
+        if (Object.prototype.hasOwnProperty.call(line, k)) out[k] = line[k];
+        else if (ref && k === 'name') out[k] = ref.itemName;
+        else if (ref && k === 'quantity') out[k] = ref.quantity;
+        else if (ref && k === 'unitPrice') out[k] = ref.unitPrice;
+        else if (Object.prototype.hasOwnProperty.call(shape.defaults, k)) out[k] = shape.defaults[k];
+        else if (shape.priceAlias.includes(k)) out[k] = unitPrice;
+        else if (shape.idKey && k === shape.idKey) out[k] = `temp_${index}`;
+    });
+    return out;
+}
+// Returns a NEW object for the save; this.modalSavedData in memory is never compacted.
+function telecomCompactForSave(data) {
+    if (!data || data._Saved_Template_Name !== TEL_COMPACT_DEPT) return data;
+    const out = { ...data };
+    const pending = Array.isArray(data._pendingLineItems) ? data._pendingLineItems : [];   // the ORIGINAL (expanded) lines
+    Object.keys(TEL_COMPACT_SHAPES).forEach(arr => {
+        if (Array.isArray(data[arr])) out[arr] = data[arr].map((l, i) => telCompactLine(l, TEL_COMPACT_SHAPES[arr], i, pending[i]));
+    });
+    return out;
+}
+// Idempotent: a JSON saved before this change has no _tc marks and comes back unchanged.
+function telecomExpandAfterLoad(data) {
+    if (!data || data._Saved_Template_Name !== TEL_COMPACT_DEPT) return data;
+    // _pendingLineItems first (it is listed first in TEL_COMPACT_SHAPES): _tc:2 lines read from it
+    Object.keys(TEL_COMPACT_SHAPES).forEach(arr => {
+        if (Array.isArray(data[arr])) data[arr] = data[arr].map((l, i) => telExpandLine(l, TEL_COMPACT_SHAPES[arr], i, (data._pendingLineItems || [])[i]));
+    });
+    return data;
+}
+// ═══ end TELECOM JSON COMPACTION ═══════════════════════════════════════════════
+
 export default class CreateQuote extends NavigationMixin(LightningElement) {   // NavigationMixin: clone into another opportunity lands there - Deepanjan (7th September 2026)
 
     @api recordId;
@@ -2217,6 +2327,15 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
                         lm_no_of_segment: h.mrl_no_of_segment,
                         lm_quantity: h.mrl_quantity
                     }];
+
+                    // STADIUM - ONE KIT LINE PER MAN RIDING LIFT - Faizan (29th September 2026)
+                    // NO. OF MAN RIDING LIFT (man_riding_lift_count) repeats the MRL sections as
+                    // copies 2..N with m{N}_mrl_ keys. Each copy gets its own KIT line N, built from
+                    // that copy's own height / segment count / quantity. Line 1 above is untouched.
+                    // Copies do NOT get r{N}_lm_ keys (those mean Lighting-Mast grid rows to the
+                    // rest of the system); their KIT formulas are pointed straight at the m{N}_mrl_
+                    // keys in the line loop below instead (see _stadiumSrc).
+                    structuredData.lines = structuredData.lines.concat(this._stadiumMrlKitCopyLines(h));
                 }
 
 
@@ -2480,6 +2599,23 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
                         return newField;
                     });
 
+                    // STADIUM MRL COPY N (N >= 2) - Faizan (29th September 2026)
+                    // The three mast-row formulas set above read r{N}_lm_*, which only exist for
+                    // copy 1. For a copy, read the copy's own Man Riding Lift values instead -
+                    // same maths, same x10 decimetre convention as line 1. Copy 1 and every
+                    // non-Stadium line have no _stadiumSrc, so they skip this block entirely.
+                    if (line._stadiumSrc) {
+                        const src = line._stadiumSrc;              // e.g. 'm3_mrl_'
+                        generatedFields.forEach(gf => {
+                            if (gf.apiName === `${prefix}_lm_mast_height` && gf.formula) {
+                                gf.formula = `${src}height_of_mast * 10`;
+                            } else if (gf.apiName === `${prefix}_lm_qty_of_hm`) {
+                                gf.formula = `${src}quantity`;
+                            } else if (gf.apiName === `${prefix}_no_of_segment_select`) {
+                                gf.formula = `${src}no_of_segment`;
+                            }
+                        });
+                    }
                     // Push main line section
                     dynamicModalConfig.modalFields.push({
                         id: `kit_line_${lineIndex}`,
@@ -3750,7 +3886,7 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
         const fields = {
             Id: this.quoteId,
             Name: finalQuoteName,
-            [QUOTE_VALUE_FIELD.fieldApiName]: JSON.stringify(this.modalSavedData),
+            [QUOTE_VALUE_FIELD.fieldApiName]: JSON.stringify(telecomCompactForSave(this.modalSavedData)),   // Telecom: compact line arrays - Deepanjan (29th Sep 2026)
             [QUOTE_VALUE_CHECKBOX_FIELD.fieldApiName]: true,
             Is_Draft__c: false      // applied = no longer a draft - Deepanjan (21st Sep 2026)
         };
@@ -3922,7 +4058,7 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
             // 1. Rehydrate the saved JSON data
             if (selectedQuote.Quote_Value__c) {
                 try {
-                    this.modalSavedData = JSON.parse(selectedQuote.Quote_Value__c);
+                    this.modalSavedData = telecomExpandAfterLoad(JSON.parse(selectedQuote.Quote_Value__c));   // Telecom: restore compacted lines - Deepanjan (29th Sep 2026)
 
                     // 👉 THE FIX: Restore the exact table rows we dynamically generated and saved!
                     this.rows = this.modalSavedData._Saved_Table_Rows || [];
@@ -4110,7 +4246,7 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
             if (this.expirationDate) snapshot._Expiration_Date = this.expirationDate;
             await updateRecord({ fields: {
                 Id: this.quoteId,
-                Quote_Value__c: JSON.stringify(snapshot),
+                Quote_Value__c: JSON.stringify(telecomCompactForSave(snapshot)),   // Telecom: compact line arrays - Deepanjan (29th Sep 2026)
                 Is_Draft__c: true
             } });
             this.draftSavedAt = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
@@ -4394,7 +4530,11 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
         const h = structured.header || {};
         let lines;
         if (h.mrl_height_of_mast || h.mrl_no_of_segment) {
-            lines = [{ _lineIndex: 1 }];                             // Stadium: mrl_ header is row 1
+            lines = [{ _lineIndex: 1 }];
+
+            // Stadium MRL copies 2..N each have their own KIT line N Faizan (29th September 2026),
+            // so each must be filled before Apply - same rule the interceptor builds with.
+            lines = lines.concat(this._stadiumMrlKitCopyLines(h));                          // Stadium: mrl_ header is row 1
         } else {
             lines = (structured.lines || []).filter(l =>
                 l.lm_height_of_mast !== undefined && l.lm_height_of_mast !== null && l.lm_height_of_mast !== '');
@@ -4404,6 +4544,98 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
         const heightIsInput = mh ? !mh.formula : false;
         if (lines.length === 0 && heightIsInput) lines = [{ _lineIndex: 1 }];   // LCLM
         return lines.map(l => l._lineIndex).filter(i => i !== undefined && i !== null);
+    }
+
+
+    // =========================================================================
+    // STADIUM MAST - ONE KIT LINE PER MAN RIDING LIFT - Deepanjan (29th September 2026)
+    //
+    // The Stadium estimator's NO. OF MAN RIDING LIFT (man_riding_lift_count) repeats the
+    // Man Riding Lift sections as copies 2..N, saved under m{N}_mrl_ keys. KIT Code
+    // Details used to build ONE line (copy 1) whatever the count, so a 10-lift quote
+    // carried one "HM ITEMS" line. These helpers give copy N its own KIT line N.
+    //
+    // KIT line 1 is untouched (it still comes from the bare mrl_ header via r1_lm_*).
+    // A copy line is returned only while Man Riding Lift is ticked, N <= the count, and
+    // the copy has a HEIGHT OF THE MAST - the same condition the KIT interceptor's
+    // validLines filter applies, so the lines the KIT builds and the lines
+    // _validateKitRequiredFinal demands are always the same set.
+    // Non-Stadium quotes have no man_riding_lift key and get [] - nothing changes.
+    // =========================================================================
+    _stadiumMrlKitCopyCount(h) {
+        if (!h) return 0;
+        const mrl = h.man_riding_lift;
+        if (!(mrl === true || String(mrl).toLowerCase() === 'true')) return 0;
+        const n = parseInt(h.man_riding_lift_count, 10);
+        return Math.min(Math.max(isNaN(n) ? 1 : n, 1), 10);
+    }
+
+    _stadiumMrlKitCopyLines(h) {
+        const out = [];
+        const count = this._stadiumMrlKitCopyCount(h);
+        const has = (v) => v !== undefined && v !== null && v !== '';
+        for (let c = 2; c <= count; c++) {
+            const src = `m${c}_mrl_`;
+            if (!has(h[`${src}height_of_mast`])) continue;
+            out.push({
+                _lineIndex: c,
+                _stadiumSrc: src,
+                lm_height_of_mast: h[`${src}height_of_mast`],
+                lm_no_of_segment: h[`${src}no_of_segment`],
+                lm_quantity: h[`${src}quantity`]
+            });
+        }
+        return out;
+    }
+
+    /** Titles of the KIT modals on this quote - read from the KIT folder metadata and
+     *  from any applied modal config that builds kit_line_ sections - so the KIT's line
+     *  items can be told apart from every other modal's without hard-coding a title. */
+    _kitModalTitles() {
+        const titles = new Set();
+        (this.accordionSections || []).forEach(sec => (sec.fields || []).forEach(f => {
+            if (f.apiName === 'lm_kit_code_folder' && f.modalConfigsByValue && f.modalConfigsByValue['default']) {
+                titles.add(f.modalConfigsByValue['default'].title || 'KIT CODE DETAILS - LIGHTING MAST');
+            }
+        }));
+        Object.keys(this._appliedModalConfigs || {}).forEach(t => {
+            const cfg = this._appliedModalConfigs[t];
+            if (cfg && Array.isArray(cfg.modalFields) &&
+                cfg.modalFields.some(s => s && typeof s.id === 'string' && s.id.startsWith('kit_line_'))) {
+                titles.add(t);
+            }
+        });
+        return titles;
+    }
+
+    /** Lowering NO. OF MAN RIDING LIFT must also drop the KIT lines above the new count.
+     *  Without this, "HM ITEMS - Line 7" (and its kit_line_7_ values) from an earlier KIT
+     *  Apply would stay on the quote and be priced, and the cross-modal recompute before
+     *  save would keep re-adding it from the cached KIT config. Runs at the top of
+     *  _applyDynamicLineItemAdjustments, i.e. after every modal Apply and after that
+     *  recompute, just before the table / Apex lines are rebuilt. Stadium with Man Riding
+     *  Lift ticked only; every other quote returns on the first check. Faizan (29/09/26)*/
+    _pruneStadiumKitLines() {
+        try {
+            const d = this.modalSavedData;
+            if (!d || !Object.prototype.hasOwnProperty.call(d, 'man_riding_lift_count')) return;
+            const count = this._stadiumMrlKitCopyCount(d);
+            if (count < 1) return;
+            const titles = this._kitModalTitles();
+            if (titles.size > 0 && Array.isArray(d._pendingLineItems)) {
+                d._pendingLineItems = d._pendingLineItems.filter(li => {
+                    if (!li || !titles.has(li._modalSource)) return true;
+                    const m = String(li.itemName || li.name || '').match(/ - Line (\d+)$/);
+                    return !m || Number(m[1]) <= count;
+                });
+            }
+            Object.keys(d).forEach(k => {
+                const m = k.match(/^kit_line_(\d+)_/);
+                if (m && Number(m[1]) > count) delete d[k];
+            });
+        } catch (e) {
+            console.error('_pruneStadiumKitLines error:', e);
+        }
     }
 
     _validateTowerSubstationInterestFinal() {
@@ -4611,6 +4843,11 @@ export default class CreateQuote extends NavigationMixin(LightningElement) {   /
 
     _applyDynamicLineItemAdjustments() {
 
+
+
+        // Stadium: drop KIT lines above NO. OF MAN RIDING LIFT - see _pruneStadiumKitLines.
+        // No-op for every other quote. Faizan (29th September 2026)
+        this._pruneStadiumKitLines();
 
         // 👉 THE "CORE" INTERCEPTOR
         // Because "Core" quotes skip pending lines and go straight to Final lines, 

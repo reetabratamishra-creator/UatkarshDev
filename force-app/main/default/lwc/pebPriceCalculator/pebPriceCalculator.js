@@ -59,11 +59,6 @@ const VARIABLE_COST_ROWS = [
     { key: 'contingency', description: 'Contingency' }
 ];
 
-// B2 Buyouts: cost is normally (Qty x Unit Wt) x Rate, same as Accessories.
-// A few buyouts are priced flat instead - Cost = Qty x Rate, ignoring weight.
-// Total Weight still shows/feeds Section C "design" weight as before; only
-// the Cost formula changes for keys listed here.
-const QTY_ONLY_BUYOUT_KEYS = ['turbovent'];
 
 // delivery option
 const DELIVERY_TERM_OPTIONS = [
@@ -363,7 +358,7 @@ handleApplyToQuote() {
         this.buildFreshRows(data.sectionTotals || {});
         if (Array.isArray(data.specialItems) && data.specialItems.length) {
             this.specialItems = data.specialItems.map((s) =>
-                this.mkSpecialItem(s.description, s.unit, s.qty, 0)
+                this.mkSpecialItem(s.description, s.unit, s.qty, 0, 0)
             );
         }
 
@@ -641,7 +636,7 @@ handleApplyToQuote() {
 
         const found = (parsed && parsed.specialItems) || [];
         if (found.length && !(keepSaved && this.specialItems.length)) {
-            this.specialItems = found.map((s) => this.mkSpecialItem(s.description, s.unit, s.qty, 0));
+            this.specialItems = found.map((s) => this.mkSpecialItem(s.description, s.unit, s.qty, 0, 0));
         }
 
         this.recompute();
@@ -879,7 +874,7 @@ handleApplyToQuote() {
         }
         if (Array.isArray(s.specialItems)) {
             this.specialItems = s.specialItems.map((x) =>
-                this.mkSpecialItem(x.description, x.unit, x.qty, x.rate)
+                this.mkSpecialItem(x.description, x.unit, x.qty, x.rate, x.unitWt)
             );
         }
         // Conversion selections
@@ -944,12 +939,14 @@ handleApplyToQuote() {
 }
 
     /** B3 row: description/unit/qty come from the Note section, rate is manual. */
-    mkSpecialItem(description, unit, qty, rate) {
+    mkSpecialItem(description, unit, qty, rate, unitWt) {
         return {
             rowId: 'spc-' + this.rowSeq++,
             description: description || '',
             unit: unit || 'No.s',
             qty: this.toNum(qty),
+            unitWt: this.toNum(unitWt),
+            totalWeight: 0,
             rate: this.toNum(rate),
             cost: 0
         };
@@ -984,7 +981,7 @@ handleApplyToQuote() {
         let accCost = 0;
         this.accessories = this.accessories.map((r) => {
             const tw = this.toNum(r.qty) * this.toNum(r.unitWt);
-            const cost = tw * this.toNum(r.rate);
+            const cost = this.toNum(r.qty) * this.toNum(r.rate);
             accW += tw;
             accCost += cost;
             return { ...r, totalWeight: tw, cost };
@@ -994,9 +991,7 @@ handleApplyToQuote() {
         let buyCost = 0;
         this.buyouts = this.buyouts.map((r) => {
             const tw = this.toNum(r.qty) * this.toNum(r.unitWt);
-            const cost = QTY_ONLY_BUYOUT_KEYS.indexOf(r.key) >= 0
-                ? this.toNum(r.qty) * this.toNum(r.rate)
-                : tw * this.toNum(r.rate);
+            const cost = this.toNum(r.qty) * this.toNum(r.rate);
             buyW += tw;
             buyCost += cost;
             return { ...r, totalWeight: tw, cost };
@@ -1006,10 +1001,11 @@ handleApplyToQuote() {
         let specCost = 0;
         let specWeight = 0; 
         this.specialItems = this.specialItems.map((r) => {
+            const tw = this.toNum(r.qty) * this.toNum(r.unitWt);
             const cost = this.toNum(r.qty) * this.toNum(r.rate);
             specCost += cost;
-            specWeight += this.toNum(r.qty);
-            return { ...r, cost };
+            specWeight += tw;
+            return { ...r, totalWeight: tw, cost };
         });
 
         // Conversion weights (per spec formulas)
@@ -1162,7 +1158,7 @@ handleApplyToQuote() {
     }
 
     handleAddSpecialItem() {
-        this.specialItems = [...this.specialItems, this.mkSpecialItem('', 'No.s', 0, 0)];
+        this.specialItems = [...this.specialItems, this.mkSpecialItem('', 'No.s', 0, 0, 0)];
         this.recompute();
     }
 
