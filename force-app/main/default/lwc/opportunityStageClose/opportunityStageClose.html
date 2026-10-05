@@ -1,0 +1,296 @@
+<template>
+    <lightning-quick-action-panel header="Close Opportunity">
+        <template if:true={isLoading}>
+            <div class="slds-is-relative slds-p-around_large">
+                <lightning-spinner alternative-text="Loading Opportunity"></lightning-spinner>
+            </div>
+        </template>
+
+        <template if:false={isLoading}>
+            <template if:true={showSuccessScreen}>
+                <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                    <div class="slds-box slds-theme_success">
+                        <strong>{resultMessage}</strong>
+                    </div>
+                    <template if:true={successHasOrderOrQuote}>
+                        <div class="slds-m-top_small">Order/Quote processing completed as defined by the Flow.</div>
+                    </template>
+                </div>
+            </template>
+
+            <template if:true={showFaultScreen}>
+                <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                    <div class="slds-box slds-theme_error">
+                        <strong>{errorMessage}</strong>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={validationScreen}>
+                <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                    <div class="slds-box slds-theme_error">
+                        <strong>{context.validationMessage}</strong>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={normalScreen}>
+                <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+                    <template if:true={errorMessage}>
+                        <div class="slds-notify slds-notify_alert slds-theme_error slds-m-bottom_medium" role="alert">
+                            <span>{errorMessage}</span>
+                        </div>
+                    </template>
+
+                    <div class="slds-m-bottom_medium">
+                        <p class="slds-text-heading_small">{opportunityName}</p>
+                        <p class="slds-text-color_weak">Stage: {stageName}</p>
+                        <p class="slds-text-color_weak">Customer Journey: {customerJourney}</p>
+                    </div>
+
+                    <template if:true={warningVisible}>
+                        <div class="slds-notify slds-notify_alert slds-theme_warning slds-m-bottom_medium" role="alert">
+                            <span>{warningText}</span>
+                        </div>
+                    </template>
+
+                    <template if:true={showNurtureSection}>
+                        <lightning-radio-group
+                            name="nurtureOutcome"
+                            label="Please select one"
+                            options={outcomeOptions}
+                            value={outcome}
+                            type="radio"
+                            onchange={handleOutcomeChange}
+                            required>
+                        </lightning-radio-group>
+
+                        <template if:true={isLost}>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="nurtureLossReason"
+                                        label="Lost Reason"
+                                        options={lossReasonOptions}
+                                        value={lossReason}
+                                        onchange={handleLossReasonChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-textarea
+                                        name="nurtureRemarks"
+                                        label="Remarks"
+                                        value={remarks}
+                                        onchange={handleRemarksChange}
+                                        required>
+                                    </lightning-textarea>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template if:true={showNegotiationSection}>
+                        <lightning-radio-group
+                            name="negotiationOutcome"
+                            label="Please select one"
+                            options={outcomeOptions}
+                            value={outcome}
+                            type="radio"
+                            onchange={handleOutcomeChange}
+                            required>
+                        </lightning-radio-group>
+
+                        <template if:true={isWon}>
+                            <div class="slds-m-top_medium">
+                                <lightning-input
+                                    type="number"
+                                    name="expectedDealValue"
+                                    label="Expected Deal Value"
+                                    value={expectedDealValue}
+                                    step="1"
+                                    onchange={handleExpectedDealValueChange}
+                                    required>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-m-top_medium">
+                                <lightning-combobox
+                                    name="poRequirement"
+                                    label="PO upload is required?"
+                                    options={poPicklistValues}
+                                    value={poUploadRequirement}
+                                    onchange={handlePoRequirementChange}
+                                    required>
+                                </lightning-combobox>
+                            </div>
+
+                            <template if:true={showPoWarning}>
+                                <div class="slds-text-color_error slds-m-top_small">
+                                    <strong>Keep your file size less than 25MB</strong>
+                                </div>
+
+                                <div class="slds-m-top_small">
+                                    <lightning-file-upload
+                                        label="Upload PO"
+                                        name="poUpload"
+                                        record-id={recordId}
+                                        multiple
+                                        onuploadfinished={handleUploadFinished}>
+                                    </lightning-file-upload>
+                                </div>
+
+                                <template if:true={fileNameText}>
+                                    <div class="slds-m-top_small slds-text-body_small">
+                                        <strong>{fileNameText}</strong>
+                                    </div>
+                                </template>
+                            </template>
+                        </template>
+
+                        <template if:true={isLost}>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="negotiationLossReason"
+                                        label="Lost Reason"
+                                        options={lossReasonOptions}
+                                        value={lossReason}
+                                        onchange={handleLossReasonChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-textarea
+                                        name="negotiationRemarks"
+                                        label="Remarks"
+                                        value={remarks}
+                                        onchange={handleRemarksChange}
+                                        required>
+                                    </lightning-textarea>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template if:true={showDealerBusiness}>
+                        <lightning-radio-group
+                            name="dealerOutcome"
+                            label="Please select one"
+                            options={outcomeOptions}
+                            value={outcome}
+                            type="radio"
+                            onchange={handleOutcomeChange}
+                            required>
+                        </lightning-radio-group>
+
+                        <template if:true={isWon}>
+                            <div class="slds-m-top_medium">
+                                <lightning-input
+                                    type="number"
+                                    name="dealerExpectedDealValue"
+                                    label="Expected Deal Value"
+                                    value={expectedDealValue}
+                                    step="1"
+                                    onchange={handleExpectedDealValueChange}
+                                    required>
+                                </lightning-input>
+                            </div>
+
+                            <div class="slds-m-top_medium">
+                                <lightning-combobox
+                                    name="dealerPoRequirement"
+                                    label="PO upload is required?"
+                                    options={poPicklistValues}
+                                    value={poUploadRequirement}
+                                    onchange={handlePoRequirementChange}
+                                    required>
+                                </lightning-combobox>
+                            </div>
+
+                            <template if:true={showPoWarning}>
+                                <div class="slds-text-color_error slds-m-top_small">
+                                    <strong>Keep your file size less than 25MB</strong>
+                                </div>
+
+                                <div class="slds-m-top_small">
+                                    <lightning-file-upload
+                                        label="Upload PO"
+                                        name="dealerPoUpload"
+                                        record-id={recordId}
+                                        multiple
+                                        onuploadfinished={handleUploadFinished}>
+                                    </lightning-file-upload>
+                                </div>
+
+                                <template if:true={fileNameText}>
+                                    <div class="slds-m-top_small slds-text-body_small">
+                                        <strong>{fileNameText}</strong>
+                                    </div>
+                                </template>
+                            </template>
+                        </template>
+
+                        <template if:true={isLost}>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-combobox
+                                        name="dealerLossReason"
+                                        label="Lost Reason"
+                                        options={lossReasonOptions}
+                                        value={lossReason}
+                                        onchange={handleLossReasonChange}
+                                        required>
+                                    </lightning-combobox>
+                                </div>
+                                <div class="slds-col slds-size_1-of-2">
+                                    <lightning-textarea
+                                        name="dealerRemarks"
+                                        label="Remarks"
+                                        value={remarks}
+                                        onchange={handleRemarksChange}
+                                        required>
+                                    </lightning-textarea>
+                                </div>
+                            </div>
+                        </template>
+                    </template>
+
+                    <template if:true={showOtherDirectBusinessSection}>
+                        <div class="slds-box slds-theme_default">
+                            <p>No stage-change input is required for the current stage.</p>
+                            <p class="slds-m-top_x-small">Finishing will follow the Flow's default path and close any open Tasks, future Events, and scheduled Visits related to this Opportunity.</p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </template>
+
+        <div slot="footer">
+            <template if:true={showSuccessScreen}>
+                <lightning-button label="Done" variant="brand" onclick={handleFinish}></lightning-button>
+            </template>
+            <template if:true={showFaultScreen}>
+                <lightning-button label="Finish" variant="brand" onclick={handleFinish}></lightning-button>
+            </template>
+            <template if:true={validationScreen}>
+                <lightning-button label="Finish" variant="brand" onclick={handleFinish}></lightning-button>
+            </template>
+            <template if:true={normalScreen}>
+                <lightning-button
+                    label="Cancel"
+                    variant="neutral"
+                    onclick={handleCancel}
+                    disabled={isSaving}>
+                </lightning-button>
+                <lightning-button
+                    class="slds-m-left_small"
+                    label="Finish"
+                    variant="brand"
+                    onclick={handleSubmit}
+                    disabled={isSubmitDisabled}>
+                </lightning-button>
+            </template>
+        </div>
+    </lightning-quick-action-panel>
+</template>

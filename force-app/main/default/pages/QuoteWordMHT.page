@@ -1,0 +1,4 @@
+<apex:page standardController="Quote" extensions="SteelPipesWordMHTMLController"
+           contentType="application/msword#SteelPipesQuotation_{!quoteRecord.QuoteNumber}.doc"
+           showHeader="false" sidebar="false" applyBodyTag="false" applyHtmlTag="false"
+><apex:outputText escape="false" value="{!mhtmlContent}"/></apex:page>

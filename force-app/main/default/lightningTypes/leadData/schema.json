@@ -1,0 +1,5 @@
+{
+  "title" : "Create Standard Lead from Agent Request",
+  "description" : "Create Standard Lead from Agent Request",
+  "lightning:type" : "@apexClassType/c__CreateLeadFromAgentforce$AgentRequest"
+}

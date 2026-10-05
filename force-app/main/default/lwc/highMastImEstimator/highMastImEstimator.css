@@ -1,0 +1,636 @@
+/* highMastImEstimator - the High Mast estimator of the International Marketing quote, drawn in the
+   design of the other IM children (tpImConfig / telecomImConfig / crashBarrierImConfig): group
+   cards with a band heading, bordered tables with grid lines, colour-coded read-only cells, big
+   tables and the calculated values in a full-width panel. The class names are hmEstimator's own
+   (the engine sets them), only the rules are new. Deepanjan (28th September 2026) */
+:host { --im-ink: #16325c; --im-muted: #5e6c84; --im-line: #dfe6ef; --im-accent: #0b5cab; --im-accent-soft: #eaf3ff;
+    --im-price: #0e7a3c; --im-price-soft: #e9f8ef; --im-cost: #8a4b00; --im-cost-soft: #fff4e5; --im-calc-soft: #f3f4f6;
+    --im-red: #ba0517; --im-red-soft: #fff5f5; --im-radius: 8px;
+    display: block; position: relative; font-weight: 600; color: var(--im-ink); }
+
+/* ---------- shell: nothing but a block (no modal chrome) ---------- */
+.hm-wrap, .modal-container, .modal-body { display: block; position: static; width: 100%; max-width: none; height: auto; max-height: none;
+    margin: 0; padding: 0; background: transparent; border: 0; box-shadow: none; overflow: visible; }
+.slds-hide { display: none !important; }
+
+/* ---------- section = group card ---------- */
+.accordion-section.im-group { margin: .3rem 0 .4rem; border: 1px solid var(--im-line); border-left: 3px solid #cfdcef; border-radius: 0 var(--im-radius) var(--im-radius) 0;
+    background: #fff; position: relative; }
+.accordion-section.im-group_open { border-left-color: var(--im-accent); }
+.accordion-section.im-group_missing { border-left-color: var(--im-red); }
+.section-header { display: flex; align-items: center; gap: .4rem; padding: 0 .4rem 0 0; background: #eef3fa; border-radius: 0 6px 6px 0; min-height: 2.2rem; }
+.section-header.has-required { background: #fff0f0; }
+.im-group-toggle { flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: .45rem; border: 0; background: transparent; cursor: pointer;
+    text-align: left; padding: .35rem .5rem; font: inherit; color: var(--im-ink); min-height: 2.2rem; }
+.section-label { font-size: .92rem; font-weight: 900; letter-spacing: .02em; text-transform: uppercase; color: var(--im-ink); line-height: 1.2; }
+.has-required .section-label { color: var(--im-red); }
+.im-chev { --sds-c-icon-color-foreground-default: #7b8ba3; flex: none; }
+.im-miss-tag { display: inline-block; margin-left: .3rem; font-size: .6rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: #fff;
+    background: var(--im-red); border-radius: 999px; padding: .1rem .45rem; vertical-align: middle; white-space: nowrap; }
+.hm-calc-btn { flex: none; display: inline-flex; align-items: center; gap: .3rem; border: 1px solid #c9d3e0; background: #fff; color: var(--im-accent);
+    font: inherit; font-weight: 800; font-size: .72rem; letter-spacing: .03em; text-transform: uppercase; padding: .3rem .65rem; border-radius: 999px; cursor: pointer; white-space: nowrap; }
+.hm-calc-btn:hover { background: var(--im-accent-soft); border-color: var(--im-accent); }
+.hm-calc-icon { --sds-c-icon-color-foreground-default: var(--im-accent); }
+/* [im] computed table cells live in the Calculated values panel; its button is red when the
+   approval metric of this quote is one of them. Opened from a table panel it sits above it. */
+.im-cell_calc { display: none !important; }
+.hm-calc-btn_apv { border-color: var(--im-red); background: var(--im-red-soft); color: var(--im-red); }
+.hm-calc-btn_apv .hm-calc-icon { --sds-c-icon-color-foreground-default: var(--im-red); }
+.im-gm-headbtns { display: inline-flex; align-items: center; gap: .35rem; flex: none; }
+.im-gm-bg.hm-calc-backdrop { z-index: 10000; }
+.im-gm.im-gm_calc { z-index: 10001; }
+.im-group-body { padding: .35rem .5rem .5rem; }
+.hm-empty-card { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; padding: .5rem .7rem;
+    border: 1px dashed #c3cfdd; border-radius: var(--im-radius); background: #fafafa; color: #4b5563; font-size: .82rem; font-weight: 700; }
+
+/* ---------- table card (a big table lives in the panel) ---------- */
+.im-tablecard { display: flex; align-items: center; justify-content: space-between; gap: .8rem; padding: .5rem .7rem; margin: .1rem 0 .2rem;
+    border: 1px dashed #c3cfdd; border-radius: var(--im-radius); background: #f8fbff; }
+.im-tablecard_missing { border-color: #f5c2c2; background: var(--im-red-soft); }
+.im-tablecard-info { display: flex; flex-wrap: wrap; align-items: center; gap: .3rem .5rem; min-width: 0; }
+.im-tablecard-name { font-weight: 800; color: var(--im-ink); font-size: .88rem; text-transform: uppercase; letter-spacing: .02em; }
+.im-tablecard-sub { font-size: .8rem; color: var(--im-ink); font-weight: 800; }
+.im-openbtn { border: 1px solid var(--im-accent); background: var(--im-accent); color: #fff; font: inherit; font-weight: 800; font-size: .78rem; letter-spacing: .04em;
+    padding: .4rem 1rem; border-radius: 7px; cursor: pointer; white-space: nowrap; min-height: 2.2rem; }
+.im-openbtn:hover { background: #094c8d; }
+
+/* ---------- full-width panel (big table / calculated values) ---------- */
+.im-gm-bg { position: fixed; inset: 0; background: rgba(22,50,92,.35); z-index: 9998; }
+.im-gm { position: fixed; left: 0; right: 0; margin: 0 auto; width: fit-content; min-width: min(36rem, calc(100vw - 2rem)); max-width: calc(100vw - 2rem); top: 4.5rem; max-height: calc(100vh - 5.5rem); z-index: 9999; background: #fff; border: 1px solid var(--im-accent);
+    border-radius: 12px; box-shadow: 0 16px 48px rgba(22,50,92,.35); display: flex; flex-direction: column; }
+.im-gm_calc { width: min(38rem, calc(100vw - 2rem)); min-width: 0; }
+.im-gm-head { display: flex; align-items: center; justify-content: space-between; gap: .6rem; padding: .6rem 1rem; border-bottom: 1px solid var(--im-line);
+    background: linear-gradient(90deg, #f3f7fd, #fff); border-radius: 12px 12px 0 0; }
+.im-gm-title { font-weight: 900; color: var(--im-ink); font-size: .95rem; text-transform: uppercase; letter-spacing: .02em; line-height: 1.2; }
+.im-gm-sub { display: block; font-size: .68rem; font-weight: 800; letter-spacing: .06em; color: var(--im-accent); }
+.im-gm-x { border: 0; background: transparent; font: inherit; font-size: 1.6rem; line-height: 1; color: var(--im-muted); cursor: pointer; padding: .1rem .5rem; min-width: 2.2rem; min-height: 2.2rem; border-radius: 6px; }
+.im-gm-x:hover { background: #f3f7fc; color: var(--im-ink); }
+.im-gm-body { flex: 1 1 auto; overflow: auto; padding: .6rem 1rem .8rem; -webkit-overflow-scrolling: touch; }
+.im-gm-foot { padding: .55rem 1rem; border-top: 1px solid var(--im-line); display: flex; justify-content: flex-end; gap: .5rem; }
+.im-gm .grid-container { width: min(78rem, calc(100vw - 4rem)); min-width: min(56rem, calc(100vw - 4rem)); }
+.im-gm .im-pairs { width: min(64rem, calc(100vw - 4rem)); }
+.im-gm .grid-container.im-layout_colrep { width: max-content; min-width: 0; }
+.im-grid-shell { display: block; }
+.im-grid-body { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+/* ---------- the grid: 12 columns, cells with grid lines ---------- */
+.grid-container { display: grid; align-items: stretch; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 0; width: 100%; border: 1px solid var(--im-line); border-radius: var(--im-radius);
+    overflow: hidden; background: #fff; box-sizing: border-box; }
+.grid-container > .slds-col { width: auto !important; max-width: none !important; flex: none !important; padding: 0; box-sizing: border-box; min-width: 0; }
+.grid-container > .slds-size_1-of-12 { grid-column: span 1; } .grid-container > .slds-size_2-of-12 { grid-column: span 2; }
+.grid-container > .slds-size_3-of-12 { grid-column: span 3; } .grid-container > .slds-size_4-of-12 { grid-column: span 4; }
+.grid-container > .slds-size_5-of-12 { grid-column: span 5; } .grid-container > .slds-size_6-of-12 { grid-column: span 6; }
+.grid-container > .slds-size_7-of-12 { grid-column: span 7; } .grid-container > .slds-size_8-of-12 { grid-column: span 8; }
+.grid-container > .slds-size_9-of-12 { grid-column: span 9; } .grid-container > .slds-size_10-of-12 { grid-column: span 10; }
+.grid-container > .slds-size_11-of-12 { grid-column: span 11; } .grid-container > .slds-size_12-of-12 { grid-column: span 12; }
+
+/* layout: MATRIX = a heading row + rows of cells under it (General Details, Base Plate, KIT BOM ...);
+   FORM = labelled cells of odd widths (KIT Line, segment details) drawn as equal tiles */
+.grid-container.im-layout_form { grid-template-columns: repeat(auto-fill, minmax(12.5rem, 1fr)); }
+.grid-container.im-layout_form > .slds-col { grid-column: auto; }
+.grid-container.im-layout_form > .field-row-header { grid-column: 1 / -1; }
+/* a full-width field in the FORM layout is a tile like any other: label above, input below */
+.grid-container.im-layout_form > .field-row-standard { grid-column: auto !important; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; min-width: 0;
+    border-right: 1px solid var(--im-line); border-bottom: 1px solid var(--im-line); padding: .35rem .45rem .4rem; min-height: 3.6rem; }
+.grid-container.im-layout_form > .field-row-standard .field-label-cell { margin-bottom: .18rem; padding-right: 0; }
+.grid-container.im-layout_form > .field-row-standard .field-label { font-size: .66rem; }
+.grid-container.im-layout_form > .field-row-standard .field-action-cell { top: .15rem; transform: none; }
+.grid-container.im-layout_form > .field-row-standard .im-err { grid-column: auto; }
+.grid-container.im-layout_form > .field-row-standard.readonly-row .readonly-value { width: 100%; min-width: 0; }
+.im-gm .grid-container.im-layout_form { min-width: min(48rem, calc(100vw - 4rem)); }
+/* [im] KIT line: equal tiles, 4 a row (3 on a tablet, 2 on a phone) - the mast figures it reads
+   (QTY. OF HM, MAST HEIGHT, RING DIA, No of Segment) fill the first row, the inputs follow */
+.grid-container.im-layout_form.im-layout_kit { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.grid-container.im-layout_kit > .field-cell-grid, .grid-container.im-layout_kit > .field-row-standard { min-height: 4rem; padding: .45rem .6rem .5rem; }
+.grid-container.im-layout_kit > .readonly-row { min-height: 3.4rem; }
+.grid-container.im-layout_kit > .slds-col:not(.field-row-header), .grid-container.im-layout_kit > .field-row-standard { grid-column: auto !important; }
+.grid-container.im-layout_kit .field-label { font-size: .68rem; }
+.im-gm .grid-container.im-layout_form.im-layout_kit { width: min(64rem, calc(100vw - 4rem)); min-width: min(44rem, calc(100vw - 4rem)); }
+@media (max-width: 64em) { .grid-container.im-layout_form.im-layout_kit { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.field-cell-grid.im-cell_col { min-height: 2.9rem; justify-content: center; padding-top: .3rem; padding-bottom: .3rem; }
+.im-cell_col .field-label-cell, .im-cell_col .field-unit, .im-cell_col .required-divider { display: none; }
+.im-req { color: var(--im-red); margin-left: .15rem; }
+.im-hdr-unit { display: block; font-size: .62rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--im-muted); text-align: center; line-height: 1.1; margin-top: .1rem; }
+.im-gm .im-layout_matrix > .grid-header-cell { position: sticky; top: 0; z-index: 2; }
+
+/* column repeater (row label | item columns) */
+.im-cell_rowin .field-label-cell, .im-cell_rowin .required-divider { display: none; }
+.field-cell-grid.im-cell_rowin { min-height: 2.9rem; justify-content: center; padding-top: .3rem; padding-bottom: .3rem; }
+.grid-header-cell.im-cell_rowlbl { justify-content: center; align-items: flex-start; background: #f3f7fc; border-bottom: 1px solid var(--im-line); text-align: left; }
+.grid-header-cell.im-cell_rowlbl .header-text { text-align: left; color: var(--im-ink); }
+.grid-header-cell.im-cell_rowlbl .im-hdr-unit { text-align: left; }
+.grid-header-cell.im-row_alt, .grid-header-cell.im-cell_rowlbl.im-row_alt { background: #e9f0f8; }
+.im-gm .im-layout_colrep > .im-cell_head { position: sticky; top: 0; z-index: 2; background: #f3f7fc; }
+.im-gm .im-layout_colrep > .im-cell_head.im-cell_rowlbl { left: 0; z-index: 3; }
+.grid-container.im-layout_colrep { grid-template-columns: minmax(12rem, 16rem) repeat(var(--n, 1), minmax(11rem, 15rem)); min-width: max-content; width: max-content; max-width: none; }
+.grid-container.im-layout_colrep > .slds-col { grid-column: auto; }
+.grid-container.im-layout_colrep > .field-row-header, .grid-container.im-layout_colrep > .field-row-standard { grid-column: 1 / -1; }
+.grid-container.im-layout_colrep > .grid-header-cell.im-cell_rowlbl { position: sticky; left: 0; z-index: 1; }
+.grid-container.im-layout_colrep > .grid-header-cell:not(.im-cell_rowlbl) .header-text { text-align: center; }
+.im-cell_rowin .field-unit { display: none; }
+.im-gm-body .grid-container { overflow: visible; border-radius: 0; }   /* overflow:hidden would break the sticky headings / row labels */
+
+/* ROWS: captioned rows - the narrow heading cell is the row label */
+.grid-container.im-layout_rows > .grid-header-cell:not(.im-hdr_empty) { justify-content: center; align-items: flex-start; background: #f3f7fc; border-bottom: 1px solid var(--im-line); }
+.grid-container.im-layout_rows > .grid-header-cell:not(.im-hdr_empty) .header-text { text-align: left; color: var(--im-ink); }
+.grid-container.im-layout_rows > .grid-header-cell.im-hdr_empty { background: #fff; }
+.grid-container.im-layout_rows > .field-row-standard { grid-template-columns: minmax(9rem, 1fr) 2fr; }
+.grid-container.im-layout_rows > .field-row-standard .field-input-cell > .hm-in, .grid-container.im-layout_rows > .field-row-standard .field-input-cell > .readonly-value { max-width: 22rem; }
+
+/* a cell */
+.field-cell-grid { position: relative; border-right: 1px solid var(--im-line); border-bottom: 1px solid var(--im-line); padding: .35rem .45rem .4rem; background: #fff;
+    display: flex; flex-direction: column; justify-content: flex-end; min-height: 3.6rem; }
+.field-cell-grid .field-label-cell { margin-bottom: .18rem; }
+.field-label { display: block; font-size: .66rem; font-weight: 800; letter-spacing: .03em; text-transform: uppercase; color: var(--im-ink); line-height: 1.15; overflow-wrap: anywhere; }
+.required-label::after { content: ' *'; color: var(--im-red); }
+.field-divider { display: none; }
+.required-divider { display: none; }   /* the cell bar + message mark a required field here */
+.field-input-cell { display: flex; flex-wrap: nowrap; align-items: center; gap: .3rem; min-width: 0; }
+.field-input-cell > .hm-in, .field-input-cell > .readonly-value { flex: 1 1 0; width: auto; min-width: 0; }
+.field-input-cell > .field-unit { flex: none; max-width: 45%; overflow: hidden; text-overflow: ellipsis; }
+.field-cell-grid.im-cell_nolabel { min-height: 2.9rem; justify-content: center; padding-top: .3rem; padding-bottom: .3rem; }
+.im-cell_nolabel .field-label-cell { display: none; }
+.im-hdr_blank { display: none !important; }
+.field-input-cell > .hm-in { flex: 1 1 auto; min-width: 0; }
+.field-unit { font-size: .66rem; font-weight: 800; color: var(--im-muted); white-space: nowrap; }
+.field-action-cell { position: absolute; top: .15rem; right: .15rem; }
+.clear-btn { display: inline-flex; align-items: center; justify-content: center; width: 1.3rem; height: 1.3rem; border: 0; border-radius: 4px; background: transparent; cursor: pointer;
+    --sds-c-icon-color-foreground-default: #9aa5b4; opacity: 0; transition: opacity .15s; }
+.field-cell-grid:hover .clear-btn, .field-row-standard:hover .clear-btn, .clear-btn:focus { opacity: 1; }
+.clear-btn:hover { background: #fdecee; --sds-c-icon-color-foreground-default: #b91c1c; }
+
+/* column heading cells (a header with colSpan < 12) */
+.grid-header-cell { justify-content: center; background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); min-height: 2.2rem; padding: .4rem .45rem; }
+.grid-header-cell .header-text { font-size: .7rem; font-weight: 900; letter-spacing: .04em; text-transform: uppercase; color: var(--im-accent); line-height: 1.15; text-align: center; overflow-wrap: anywhere; }
+
+/* full-width band (a header with colSpan 12) */
+.field-row-header { grid-column: 1 / -1 !important; background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); padding: .4rem .55rem; }
+.field-row-header .header-text { font-size: .74rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--im-accent); }
+.field-row-header + .field-row-header { border-top: 1px solid var(--im-line); }
+
+/* full-width field row: label | input */
+.field-row-standard { grid-column: 1 / -1 !important; display: grid; grid-template-columns: minmax(9rem, 2fr) 3fr; align-items: center; column-gap: .6rem;
+    padding: .3rem .55rem; border-bottom: 1px solid var(--im-line); position: relative; }
+.field-row-standard:last-child, .field-cell-grid:last-child { border-bottom: 0; }
+.field-row-standard .field-label { font-size: .72rem; }
+.field-row-standard .field-divider { display: none; }
+.field-row-standard .required-divider { display: none; }
+.field-row-standard .field-label-cell { padding-right: .3rem; }
+.field-row-standard .field-action-cell { top: 50%; transform: translateY(-50%); }
+
+/* ---------- inputs ---------- */
+.hm-in { width: 100%; box-sizing: border-box; height: 2.05rem; padding: 0 .5rem; border: 1px solid #c3cfdd; border-radius: 7px; background: #fff;
+    font: inherit; font-weight: 700; font-size: .88rem; color: var(--im-ink); outline: none; transition: border-color .15s, box-shadow .15s; }
+.hm-in:focus { border-color: var(--im-accent); box-shadow: 0 0 0 3px rgba(11,92,171,.15); }
+.hm-in:disabled { background: #f3f4f6; color: #9aa3b2; cursor: not-allowed; border-color: #e3e7ee; }
+.hm-in::placeholder { color: #b0adab; font-weight: 400; }
+.hm-number::-webkit-outer-spin-button, .hm-number::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.hm-textarea { height: auto; min-height: 2.6rem; padding: .35rem .5rem; resize: vertical; }
+.hm-select { appearance: none; -webkit-appearance: none; padding-right: 1.6rem;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8'><path d='M1 1l5 5 5-5' fill='none' stroke='%230b5cab' stroke-width='2'/></svg>");
+    background-repeat: no-repeat; background-position: right .5rem center; }
+.has-required .hm-in:invalid { border-color: var(--im-red); }
+
+/* toggle (checkbox) */
+.checkbox-wrapper { display: flex; align-items: center; min-height: 2.05rem; }
+.hm-toggle { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; user-select: none; -webkit-user-select: none; margin: 0; min-height: 2.05rem; }
+.hm-toggle-in { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; }
+.hm-toggle-track { position: relative; width: 2.6rem; height: 1.45rem; border-radius: 999px; background: #b7c2d0; transition: background-color .15s; flex: none; }
+.hm-toggle-knob { position: absolute; top: .15rem; left: .15rem; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.25); transition: left .15s; }
+.hm-toggle-in:checked + .hm-toggle-track { background: var(--im-accent); }
+.hm-toggle-in:checked + .hm-toggle-track .hm-toggle-knob { left: 1.3rem; }
+.hm-toggle-in:focus-visible + .hm-toggle-track { box-shadow: 0 0 0 3px rgba(11,92,171,.25); }
+.hm-toggle-in:disabled + .hm-toggle-track { opacity: .5; }
+.hm-toggle-text { font-size: .78rem; font-weight: 800; color: var(--im-ink); min-width: 1.6rem; }
+
+/* zebra rows of a matrix table */
+.field-cell-grid.im-row_alt { background: #f4f7fb; }
+.field-cell-grid.im-row_alt.readonly-row { background: #eceff3; }
+
+/* ---------- read-only cells: colour coded ---------- */
+.readonly-row { background: #eef1f5; }
+.field-cell-grid.readonly-row.im-row_alt { background: #e6eaf0; }
+.readonly-value { display: inline-flex; align-items: center; min-height: 2.05rem; padding: 0 .5rem; border-radius: 7px; border: 1px dashed #cdd5df; background: transparent;
+    font-weight: 800; font-size: .88rem; color: #4b5563; font-variant-numeric: tabular-nums; width: 100%; box-sizing: border-box; overflow-wrap: anywhere; }
+.im-cell_price.readonly-row { background: var(--im-price-soft); }
+.im-cell_price .readonly-value { color: var(--im-price); border-color: #9fd9b5; }
+.im-cell_cost.readonly-row { background: var(--im-cost-soft); }
+.im-cell_cost .readonly-value { color: var(--im-cost); border-color: #f5d9b0; }
+.field-row-standard.readonly-row .readonly-value { width: auto; min-width: 8rem; }
+.im-fc { display: inline-block; margin-left: .35rem; padding: .05rem .4rem; border-radius: 4px; background: var(--im-accent-soft); color: var(--im-accent); font-size: .68rem; font-weight: 800; white-space: nowrap; vertical-align: middle; }
+
+/* a field with a problem: required, below the minimum, a refused segment count */
+.field-cell-grid.im-cell_err, .field-row-standard.im-cell_err { background: var(--im-red-soft) !important; box-shadow: inset 3px 0 0 var(--im-red); }
+.im-cell_err .hm-in { border-color: var(--im-red); }
+.im-err { font-size: .68rem; font-weight: 800; color: var(--im-red); line-height: 1.15; margin-top: .15rem; }
+.im-cell_col .im-err, .im-cell_rowin .im-err { font-size: .62rem; }
+.field-row-standard .im-err { grid-column: 2; }
+
+/* required and still empty: marked from the start */
+.field-cell-grid.im-cell_req, .field-row-standard.im-cell_req { box-shadow: inset 3px 0 0 #f0a3a3; }
+.im-cell_req .hm-in { border-color: #e39a9a; }
+.im-done-err { font-size: .8rem; font-weight: 800; color: var(--im-red); background: var(--im-red-soft); border: 1px solid #f5c2c2; border-radius: 7px; padding: .35rem .7rem; }
+
+/* legend of the panel */
+.im-gm-foot { justify-content: space-between; align-items: center; flex-wrap: wrap; }
+.im-legend { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .8rem; font-size: .7rem; font-weight: 800; color: var(--im-muted); text-transform: uppercase; letter-spacing: .03em; }
+.im-legend > span { display: inline-flex; align-items: center; gap: .3rem; }
+.im-legend > span::before { content: ''; display: inline-block; width: .9rem; height: .9rem; border-radius: 3px; box-sizing: border-box; }
+.im-legend-in::before { background: #fff; border: 1px solid #c3cfdd; }
+.im-legend-ro::before { background: #eef1f5; border: 1px dashed #cdd5df; }
+.im-legend-req { color: var(--im-red); }
+.im-legend-req::before { display: none !important; }
+
+/* approval: the section / card / field that made the approval fire */
+.accordion-section.im-group_trigger { border-left-color: var(--im-red); background: #fffafa; }
+.im-group_trigger > .section-header { background: #fff0f0; }
+.im-tablecard_trigger { border-color: var(--im-red); border-style: solid; background: var(--im-red-soft); }
+.im-trigger-tag { display: inline-block; font-size: .58rem; font-weight: 900; letter-spacing: .08em; color: #fff; background: var(--im-red); border-radius: 999px; padding: .1rem .45rem; vertical-align: middle; white-space: nowrap; }
+/* approval: the evaluated metric field */
+.apv-hit-field { background: var(--im-red-soft) !important; box-shadow: inset 0 0 0 2px var(--im-red); }
+.apv-hit-field .field-label, .apv-hit-field .readonly-value { color: var(--im-red); }
+
+/* ---------- BOM items: item | qty consumed | amount ---------- */
+.im-pairs { border: 1px solid var(--im-line); border-radius: var(--im-radius); overflow: hidden; min-width: 34rem; }
+.im-pairs-head, .im-pairs-row { display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(7rem, 1fr) minmax(9rem, 1.2fr); column-gap: .6rem; align-items: center; padding: .38rem .7rem; }
+.im-pairs-head { position: sticky; top: 0; z-index: 2; background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--im-accent); }
+.im-pairs-row { border-bottom: 1px solid #eef2f7; }
+.im-pairs-row:nth-child(even) { background: #fafcff; }
+.im-pairs-row_zero { color: #9aa3b2; }
+.im-pairs-row_zero .im-pairs-item, .im-pairs-row_zero .im-pairs-amt { color: #9aa3b2; }
+.im-pairs-item { font-size: .76rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--im-ink); line-height: 1.15; overflow-wrap: anywhere; }
+.im-pairs-num { text-align: right; font-weight: 800; font-size: .9rem; color: #4b5563; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.im-pairs-unit { font-size: .66rem; font-weight: 800; color: var(--im-muted); }
+.im-pairs-amt { color: var(--im-price); }
+.im-pairs-amt .im-fc { display: inline-block; margin: 0 0 0 .4rem; vertical-align: middle; }
+.im-pairs-total { background: var(--im-price-soft) !important; border-top: 2px solid #bfe8cf; }
+.im-pairs-total .im-pairs-item, .im-pairs-total .im-pairs-amt { font-weight: 900; color: var(--im-price); }
+@media (max-width: 48em) { .im-pairs { min-width: 0; } .im-pairs-head, .im-pairs-row { grid-template-columns: minmax(0, 1.6fr) minmax(5rem, 1fr) minmax(6rem, 1fr); column-gap: .4rem; padding: .4rem .5rem; } .im-pairs-num { font-size: .84rem; white-space: normal; } }
+
+/* ---------- calculated values panel: a two-column table ---------- */
+.im-calc-tbl { border: 1px solid var(--im-line); border-radius: var(--im-radius); overflow: hidden; }
+.calc-group { background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); padding: .4rem .6rem; font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: var(--im-accent); }
+.calc-group + .calc-group { border-top: 1px solid var(--im-line); }
+.calc-row { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); align-items: center; column-gap: .6rem; padding: .35rem .6rem; border-bottom: 1px solid #eef2f7; }
+.calc-row:nth-child(even) { background: #fafcff; }
+.calc-row:last-child { border-bottom: 0; }
+.calc-label { font-size: .72rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; color: var(--im-ink); line-height: 1.15; overflow-wrap: anywhere; }
+.calc-value { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: .3rem; text-align: right; font-weight: 900; font-size: .92rem; color: #4b5563; font-variant-numeric: tabular-nums; }
+.calc-unit { font-size: .66rem; font-weight: 800; color: var(--im-muted); }
+.calc-row_price { background: var(--im-price-soft) !important; }
+.calc-row_price .calc-value { color: var(--im-price); font-size: 1rem; }
+.calc-row_cost { background: var(--im-cost-soft) !important; }
+.calc-row_cost .calc-value { color: var(--im-cost); }
+.calc-row-apv { background: var(--im-red-soft) !important; box-shadow: inset 3px 0 0 var(--im-red); }
+.calc-row-apv .calc-label, .calc-row-apv .calc-value { color: var(--im-red); }
+.im-fc_calc { margin-left: .2rem; }
+/* [im] Calculated values of several items / rows as a table: the item columns (or table rows) of
+   the table they come from, the figure names in a sticky first column, price green / cost amber,
+   the approval metric red; pans sideways when there are many items */
+.im-gm.im-gm_calcgrid { width: fit-content; min-width: min(38rem, calc(100vw - 2rem)); max-width: min(76rem, calc(100vw - 2rem)); }
+.im-cg-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--im-line); border-radius: var(--im-radius); }
+.im-cg { border-collapse: separate; border-spacing: 0; width: 100%; font-size: .8rem; }
+.im-cg th, .im-cg td { border-right: 1px solid var(--im-line); border-bottom: 1px solid var(--im-line); padding: .45rem .7rem; }
+.im-cg tr > :last-child { border-right: 0; }
+.im-cg tbody tr:last-child > * { border-bottom: 0; }
+.im-cg thead th { background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); color: var(--im-accent); font-size: .7rem; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; text-align: center; white-space: nowrap; }
+.im-cg thead th.im-cg_price { color: var(--im-price); background: var(--im-price-soft); }
+.im-cg thead th.im-cg_cost { color: var(--im-cost); background: var(--im-cost-soft); }
+.im-cg .im-cg-corner, .im-cg .im-cg-lbl { position: sticky; left: 0; z-index: 1; text-align: left; box-shadow: 1px 0 0 var(--im-line); }
+.im-cg .im-cg-corner { z-index: 2; color: var(--im-muted); }
+.im-cg .im-cg-lbl { background: #f8fbff; color: var(--im-ink); font-size: .72rem; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; line-height: 1.2;
+    min-width: 11rem; max-width: 17rem; overflow-wrap: anywhere; }
+.im-cg-unit { display: block; margin-top: .1rem; font-size: .62rem; font-weight: 700; letter-spacing: 0; text-transform: none; color: var(--im-muted); }
+.im-cg td { text-align: right; white-space: nowrap; min-width: 7rem; font-weight: 900; font-size: .9rem; color: #4b5563; font-variant-numeric: tabular-nums; background: #fff; }
+.im-cg-r:nth-child(even) > td { background: #fafcff; }
+.im-cg tr.im-cg_price .im-cg-lbl, .im-cg tr.im-cg_price td, .im-cg td.im-cg_price { background: var(--im-price-soft); }
+.im-cg tr.im-cg_price td, .im-cg td.im-cg_price { color: var(--im-price); }
+.im-cg tr.im-cg_cost .im-cg-lbl, .im-cg tr.im-cg_cost td, .im-cg td.im-cg_cost { background: var(--im-cost-soft); }
+.im-cg tr.im-cg_cost td, .im-cg td.im-cg_cost { color: var(--im-cost); }
+.im-cg td.im-cg_apv { background: var(--im-red-soft) !important; color: var(--im-red) !important; box-shadow: inset 0 0 0 2px var(--im-red); }
+.im-cg td.im-cg-v_none { color: #9aa5b5; font-weight: 700; }
+.im-cg .im-cg-fc { display: block; width: fit-content; margin: .2rem 0 0 auto; }
+.im-cg td .calc-unit { font-size: .66rem; }
+.im-calc-tbl_extra { margin-top: .6rem; }
+/* one row per table row (General Details Row 1 ... 5): a narrow row-number column, like the table's SL. NO. */
+.im-cg.im-cg_byrows .im-cg-lbl, .im-cg.im-cg_byrows .im-cg-corner { min-width: 3.5rem; width: 4.5rem; max-width: 5rem; text-align: center; }
+.im-cg.im-cg_byrows .im-cg-lbl { font-size: .8rem; }
+/* [im] KIT line: COST / SET, UNIT PRICE, UNIT COST and under them its BOM ITEM DETAILS
+   (item | qty consumed | amount) in the one CALCULATED VALUES panel of the line */
+.im-gm.im-gm_calcbom { min-width: min(46rem, calc(100vw - 2rem)); }
+.im-gm.im-gm_calcbom .im-pairs { width: auto; min-width: 0; }
+.im-calc-bom { margin-top: .85rem; }
+.im-calc-bom .im-calc-bom-title { margin: 0 0 .4rem; }
+@media (max-width: 48em) {
+    .im-gm.im-gm_calcgrid { width: auto; min-width: 0; max-width: none; }
+    .im-cg .im-cg-lbl { min-width: 8.5rem; max-width: 10rem; font-size: .68rem; }
+    .im-cg td { min-width: 6rem; }
+    .im-cg th, .im-cg td { padding: .5rem .55rem; }
+}
+
+/* ---------- phone ---------- */
+@media (max-width: 48em) {
+    .section-header { min-height: 2.75rem; }
+    .im-group-toggle { min-height: 2.75rem; }
+    .section-label { font-size: .86rem; }
+    .hm-calc-btn { min-height: 2.5rem; font-size: .68rem; padding: .3rem .55rem; }
+    .im-group-body { padding: .3rem .3rem .4rem; }
+    .im-tablecard { flex-wrap: wrap; gap: .5rem; }
+    .im-tablecard .im-openbtn { width: 100%; min-height: 2.75rem; }
+    .im-openbtn { min-height: 2.75rem; }
+    .im-gm { left: 0; right: 0; width: auto; min-width: 0; max-width: none; top: 2.5rem; bottom: 0; max-height: none; border-radius: 0; }
+    .im-gm .grid-container, .im-gm .im-pairs { width: auto; }
+    .field-cell-grid .clear-btn { display: none; }
+    .im-gm_calc { width: auto; }
+    .im-gm-head { padding: .5rem .7rem; border-radius: 0; }
+    .im-gm-body { padding: .4rem .5rem .6rem; }
+    .im-gm-x { font-size: 1.9rem; min-width: 2.75rem; min-height: 2.75rem; }
+    .im-gm .grid-container { min-width: 52rem; }
+    /* a small form section stacks two cells per row; a table keeps its shape and pans sideways */
+    .grid-container:not(.has-col-repeater) > .slds-col { grid-column: span 6; }
+    .grid-container:not(.has-col-repeater) > .field-row-header, .grid-container:not(.has-col-repeater) > .field-row-standard { grid-column: 1 / -1; }
+    .grid-container.has-col-repeater.im-layout_matrix { min-width: 44rem; }
+    .grid-container.im-layout_colrep { grid-template-columns: minmax(8.5rem, 9.5rem) repeat(var(--n, 1), minmax(9.5rem, 1fr)); }
+    .grid-container.im-layout_form { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-container.im-layout_form.im-layout_kit { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .im-gm .grid-container.im-layout_form.im-layout_kit { width: auto; min-width: 0; }
+    .grid-container.im-layout_rows { min-width: 40rem; }
+    .field-row-standard { grid-template-columns: 1fr; row-gap: .2rem; }
+    .field-row-standard .field-action-cell { top: .2rem; transform: none; }
+    .hm-in, .readonly-value { height: 2.75rem; min-height: 2.75rem; font-size: 16px; }
+    .hm-textarea { height: auto; }
+    .hm-toggle-track { width: 3rem; height: 1.7rem; }
+    .hm-toggle-knob { width: 1.4rem; height: 1.4rem; }
+    .hm-toggle-in:checked + .hm-toggle-track .hm-toggle-knob { left: 1.45rem; }
+    .hm-toggle { min-height: 2.75rem; }
+    .clear-btn { opacity: 1; width: 1.6rem; height: 1.6rem; }
+    .calc-row { padding: .45rem .5rem; }
+    .calc-value { font-size: .95rem; }
+}
+
+/* ---------- Core SUB-TYPE x QUANTITY widget (never drawn for High Mast; rules kept as they were) ---------- */
+/* ================================================================
+   MOBILE v6 — Core subtype-qty widget (sqg-*). Deepanjan (22nd July 2026)
+
+   The subtype multiselect widget renders inside a column-repeater
+   cell. On phones (has-col-repeater table, 56px per span) a column
+   can be as narrow as 1-2 spans, so the desktop one-line qty row
+   (name + 64px input + 52px weight) cannot fit. This block re-stacks
+   the widget CONTENT vertically inside its own cell:
+
+     [checkbox list  - bigger touch targets]
+     subtype name    (full line, ellipsis)
+     [ qty input     - full width          ]
+     weight          (right-aligned, under)
+
+   The widget markup carries inline styles (desktop look). Rules here
+   use !important so, within this media query only, they beat those
+   inline styles. The sqg-* classes exist nowhere else in the sheet,
+   so desktop rendering is untouched. Appended last per convention.
+   ================================================================ */
+@media (max-width: 600px) {
+
+    /* checkbox list: taller rows + real touch targets */
+    .sqg-list {
+        max-height: 132px !important;
+        padding: 2px 4px !important;
+    }
+    .sqg-opt {
+        font-size: 13px !important;
+        padding: 5px 0 !important;
+    }
+    .sqg-cb {
+        width: 16px !important;
+        height: 16px !important;
+        flex: 0 0 16px !important;
+    }
+
+    /* qty rows: stack vertically so any column width works */
+    .sqg-qty-row {
+        flex-wrap: wrap !important;
+        padding: 6px 0 !important;
+        row-gap: 2px !important;
+        border-bottom: 1px dashed #ececec;
+    }
+    .sqg-qty-row .sqg-name {
+        flex: 1 1 100% !important;
+        font-size: 12px !important;
+        font-weight: 600;
+    }
+    .sqg-qty-row .sqg-qty-cell {
+        width: auto !important;
+        flex: 1 1 56px !important;
+        min-width: 48px;
+    }
+    .sqg-qty-row .sqg-wt {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        font-size: 11px !important;
+        align-self: center;
+    }
+
+    /* TOTAL row: same stacked rhythm, no dashed border */
+    .sqg-total-row {
+        flex-wrap: wrap !important;
+        padding-top: 5px !important;
+    }
+    .sqg-total-row .sqg-qty-cell {
+        width: auto !important;
+        flex: 1 1 auto !important;
+        text-align: left !important;
+    }
+    .sqg-total-row .sqg-wt {
+        width: auto !important;
+        flex: 0 0 auto !important;
+    }
+
+    /* the number input itself: v3 already restores its border/bg;
+       give it a comfortable tap height inside the widget */
+    .sqg-qty-cell lightning-input {
+        --slds-c-input-sizing-min-height: 32px;
+    }
+
+    /* blocked hint wraps instead of overflowing a narrow cell */
+    .sqg-blocked {
+        white-space: normal !important;
+        display: block;
+        padding: 4px 0;
+    }
+}
+/* ================================================================
+   MOBILE v7 — Core subtype widget: launcher + bottom sheet.
+   Deepanjan (22nd July 2026)
+
+   A column-repeater cell on the phone can be 1-2 spans (56-112px);
+   no inline widget is usable there. So on phones the cell shows only
+   a compact LAUNCHER button; tapping it opens a full-width BOTTOM
+   SHEET (same checkboxes / qty inputs, same handlers) where the user
+   works comfortably, then taps DONE.
+
+   Desktop is untouched: the launcher is display:none inline and the
+   sheet can only be opened from it, so sqgSheetOpen never becomes
+   true on desktop. Sheet base styles live outside the media query
+   ONLY so a mid-edit orientation change cannot strand an unstyled
+   sheet; they affect nothing until the sheet exists in the DOM.
+   ================================================================ */
+
+/* ---- sheet base (inert until opened; opened only from phones) ---- */
+.sqg-sheet-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 10000000;   /* above the mobile modal shell (9999999) */
+}
+.sqg-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 92vh;
+    height: 92vh;
+    background: #ffffff;
+    border-radius: 14px 14px 0 0;
+    box-shadow: 0 -6px 24px rgba(0, 0, 0, 0.25);
+    z-index: 10000001;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.sqg-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid #e5e5e5;
+}
+.sqg-sheet-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #16325c;
+    text-transform: uppercase;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.sqg-sheet-x {
+    background: none;
+    border: none;
+    padding: 6px;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+.sqg-sheet-body {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 10px 14px;
+    flex: 1 1 auto;
+}
+.sqg-sheet-list {
+    max-height: 48vh !important;   /* beats the inline 150px cap from the reused class */
+    overflow-y: auto !important;   /* the sheet copy carries no inline overflow -
+                                      without this the options spill over the qty
+                                      rows (overlap seen on phone) */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;  /* finger stays on the list, sheet doesn't drag */
+    flex: 0 0 auto;
+    border: 1px solid #dddbda;
+    border-radius: 6px;
+    padding: 4px 8px !important;
+}
+.sqg-sheet-qty { margin-top: 10px; }
+.sqg-sheet-foot {
+    padding: 10px 14px;
+    border-top: 1px solid #e5e5e5;
+}
+.sqg-sheet-done {
+    width: 100%;
+    background: #1a73a8;
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 6px;
+    padding: 12px 0;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+}
+/* ================================================================
+   v8 — Core subtype widget: SAME launcher + popup on DESKTOP too.
+   Deepanjan (22nd July 2026)
+
+   The narrow-column problem exists on desktop as well (a span-1/2
+   cell is ~56-112px there too), and one consistent UI is easier to
+   learn. So the inline list is retired everywhere; every viewport
+   shows the compact launcher. Phones keep the v7 bottom sheet;
+   desktop (min-width: 601px) restyles the very same sheet markup as
+   a CENTERED DIALOG. Only sqg-* selectors — nothing else changes.
+   ================================================================ */
+
+/* inline list retired on every viewport (launcher replaces it) */
+.sqg-inline { display: none !important; }
+/* launcher: base look on all viewports (v7's mobile rules only
+   re-assert these inside the media query, so they stay in accord) */
+.sqg-mobile-launch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+    min-height: 32px;
+    background: #ffffff;
+    border: 1px solid #c9c9c9;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 12px;
+    color: #16325c;
+    text-align: left;
+    cursor: pointer;
+}
+.sqg-mobile-launch:disabled { opacity: 0.55; }
+.sqg-launch-txt {
+    flex: 1 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+/* the sub-type quantity cells keep their compact height */
+.sqg-qty-cell .hm-sqg-qty { height: 26px; font-size: 12px; padding: 0 4px; }
+@media (max-width: 600px) {
+    .sqg-qty-cell .hm-sqg-qty { font-size: 16px; height: 32px; }
+}
+/* ---------- [im] COMPARE: an override pair in one table (Customer Address: SHIPPING ADDRESS +
+   OVERRIDE SHIPPING ADDRESS). The checkbox on top, then FIELD | CURRENT | OVERRIDE rows; the
+   override column appears once the box is ticked. Deepanjan (29th September 2026) ---------- */
+.im-group_merged { display: none !important; }
+.grid-container.im-layout_compare { grid-template-columns: minmax(7rem, 12rem) minmax(0, 1fr); }
+.grid-container.im-layout_compare.im-cmp_on { grid-template-columns: minmax(7rem, 12rem) minmax(0, 1fr) minmax(0, 1fr); }
+.grid-container.im-layout_compare > * { grid-column: auto !important; }
+.grid-container.im-layout_compare > .im-cmp-toggle { grid-column: 1 / -1 !important; display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+    padding: .5rem .6rem; background: #f8fbff; border-bottom: 2px solid var(--im-accent-soft); }
+.grid-container.im-layout_compare > .im-cmp-toggle .field-label-cell { margin: 0; padding: 0; }
+.grid-container.im-layout_compare > .im-cmp-toggle .field-input-cell { flex: none; }
+.grid-container.im-layout_compare > .im-cmp-toggle .field-action-cell { display: none; }   /* a Yes / No switch needs no clear button */
+.grid-container.im-layout_compare > .grid-header-cell { min-height: 2.6rem; }
+.grid-container.im-layout_compare > .im-cmp-head { justify-content: center; align-items: center; background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); }
+.grid-container.im-layout_compare > .im-cmp-head .header-text { color: var(--im-muted); text-align: center; }
+.grid-container.im-layout_compare > .im-cmp-head_ovr { background: var(--im-accent-soft); }
+.grid-container.im-layout_compare > .im-cmp-head_ovr .header-text { color: var(--im-accent); }
+.grid-container.im-layout_compare > .im-cmp-corner { background: #f3f7fc; border-bottom: 2px solid var(--im-accent-soft); }
+.grid-container.im-layout_compare > .im-cmp-lbl { justify-content: center; align-items: flex-start; background: #f3f7fc; padding: .35rem .6rem; border-right: 1px solid var(--im-line); border-bottom: 1px solid var(--im-line); }
+.grid-container.im-layout_compare > .im-cmp-lbl .header-text { text-align: left; color: var(--im-ink); }
+.grid-container.im-layout_compare > .im-cmp-empty { background: #fafafa; }
+.grid-container.im-layout_compare > .im-cmp-cell { display: flex; flex-direction: column; justify-content: center; align-items: stretch; min-width: 0; min-height: 2.9rem;
+    border-right: 1px solid var(--im-line); border-bottom: 1px solid var(--im-line); padding: .3rem .45rem; }
+.grid-container.im-layout_compare > .im-cmp-cell .field-label-cell { display: none; }
+.grid-container.im-layout_compare > .im-cmp-cell .field-input-cell { width: 100%; }
+.grid-container.im-layout_compare > .im-cmp-cell .readonly-value { overflow-wrap: anywhere; }
+.grid-container.im-layout_compare > .im-cmp-ovr { background: #fbfdff; }
+.im-gm .grid-container.im-layout_compare { width: min(60rem, calc(100vw - 4rem)); min-width: min(36rem, calc(100vw - 4rem)); }
+@media (max-width: 48em) {
+    .im-gm .grid-container.im-layout_compare { width: auto; min-width: 0; }
+    .grid-container.im-layout_compare { grid-template-columns: minmax(5.5rem, 7.5rem) minmax(0, 1fr); }
+    .grid-container.im-layout_compare.im-cmp_on { grid-template-columns: minmax(5.5rem, 7rem) minmax(0, 1fr) minmax(0, 1fr); }
+    .grid-container.im-layout_compare > .im-cmp-lbl .header-text { font-size: .62rem; }
+    .grid-container.im-layout_compare > .im-cmp-cell { padding: .3rem .3rem; }
+    .grid-container.im-layout_compare > .im-cmp-cell .clear-btn { display: none; }   /* as every other phone cell: clear by deleting the text */
+}

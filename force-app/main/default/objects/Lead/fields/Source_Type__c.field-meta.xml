@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source_Type__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( ISPICKVAL( LeadSource , &apos;FACEBOOK&apos;) , &apos;DIGITAL&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;FB LEAD ADS&apos;) , &apos;DIGITAL&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;INBOUND EMAIL&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;INBOUND PHONE CALL&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;INDIAMART&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;ONLINE CAMPAIGNING&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;PAY PER CLICK ADS&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;WEBSITE&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;WEBSITE BOT CHAT&apos;) , &apos;DIGITAL&apos;,
+IF( ISPICKVAL( LeadSource , &apos;WHATSAPP CAMPAIGNING&apos;) , &apos;REMARKETING&apos;,
+IF( ISPICKVAL( LeadSource , &apos;EMAIL CAMPAIGNING&apos;) , &apos;REMARKETING&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;OUTBOUND PHONE CALL&apos;) , &apos;REMARKETING&apos;,
+IF( ISPICKVAL( LeadSource , &apos;EVENT ACTIVATION&apos;) , &apos;EVENT&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;OFFLINE CRM&apos;) , &apos;OTHER&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;TENDER&apos;) , &apos;OTHER&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;CRM RESOUCE&apos;) , &apos;OTHER&apos;, 
+IF( ISPICKVAL( LeadSource , &apos;Offline Marketing&apos;) , &apos;From Offline sales&apos;, 
+&apos;&apos;)))))))))))))))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Source Type</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

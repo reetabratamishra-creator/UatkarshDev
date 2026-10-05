@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All</fullName>
+    <columns>MasterLabel</columns>
+    <columns>rateCard__c</columns>
+    <columns>JSON_Payload__c</columns>
+    <columns>Base_Amount__c</columns>
+    <columns>Department__c</columns>
+    <columns>Add_On_Amount__c</columns>
+    <columns>fm_general_detail__c</columns>
+    <columns>tp_segment__c</columns>
+    <columns>man_riding_lift__c</columns>
+    <columns>GST__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All</label>
+</ListView>

@@ -1,0 +1,602 @@
+/* ─── Target Wizard Modal Styles ─── */
+
+/* Backdrop */
+.tw-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9000;
+    backdrop-filter: blur(2px);
+}
+
+/* Modal */
+.tw-modal {
+    background: #ffffff;
+    border-radius: 0.75rem;
+    width: 95%;
+    max-width: 1100px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+/* Close Button */
+.tw-close-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    z-index: 10;
+    color: #706e6b;
+    padding: 0.25rem;
+}
+
+.tw-close-btn:hover {
+    color: #333;
+}
+
+/* ─── Progress Steps ─── */
+.tw-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem 2rem;
+    border-bottom: 1px solid #e5e5e5;
+    background: #fafafa;
+    gap: 0;
+}
+
+.tw-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tw-step-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: #e0e0e0;
+    color: #999;
+    flex-shrink: 0;
+}
+
+.tw-step-active {
+    background: #0070d2;
+    color: #fff;
+}
+
+.tw-step-completed {
+    background: #2e844a;
+    color: #fff;
+}
+
+.tw-step-label {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #999;
+    white-space: nowrap;
+}
+
+.tw-step-label-active {
+    color: #181818;
+    font-weight: 600;
+}
+
+.tw-line {
+    width: 80px;
+    height: 2px;
+    background: #e0e0e0;
+    margin: 0 1rem;
+    flex-shrink: 0;
+}
+
+.tw-line-active {
+    background: #2e844a;
+}
+
+/* ─── Content Area ─── */
+.tw-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem 2rem;
+    min-height: 400px;
+}
+
+/* ═══ STEP 1 ═══ */
+.tw-step1-layout {
+    display: flex;
+    gap: 3rem;
+}
+
+.tw-step1-form {
+    flex: 1;
+    max-width: 480px;
+}
+
+.tw-field-group {
+    margin-bottom: 1.25rem;
+}
+
+.tw-field-row {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.tw-field-half {
+    flex: 1;
+}
+
+.tw-step1-illustration {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tw-illustration-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2rem;
+    color: #706e6b;
+}
+
+.tw-illustration-text {
+    font-size: 0.875rem;
+    color: #888;
+    text-align: center;
+}
+
+/* ═══ STEP 2 ═══ */
+.tw-step2-layout {
+    display: flex;
+    gap: 0;
+    min-height: 420px;
+}
+
+.tw-step2-left {
+    flex: 0 0 320px;
+    border-right: 1px solid #e5e5e5;
+    display: flex;
+    flex-direction: column;
+}
+
+.tw-step2-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.tw-step2-left-header,
+.tw-step2-right-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem 0.75rem 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tw-step2-left-header {
+    padding-right: 1rem;
+}
+
+.tw-panel-title {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: #181818;
+    margin: 0;
+}
+
+.tw-btn-select-all {
+    background: none;
+    border: 1px solid #0070d2;
+    color: #0070d2;
+    border-radius: 0.25rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tw-btn-select-all:hover {
+    background: #0070d2;
+    color: #fff;
+}
+
+/* Filters */
+.tw-step2-filters {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem 0.75rem 0;
+    align-items: center;
+}
+
+.tw-search-box {
+    flex: 1;
+}
+
+.tw-team-filter {
+    flex: 0 0 120px;
+}
+
+/* User List */
+.tw-user-list {
+    flex: 1;
+    overflow-y: auto;
+    padding-right: 1rem;
+}
+
+.tw-user-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.tw-user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.tw-user-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #181818;
+}
+
+.tw-user-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.125rem;
+}
+
+.tw-group-icon {
+    --sds-c-icon-color-foreground-default: #888;
+}
+
+.tw-btn-select {
+    background: none;
+    border: none;
+    color: #0070d2;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    white-space: nowrap;
+}
+
+.tw-btn-select:hover {
+    text-decoration: underline;
+}
+
+/* Selected List */
+.tw-selected-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 1rem;
+}
+
+.tw-selected-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.625rem 0.5rem;
+    border-bottom: 1px solid #f5f5f5;
+}
+
+.tw-selected-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.tw-selected-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #181818;
+}
+
+.tw-selected-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.125rem;
+}
+
+.tw-btn-remove {
+    --sds-c-button-icon-color-foreground: #c23934;
+    flex-shrink: 0;
+}
+
+.tw-no-items {
+    padding: 2rem 1rem;
+    text-align: center;
+    color: #888;
+    font-size: 0.8125rem;
+    font-style: italic;
+}
+
+/* ═══ STEP 3 ═══ */
+.tw-step3-layout {
+    display: flex;
+    flex-direction: column;
+}
+
+.tw-step3-header {
+    margin-bottom: 1rem;
+}
+
+.tw-step3-table-wrapper {
+    overflow-x: auto;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.tw-step3-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.8rem;
+}
+
+.tw-s3-th {
+    padding: 0.5rem 0.75rem;
+    font-weight: 700;
+    color: #444;
+    border-bottom: 2px solid #e5e5e5;
+    text-align: left;
+    white-space: nowrap;
+    background: #fafafa;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.tw-s3-th-emp {
+    min-width: 160px;
+}
+
+.tw-s3-th-action {
+    width: 60px;
+    text-align: center;
+}
+
+.tw-s3-th-sub {
+    padding: 0.375rem 0.5rem;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #666;
+    border-bottom: 1px solid #e5e5e5;
+    text-align: center;
+    white-space: nowrap;
+    background: #fafafa;
+    position: sticky;
+    top: 35px;
+    z-index: 2;
+}
+
+.tw-s3-th-past {
+    color: #706e6b;
+}
+
+.tw-s3-th-current {
+    color: #0070d2;
+    font-weight: 700;
+}
+
+.tw-s3-th-future {
+    color: #706e6b;
+}
+
+.tw-week-label {
+    font-size: 0.7rem;
+}
+
+.tw-s3-row {
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.tw-s3-row:hover {
+    background: #f7f9fb;
+}
+
+.tw-s3-td-emp {
+    padding: 0.75rem;
+    vertical-align: middle;
+    min-width: 160px;
+}
+
+.tw-emp-cell {
+    display: flex;
+    flex-direction: column;
+}
+
+.tw-emp-name {
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: #181818;
+}
+
+.tw-emp-group {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.7rem;
+    color: #888;
+    margin-top: 0.125rem;
+}
+
+.tw-s3-td-week {
+    padding: 0.5rem 0.375rem;
+    vertical-align: middle;
+    text-align: center;
+    min-width: 110px;
+}
+
+.tw-s3-td-action {
+    padding: 0.5rem;
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Past week cells */
+.tw-past-week-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tw-past-label {
+    font-size: 0.65rem;
+    color: #888;
+    display: none;
+}
+
+.tw-progress-bar-container {
+    width: 90%;
+    height: 6px;
+    background: #e5e5e5;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.tw-progress-bar {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.tw-progress-green {
+    background: #2e844a;
+}
+
+.tw-progress-orange {
+    background: #fe9339;
+}
+
+.tw-progress-red {
+    background: #c23934;
+}
+
+.tw-past-value {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #444;
+}
+
+/* Future / Current week cells */
+.tw-future-week-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tw-future-label {
+    font-size: 0.65rem;
+    color: #888;
+    display: none;
+}
+
+.tw-target-input {
+    max-width: 80px;
+}
+
+/* ─── Footer ─── */
+.tw-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1rem 2rem;
+    border-top: 1px solid #e5e5e5;
+    background: #fafafa;
+}
+
+.tw-btn-cancel,
+.tw-btn-prev {
+    background: #ffffff;
+    border: 1px solid #d8d8d8;
+    color: #333;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.tw-btn-cancel:hover,
+.tw-btn-prev:hover {
+    background: #f5f5f5;
+    border-color: #bbb;
+}
+
+.tw-btn-next {
+    background: #0070d2;
+    border: none;
+    color: #fff;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tw-btn-next:hover {
+    background: #005bb5;
+}
+
+.tw-btn-next:disabled {
+    background: #d8d8d8;
+    color: #999;
+    cursor: not-allowed;
+}
+
+.tw-btn-finish {
+    background: #2e844a;
+    border: none;
+    color: #fff;
+    border-radius: 0.375rem;
+    padding: 0.5rem 1.5rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.tw-btn-finish:hover {
+    background: #236d3b;
+}
+
+.tw-btn-finish:disabled {
+    background: #d8d8d8;
+    color: #999;
+    cursor: not-allowed;
+}

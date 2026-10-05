@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Project_Opportunity</fullName>
+    <active>true</active>
+    <businessProcess>Opportunity Sales Process</businessProcess>
+    <label>Project Opportunity</label>
+    <picklistValues>
+        <picklist>CountryCode__c</picklist>
+        <values>
+            <fullName>%2B61</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>%2B65</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>%2B852</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>%2B86</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>%2B91</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>%2B971</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Country__c</picklist>
+        <values>
+            <fullName>Australia</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Canada</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>China</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Denmark</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Dubai</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>France</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Germany</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Greece</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Hong Kong</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>India</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Italy</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New Zealand</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Norway</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Russia</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Singapore</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Sweden</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>UAE</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>UK</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>USA</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Customer_Category__c</picklist>
+        <values>
+            <fullName>Contractors</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Dealer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Distributor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>EPC</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>End-user</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Entity</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Govt</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OEM</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PSU</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Retailer</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Customer_Journey__c</picklist>
+        <values>
+            <fullName>Direct Business</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Refer to Dealer</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Department_Name__c</picklist>
+        <values>
+            <fullName>Crash Barrier</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Enquiry</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>HDPE</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>High Mast %26 Polygonal</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Polymer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pre Engineering Building</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Railway Electrification Structure</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Solar Structure</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Steel Pipes</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Steel Tubular Poles</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Transmission %26 Telecom Tower</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>ForecastCategoryName</picklist>
+        <values>
+            <fullName>Best Case</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Closed</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Commit</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Omitted</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Pipeline</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>LeadSource</picklist>
+        <values>
+            <fullName>CRM RESOUCE</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>EMAIL CAMPAIGNING</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>EVENT ACTIVATION</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FACEBOOK</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>FB LEAD ADS</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>INBOUND EMAIL</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>INBOUND PHONE CALL</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>INDIAMART</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OFFLINE CRM</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>ONLINE CAMPAIGNING</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>OUTBOUND PHONE CALL</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Offline Marketing</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>PAY PER CLICK ADS</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>TENDER</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>WEBSITE BOT CHAT</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>WHATSAPP CAMPAIGNING</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Website</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Loss_Reason__c</picklist>
+        <values>
+            <fullName>Lost to Competitor</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No Budget %2F Lost Funding</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>No Decision %2F Non-Responsive</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Other</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Price</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tender Lost</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Lost_Reason__c</picklist>
+        <values>
+            <fullName>Existing Customer</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Future Prospect</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Internal Problem</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Minimum Quantity not met</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Not responding</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Rate Issue</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Tender lost</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Nurture_Negotiation__c</picklist>
+        <values>
+            <fullName>Negotiation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Nurture</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Type</picklist>
+        <values>
+            <fullName>Existing Business</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>New Business</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

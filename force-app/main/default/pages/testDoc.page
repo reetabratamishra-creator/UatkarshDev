@@ -1,0 +1,115 @@
+<apex:page contentType="application/msword#MyDocument.doc"
+    showHeader="false"
+    sidebar="false"
+    standardStylesheets="false"
+    applyBodyTag="false"
+    applyHtmlTag="false">
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td, th {
+            padding: 8px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div style="mso-element:header;" id="h1">
+        <table>
+            <tr>
+                <td style="text-align:left; font-weight:bold; font-size:11pt; 
+                            border-bottom: 1pt solid #2E75B6;">
+                    My Company Name
+                </td>
+                <td style="text-align:right; font-size:10pt; color:#666666; 
+                            border-bottom: 1pt solid #2E75B6;">
+                    Sales Proposal
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- FOOTER -->
+    <div style="mso-element:footer;" id="f1">
+        <table>
+            <tr>
+                <td style="text-align:left; font-size:9pt; color:#666666;
+                            border-top: 1pt solid #2E75B6;">
+                    Generated: January 01, 2025
+                </td>
+                <td style="text-align:center; font-size:9pt;
+                            border-top: 1pt solid #2E75B6;">
+                    Confidential
+                </td>
+                <td style="text-align:right; font-size:9pt;
+                            border-top: 1pt solid #2E75B6;">
+                    Page <span style="mso-field-code:PAGE"></span>
+                    of <span style="mso-field-code:NUMPAGES"></span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Link header & footer to section -->
+    <div style="mso-section-properties:
+        mso-header-margin:.5in;
+        mso-footer-margin:.5in;
+        mso-header:h1;
+        mso-footer:f1;
+        mso-paper-source:0;">
+    </div>
+
+    <!-- DOCUMENT CONTENT -->
+
+    <h1 style="color:#2E75B6;">Sales Proposal</h1>
+
+    <p>Dear Acme Corporation,</p>
+    <p>Please find below the details of your proposal.</p>
+
+    <table border="1" style="width:100%; border-collapse:collapse;">
+        <thead>
+            <tr style="background-color:#2E75B6; color:#ffffff;">
+                <th>Item</th>
+                <th>Description</th>
+                <th>Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Product A</td>
+                <td>Basic Package</td>
+                <td>$500</td>
+            </tr>
+            <tr>
+                <td>Product B</td>
+                <td>Premium Package</td>
+                <td>$1,200</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Page 2 — header/footer repeats -->
+    <br style="page-break-before:always;" />
+
+    <h2>Terms &amp; Conditions</h2>
+    <p>This proposal is valid for 30 days from the date of issue.</p>
+
+</body>
+</html>
+</apex:page>

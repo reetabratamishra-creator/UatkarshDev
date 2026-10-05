@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>solarweight</label>
+    <protected>false</protected>
+    <values>
+        <field>Add_On_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Base_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Department__c</field>
+        <value xsi:type="xsd:string">Weight</value>
+    </values>
+    <values>
+        <field>GST__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>fm_general_detail__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>man_riding_lift__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>rateCard__c</field>
+        <value xsi:type="xsd:string">{
+    &quot;apiName&quot;: &quot;hdg_steel_rate&quot;,
+    &quot;label&quot;: &quot;STEEL RATE&quot;,
+    &quot;type&quot;: &quot;number&quot;,
+    &quot;isCalculated&quot;: true,
+    &quot;readOnly&quot;: true,
+    &quot;formula&quot;: &quot;(hdg_material == &apos;HDG MMS/Carport Structure&apos; &amp;&amp; hdg_material_grade == &apos;E350&apos;) ? 61000 : (hdg_material == &apos;HDG MMS/Carport Structure&apos; &amp;&amp; hdg_material_grade == &apos;E250&apos;) ? 58000 : (hdg_material == &apos;Piers for Tracker&apos; &amp;&amp; hdg_material_grade == &apos;E350&apos;) ? 60000 : (hdg_material == &apos;Piers for Tracker&apos; &amp;&amp; hdg_material_grade == &apos;Special Grade&apos;) ? 63000 : (hdg_material == &apos;RSJ&apos; &amp;&amp; hdg_material_grade == &apos;E250&apos;) ? 52000 : 0&quot;,
+    &quot;ignoreFormulaIfProvided&quot;: true
+  },
+  {
+    &quot;apiName&quot;: &quot;galv_steel_rate&quot;,
+    &quot;label&quot;: &quot;STEEL RATE&quot;,
+    &quot;type&quot;: &quot;number&quot;,
+    &quot;isCalculated&quot;: true,
+    &quot;readOnly&quot;: true,
+    &quot;formula&quot;: &quot;(galv_material == &apos;Galvalume Structure&apos; &amp;&amp; galv_material_grade == &apos;AZ150 GSM (350 MPA)&apos;) ? 78000 : (galv_material == &apos;Galvalume Structure&apos; &amp;&amp; galv_material_grade == &apos;AZ200 GSM (550 MPA)&apos;) ? 81000 : (galv_material == &apos;Black Metal&apos; &amp;&amp; galv_material_grade == &apos;E350&apos;) ? 61000 : (galv_material == &apos;Black Metal&apos; &amp;&amp; galv_material_grade == &apos;E250&apos;) ? 58000 : 0&quot;,
+    &quot;ignoreFormulaIfProvided&quot;: true
+  }</value>
+    </values>
+    <values>
+        <field>tp_segment__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

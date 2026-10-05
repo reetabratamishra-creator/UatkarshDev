@@ -1,0 +1,85 @@
+<template>
+    <lightning-card title="Quote Rate Card with Input Fields" icon-name="custom:custom63">
+        <div class="slds-var-p-around_medium">
+            <div class="slds-grid slds-gutters slds-wrap">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <lightning-combobox
+                        name="dept"
+                        label="Department"
+                        value={valueA}
+                        placeholder="Select Department"
+                        options={optionsA}
+                        onchange={handleAChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <lightning-combobox
+                        name="subType"
+                        label="Type / Standard"
+                        value={valueB}
+                        placeholder="Select Option"
+                        options={optionsB}
+                        disabled={isBDisabled}
+                        onchange={handleBChange}>
+                    </lightning-combobox>
+                </div>
+            </div>
+        </div>
+    </lightning-card>
+
+    <template if:true={isModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 class="slds-text-heading_medium">Rate Card Specification Grid</h2>
+                    <p class="slds-m-top_x-small">
+                        Target Configuration: <span class="slds-text-title_bold">{valueA}</span> 
+                        <lightning-icon icon-name="utility:chevronright" size="xx-small" class="slds-m-horizontal_x-small"></lightning-icon>
+                        <span class="slds-text-title_bold">{valueB}</span>
+                    </p>
+                </header>
+
+                <div class="slds-modal__content slds-var-p-around_large">
+                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-no-row-hover slds-table_col-bordered">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th class="slds-text-title_caps slds-theme_shade" scope="col" style="width: 50%;">
+                                    <div class="slds-truncate" title="Field Specification">Excel Predefined Column</div>
+                                </th>
+                                <th class="slds-text-title_caps slds-theme_shade" scope="col" style="width: 50%;">
+                                    <div class="slds-truncate" title="Input Value">Input Value Cell</div>
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={dynamicFields} for:item="field">
+                                <tr key={field.name} class="slds-hint-parent">
+                                    <td class="slds-align-middle slds-theme_shade font-weight-bold">
+                                        <strong>{field.name}</strong>
+                                    </td>
+                                    <td>
+                                        <lightning-input 
+                                            variant="label-hidden"
+                                            type={field.type}
+                                            name={field.name}
+                                            value={field.value}
+                                            required
+                                            onchange={handleInputChange}
+                                            class="slds-size_full input-cell-style">
+                                        </lightning-input>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_neutral" onclick={closeModal}>Cancel</button>
+                    <button class="slds-button slds-button_brand" onclick={handleSubmitData}>Submit Rates</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

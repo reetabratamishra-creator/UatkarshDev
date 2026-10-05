@@ -1,0 +1,271 @@
+<apex:page standardController="Quote"
+           extensions="CostingExportController"
+           contentType="application/msword#CostFactor-{!quoteNumber}.doc"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false">
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <style type="text/css">
+            
+            @page {
+                size: 210mm 297mm;
+                margin: 0mm;
+            }
+
+            @page StandardContent {
+                size: 210mm 297mm;
+                margin: 45mm 10mm 30mm 10mm;
+                mso-header:        h1;
+                mso-footer:        f1;
+                mso-header-margin: 5mm;
+                mso-footer-margin: 5mm;
+            	mso-header-width: 100%;
+            }
+
+            @page StandardContent:last {
+                mso-footer: f-last;
+            }
+
+            div.document-body {
+                page: StandardContent;
+            }
+            html, body {
+                font-family: Arial, Helvetica, sans-serif;
+                font-size:   10pt;
+                line-height: 1.4;
+                color:       #000000;
+                background:  #ffffff;
+            }
+            .doc-page-title {
+                font-size:   13pt;
+                font-weight: bold;
+                margin:      0 0 18px 0;
+            }
+            .cost-table-wrapper {
+                width:         100%;
+            }
+
+            .cost-table {
+                width:           100%;
+                border-collapse: collapse;
+                border:          1pt solid #999999;
+                font-size:       10pt;
+            }
+
+            .cost-table .table-title-row td {
+                background-color: #ffffff;
+                text-align:       center;
+                font-size:        11pt;
+                font-weight:      bold;
+                color:            #000000;
+                padding:          8px 8px;
+                border:           1pt solid #999999;
+            }
+
+            .cost-table .table-header-row td {
+                background-color: #A9A9A9;
+                color:            #000000;
+                font-weight:      bold;
+                font-size:        10pt;
+                text-align:       center;
+                padding:          7px 10px;
+                border:           1pt solid #999999;
+            }
+
+            .cost-table .data-row td {
+                background-color: #ffffff;
+                color:            #000000;
+                font-size:        10pt;
+                text-align:       center;
+                padding:          6px 10px;
+                border:           1pt solid #999999;
+            }
+
+            .cost-table .spacer-row td {
+                padding:          6px;
+                border:           1pt solid #999999;
+                background-color: #ffffff;
+            }
+            .disclaimer-note {
+                font-size:   9.5pt;
+                font-weight: bold;
+                margin-top:  16px;
+                line-height: 1.5;
+                text-align:  left;
+            }
+            .footer-inner {
+                font-size:   7pt;
+                color:       #000000;
+                line-height: 1.4;
+                width:       100%;
+                margin-top:  3mm;
+            }
+
+            span.mso-page-number { mso-field-code: "PAGE"; }
+            span.mso-total-pages { mso-field-code: "NUMPAGES"; }
+
+        </style>
+    </head>
+
+    <body>
+        <div style="mso-element:header; width:100%; margin-bottom: 20px;" id="h1">
+            <table width="100%" style="border-collapse:collapse; border:none; margin:auto;">
+                <tr>
+                    <td style="padding:0; border:none ;">
+                        <img src="{!logoBase64}" alt="Utkarsh India Ltd" width="100%"
+                             style="display:block; height:80pt; width:100%; object-fit:cover;"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="document-body">
+            <div style="padding: 2mm 2mm 2mm 2mm;">
+
+                <!-- Page title -->
+                <div class="doc-page-title">
+                    COST FACTOR - Transmission Tower &amp; Substation
+                </div>
+
+                <!-- ── Price tables ── -->
+                <apex:repeat value="{!priceTables}" var="pt">
+                    <div class="cost-table-wrapper">
+                        <table class="cost-table" border="1" cellpadding="6" cellspacing="0">
+
+                            <!-- Title row -->
+                            <tr class="table-title-row">
+                                <td colspan="2">{!pt.title}</td>
+                            </tr>
+
+                            <!-- Column header row -->
+                            <tr class="table-header-row">
+                                <td style="width:65%;">Product Details</td>
+                                <td style="width:35%;">&#8377; / ton</td>
+                            </tr>
+
+                            <!-- Data / spacer rows -->
+                            <apex:repeat value="{!pt.rows}" var="row">
+
+                                <apex:outputPanel layout="none" rendered="{!row.isSpacer}">
+                                    <tr class="spacer-row">
+                                        <td>&nbsp;</td>
+                                        <td>&nbsp;</td>
+                                    </tr>
+                                </apex:outputPanel>
+
+                                <!-- Data row -->
+                                <apex:outputPanel layout="none" rendered="{!!row.isSpacer}">
+                                    <tr class="data-row">
+                                        <td>{!row.label}</td>
+                                        <td>{!row.value}</td>
+                                    </tr>
+                                </apex:outputPanel>
+
+                            </apex:repeat>
+                           
+                        </table>
+                        <p Style="font-weight:bold; font-size:11px; margin:12px 0;">
+                                {!pt.footerNote}
+                         </p>
+                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0">
+                            <tr>
+                                <td height="35">&nbsp;</td>
+                            </tr>
+						</table>
+                    </div>
+                </apex:repeat>
+
+                <div style="height:40pt;">&nbsp;</div>
+
+            </div>
+        </div>
+    </body>
+    <div style="mso-element:footer" id="f1">
+        <div class="footer-inner">
+            <table width="100%" style="border-collapse:collapse; border:none;
+                                       font-size:7pt; color:#000000;
+                                       padding:0 10mm 2mm 10mm;">
+                <tr>
+                    <!-- Page number -->
+                    <td width="20%" style="text-align:left; vertical-align:bottom;
+                                           border:none; padding:0;">
+                        Page <span class="mso-page-number"></span> of
+                        <span class="mso-total-pages"></span>
+                    </td>
+                    <!-- Factory details -->
+                    <td width="80%" style="text-align:right; vertical-align:bottom;
+                                           border:none; padding:0;">
+                        <div style="font-weight:bold; margin-bottom:1px;">Works:</div>
+                        <div style="margin-bottom:1px;">
+                            F1: Nh6, Vill-Jangalpur, Po: Andul Mouri, Howrah 711302,
+                            P:033 2669 0833/1151,1571, F: +9103326693856.
+                            F2:NH2, Durgapur Expressway, PO: Gurap, Hoogly 712303,
+                            P:03213 253996
+                        </div>
+                        <div style="margin-bottom:1px;">
+                            CIN: U51109 WB1995PLC070893
+                        </div>
+                        <div style="margin-bottom:2px;">
+                            We are on:
+                            <strong>Facebook | Instagram | LinkedIn | YouTube</strong>
+                        </div>
+                        <div style="color:#555555;">
+                            Powered by:
+                            <span style="color:#1155CC; font-weight:bold;">DealDox.io</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="mso-element:footer" id="f-last">
+        <div class="footer-inner">
+            <table width="100%" style="border-collapse:collapse; border:none;
+                                       font-size:7pt; color:#000000;
+                                       padding:0 10mm 2mm 10mm;">
+                <tr>
+                    <td width="20%" style="text-align:left; vertical-align:bottom;
+                                           border:none; padding:0;">
+                        Page <span class="mso-page-number"></span> of
+                        <span class="mso-total-pages"></span>
+                    </td>
+                    <td width="80%" style="text-align:right; vertical-align:bottom;
+                                           border:none; padding:0;">
+                        <div style="font-weight:bold; margin-bottom:1px;">Works:</div>
+                        <div style="margin-bottom:1px;">
+                            F1: Nh6, Vill-Jangalpur, Po: Andul Mouri, Howrah 711302,
+                            P:033 2669 0833/1151,1571, F: +9103326693856.
+                            F2:NH2, Durgapur Expressway, PO: Gurap, Hoogly 712303,
+                            P:03213 253996
+                        </div>
+                        <div style="margin-bottom:1px;">
+                            CIN: U51109 WB1995PLC070893
+                        </div>
+                        <div style="margin-bottom:2px;">
+                            We are on:
+                            <strong>Facebook | Instagram | LinkedIn | YouTube</strong>
+                        </div>
+                        <div style="color:#555555;">
+                            Powered by:
+                            <span style="color:#1155CC; font-weight:bold;">DealDox.io</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Blank header placeholder (safety fallback) -->
+    <div style="mso-element:header" id="h-blank">
+        <p style="margin:0; padding:0; font-size:1px;">&nbsp;</p>
+    </div>
+
+</html>
+</apex:page>

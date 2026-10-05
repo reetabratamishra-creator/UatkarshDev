@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Creates a Lead record from Agentforce input</description>
+    <developerName>Create_Standard_Lead</developerName>
+    <invocationTarget>CreateLeadFromAgentforce</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+    <localDeveloperName>Create_Standard_Lead</localDeveloperName>
+    <masterLabel>Create Standard Lead</masterLabel>
+</GenAiFunction>

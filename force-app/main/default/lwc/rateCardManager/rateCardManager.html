@@ -1,0 +1,186 @@
+<template>
+    <div class="slds-box slds-theme_default rate-card-container">
+        
+        <!-- Header -->
+        <div class="slds-text-heading_medium slds-m-bottom_medium section-header">
+            Rate Card Manager
+        </div>
+
+        <!-- Department Selection -->
+        <div class="slds-m-bottom_medium">
+            <lightning-combobox
+                name="departmentSelect"
+                label="Select Department / Config"
+                value={selectedDepartmentDevName}
+                placeholder="Select a department to configure rates"
+                options={departmentOptions}
+                onchange={handleDepartmentChange}
+                required>
+            </lightning-combobox>
+        </div>
+
+        <!-- Loading Spinner -->
+        <template if:true={isLoading}>
+            <div class="slds-is-relative" style="height: 100px;">
+                <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+            </div>
+        </template>
+
+        <!-- Dynamic Grid -->
+        <template if:true={ratesData}>
+            <div class="slds-section slds-is-open slds-m-top_medium">
+                <h3 class="slds-section__title slds-theme_shade">
+                    <span class="slds-truncate slds-p-horizontal_small" title="Base Rates">Base Rates Configuration</span>
+                </h3>
+                
+                <div class="table-container scrollable-grid slds-p-around_small">
+                    
+                    <!-- Table Header -->
+                    <div class="slds-grid slds-wrap table-header slds-p-bottom_x-small">
+                        <div class="slds-col slds-size_6-of-12 slds-p-horizontal_x-small"><strong>Configuration Key</strong></div>
+                        <div class="slds-col slds-size_4-of-12 slds-p-horizontal_x-small"><strong>Value (Number / Text)</strong></div>
+                        <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small slds-text-align_center"><strong>Action</strong></div>
+                    </div>
+
+                    <!-- Rows -->
+                    <template for:each={ratesData} for:item="rateItem" for:index="index">
+                        <div key={rateItem.id} class="slds-grid slds-wrap slds-m-bottom_x-small row-container">
+                            
+                            <!-- Config Key -->
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_x-small">
+                                <lightning-input 
+                                    type="text" 
+                                    variant="label-hidden" 
+                                    value={rateItem.configKey}
+                                    data-index={index}
+                                    data-field="configKey"
+                                    onchange={handleRowChange}>
+                                </lightning-input>
+                            </div>
+                            
+                            <!-- Base Rate -->
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal_x-small">
+                                <lightning-input 
+                                    type="text" 
+                                    variant="label-hidden" 
+                                    value={rateItem.rate}
+                                    data-index={index}
+                                    data-field="rate"
+                                    onchange={handleRowChange}>
+                                </lightning-input>
+                            </div>
+                            
+                            <!-- Delete Button -->
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small slds-text-align_center action-col">
+                                <lightning-button-icon 
+                                    icon-name="utility:delete" 
+                                    variant="destructive" 
+                                    alternative-text="Delete Row" 
+                                    data-index={index}
+                                    onclick={deleteRow}>
+                                </lightning-button-icon>
+                            </div>
+
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Dynamic Grid for Weight Map -->
+            <template if:true={weightsData}>
+                <div class="slds-section slds-is-open slds-m-top_large">
+                    <h3 class="slds-section__title slds-theme_shade">
+                        <span class="slds-truncate slds-p-horizontal_small" title="Weight Map">Weight Map Configuration</span>
+                    </h3>
+                    
+                    <div class="table-container scrollable-grid slds-p-around_small">
+                        
+                        <!-- Table Header -->
+                        <div class="slds-grid slds-wrap table-header slds-p-bottom_x-small">
+                            <div class="slds-col slds-size_6-of-12 slds-p-horizontal_x-small"><strong>Configuration Key</strong></div>
+                            <div class="slds-col slds-size_4-of-12 slds-p-horizontal_x-small"><strong>Weight (Kg/Mtr)</strong></div>
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small slds-text-align_center"><strong>Action</strong></div>
+                        </div>
+
+                        <!-- Rows -->
+                        <template for:each={weightsData} for:item="weightItem" for:index="index">
+                            <div key={weightItem.id} class="slds-grid slds-wrap slds-m-bottom_x-small row-container">
+                                
+                                <!-- Config Key -->
+                                <div class="slds-col slds-size_6-of-12 slds-p-horizontal_x-small">
+                                    <lightning-input 
+                                        type="text" 
+                                        variant="label-hidden" 
+                                        value={weightItem.configKey}
+                                        data-index={index}
+                                        data-field="configKey"
+                                        onchange={handleWeightRowChange}>
+                                    </lightning-input>
+                                </div>
+                                
+                                <!-- Weight -->
+                                <div class="slds-col slds-size_4-of-12 slds-p-horizontal_x-small">
+                                    <lightning-input 
+                                        type="text" 
+                                        variant="label-hidden" 
+                                        value={weightItem.weight}
+                                        data-index={index}
+                                        data-field="weight"
+                                        onchange={handleWeightRowChange}>
+                                    </lightning-input>
+                                </div>
+                                
+                                <!-- Delete Button -->
+                                <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small slds-text-align_center action-col">
+                                    <lightning-button-icon 
+                                        icon-name="utility:delete" 
+                                        variant="destructive" 
+                                        alternative-text="Delete Row" 
+                                        data-index={index}
+                                        onclick={deleteWeightRow}>
+                                    </lightning-button-icon>
+                                </div>
+
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+
+            <!-- Footer Buttons -->
+            <div class="slds-m-top_large slds-grid slds-grid_align-spread slds-p-top_medium" style="border-top: 1px solid #eee;">
+                <div>
+                    <lightning-button 
+                        label="Add Rate Row" 
+                        icon-name="utility:add" 
+                        class="slds-m-right_small"
+                        onclick={addRow}>
+                    </lightning-button>
+                    <template if:true={weightsData}>
+                        <lightning-button 
+                            label="Add Weight Row" 
+                            icon-name="utility:add" 
+                            onclick={addWeightRow}>
+                        </lightning-button>
+                    </template>
+                </div>
+                <lightning-button 
+                    label="Save to Salesforce" 
+                    variant="brand" 
+                    icon-name="utility:save" 
+                    onclick={saveRates}>
+                </lightning-button>
+            </div>
+        </template>
+        
+        <!-- Empty State -->
+        <template if:false={ratesData}>
+            <template if:false={isLoading}>
+                <div class="slds-text-align_center slds-m-top_large slds-text-color_weak">
+                    Please select a department to view and edit its rate card.
+                </div>
+            </template>
+        </template>
+
+    </div>
+</template>

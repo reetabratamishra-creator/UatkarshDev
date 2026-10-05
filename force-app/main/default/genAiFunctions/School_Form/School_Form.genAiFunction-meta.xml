@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>School Form Input</description>
+    <developerName>School_Form</developerName>
+    <invocationTarget>ShowInputSchoolform</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>false</isIncludeInProgressIndicator>
+    <localDeveloperName>School_Form</localDeveloperName>
+    <masterLabel>School Form</masterLabel>
+</GenAiFunction>

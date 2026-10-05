@@ -1,0 +1,54 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width:80%;width:80%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCancel}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium">CUSTOMER ADDRESS</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium" style="min-height:40vh; background:#f4f6f9;">
+                
+                <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #0070d2; background:white;">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#0070d2; font-weight:bold;">Billing Address</h3>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="STREET" value={address.ba_street} data-field="ba_street" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="CITY" value={address.ba_city} data-field="ba_city" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="ZIP-CODE" value={address.ba_zip_code} data-field="ba_zip_code" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="STATE" value={address.ba_state} data-field="ba_state" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="COUNTRY" value={address.ba_country} data-field="ba_country" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="PHONE NUMBER" value={address.ba_phone} data-field="ba_phone" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="EMAIL" value={address.ba_email} data-field="ba_email" onchange={handleChange} disabled></lightning-input></div>
+                        <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="WEBSITE" value={address.ba_website} data-field="ba_website" onchange={handleChange} disabled></lightning-input></div>
+                        
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <lightning-input type="checkbox" label="TRANSPORTATION ADDRESS?" checked={address.has_transportation_address} data-field="has_transportation_address" onchange={handleChange}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <template lwc:if={address.has_transportation_address}>
+                    <div class="slds-box" style="border-left:4px solid #bf7326; background:white;">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#bf7326; font-weight:bold;">Shipping Address</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="STREET" value={address.sa_street} data-field="sa_street" onchange={handleChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="CITY" value={address.sa_city} data-field="sa_city" onchange={handleChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="ZIP-CODE" value={address.sa_zip_code} data-field="sa_zip_code" onchange={handleChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="STATE" value={address.sa_state} data-field="sa_state" onchange={handleChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-2 slds-m-bottom_small"><lightning-input label="COUNTRY" value={address.sa_country} data-field="sa_country" onchange={handleChange}></lightning-input></div>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleCancel}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+</template>

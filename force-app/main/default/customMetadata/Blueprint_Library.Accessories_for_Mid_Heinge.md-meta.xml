@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Accessories for Mid Heinge</label>
+    <protected>false</protected>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:type="xsd:string">{
+  &quot;mhp_accessories&quot;: [
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_item_winch&quot;,
+      &quot;label&quot;: &quot;WINCH&quot;,
+      &quot;type&quot;: &quot;header&quot;,
+      &quot;readOnly&quot;: true,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_item_wire_rope&quot;,
+      &quot;label&quot;: &quot;WIRE ROPE WITH FASTENERS&quot;,
+      &quot;type&quot;: &quot;header&quot;,
+      &quot;readOnly&quot;: true,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_winch_value&quot;,
+      &quot;label&quot;: &quot;UNIT VALUE&quot;,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;required&quot;: true,
+      &quot;unit&quot;: &quot;kg&quot;,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_wire_rope_value&quot;,
+      &quot;label&quot;: &quot;UNIT VALUE&quot;,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;required&quot;: true,
+      &quot;unit&quot;: &quot;mm&quot;,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_rate&quot;,
+      &quot;label&quot;: &quot;ACCESSORY RATE&quot;,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;required&quot;: true,
+      &quot;unit&quot;: &quot;Value&quot;,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_realization&quot;,
+      &quot;label&quot;: &quot;REALIZATION&quot;,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;unit&quot;: &quot;%&quot;,
+      &quot;defaultValue&quot;: 5,
+      &quot;isRealization&quot;: true,
+      &quot;colSpan&quot;: 6
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_unit_price&quot;,
+      &quot;label&quot;: &quot;ACCESSORY UNIT PRICE&quot;,
+      &quot;isUnitPrice&quot;: true,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;readOnly&quot;: true,
+      &quot;colSpan&quot;: 6,
+      &quot;formula&quot;: &quot;(mhp_acc_rate || 0) * (1 + (mhp_acc_realization || 0) / 100)&quot;
+    },
+    {
+      &quot;apiName&quot;: &quot;mhp_acc_unit_cost&quot;,
+      &quot;label&quot;: &quot;ACCESSORY UNIT COST&quot;,
+      &quot;isUnitCost&quot;: true,
+      &quot;type&quot;: &quot;number&quot;,
+      &quot;readOnly&quot;: true,
+      &quot;colSpan&quot;: 6,
+      &quot;formula&quot;: &quot;(mhp_acc_rate || 0)&quot;
+    }
+  ]
+}</value>
+    </values>
+</CustomMetadata>

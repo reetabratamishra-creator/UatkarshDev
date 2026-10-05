@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Agent</label>
+    <protected>false</protected>
+    <values>
+        <field>Agentforce_Agent_ID__c</field>
+        <value xsi:type="xsd:string">0Xx710000000YL3CAM</value>
+    </values>
+    <values>
+        <field>Api_Base_URL__c</field>
+        <value xsi:type="xsd:string">https://api.salesforce.com</value>
+    </values>
+    <values>
+        <field>Consumer_Key__c</field>
+        <value xsi:type="xsd:string">3MVG9BftfVxDiAlgrDVHPfpCkeZz0cNIg6ERdDp1uFXhSaBPApUc8LghTocgY9XQ2kJzfJzn5Mbom44RovMgm</value>
+    </values>
+    <values>
+        <field>Consumer_Secret__c</field>
+        <value xsi:type="xsd:string">40C5BAEFA9E752C5862B219C4DC188F8FCEEBDC609A6D38CD38366D2537DD5FF</value>
+    </values>
+    <values>
+        <field>Domain_URL__c</field>
+        <value xsi:type="xsd:string">https://momentum-customer-397--utkarshdev.sandbox.my.salesforce.com</value>
+    </values>
+</CustomMetadata>

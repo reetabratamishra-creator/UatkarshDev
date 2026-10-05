@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Solar Structure Weight Config</label>
+    <protected>false</protected>
+    <values>
+        <field>Add_On_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Base_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Department__c</field>
+        <value xsi:type="xsd:string">Solar Structure - Weight Config</value>
+    </values>
+    <values>
+        <field>GST__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>fm_general_detail__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>man_riding_lift__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>rateCard__c</field>
+        <value xsi:type="xsd:string">{
+  &quot;BASE_RATES&quot;: {
+    &quot;HDG MMS/Carport Structure|E350&quot;: 57000,
+    &quot;HDG MMS/Carport Structure|E250&quot;: 58000,
+    &quot;RSJ|E250&quot;: 52000,
+    &quot;Piers for Tracker|E350&quot;: 60000,
+    &quot;Piers for Tracker|Special Grade&quot;: 63000,
+    &quot;Black Metal|E350&quot;: 61000,
+    &quot;Black Metal|E250&quot;: 58000,
+    &quot;Galvalume Structure|AZ150 GSM (350 MPA)&quot;: 78000,
+    &quot;Galvalume Structure|AZ200 GSM (550 MPA)&quot;: 81000
+  },
+  &quot;HDG_MATERIAL_OPTIONS&quot;: [
+    &quot;HDG MMS/Carport Structure&quot;,
+    &quot;RSJ&quot;,
+    &quot;Piers for Tracker&quot;
+  ],
+  &quot;HDG_THICKNESS_OPTIONS&quot;: [
+    &quot;-&quot;,
+    &quot;2&quot;,
+    &quot;2.5&quot;,
+    &quot;3&quot;
+  ],
+  &quot;HDG_MICRON_OPTIONS&quot;: [
+    &quot;-&quot;,
+    &quot;60&quot;,
+    &quot;70&quot;,
+    &quot;80&quot;,
+    &quot;90&quot;,
+    &quot;100&quot;,
+    &quot;110&quot;,
+    &quot;120&quot;,
+    &quot;130&quot;,
+    &quot;140&quot;,
+    &quot;150&quot;
+  ],
+  &quot;HDG_GRADE_MAP&quot;: {
+    &quot;HDG MMS/Carport Structure&quot;: [
+      &quot;E350&quot;,
+      &quot;E250&quot;
+    ],
+    &quot;Piers for Tracker&quot;: [
+      &quot;E350&quot;,
+      &quot;Special Grade&quot;
+    ],
+    &quot;RSJ&quot;: [
+      &quot;E250&quot;
+    ]
+  },
+  &quot;GALV_MATERIAL_OPTIONS&quot;: [
+    &quot;Galvalume Structure&quot;,
+    &quot;Black Metal&quot;
+  ],
+  &quot;GALV_THICKNESS_OPTIONS&quot;: [
+    &quot;-&quot;,
+    &quot;0.9&quot;,
+    &quot;1.0&quot;,
+    &quot;1.1&quot;,
+    &quot;1.2&quot;,
+    &quot;1.3&quot;,
+    &quot;1.4&quot;,
+    &quot;1.5&quot;,
+    &quot;1.6&quot;,
+    &quot;1.7&quot;,
+    &quot;1.8&quot;,
+    &quot;1.9&quot;,
+    &quot;2.0&quot;,
+    &quot;2.5&quot;,
+    &quot;3&quot;
+  ],
+  &quot;GALV_GRADE_MAP&quot;: {
+    &quot;Black Metal&quot;: [
+      &quot;E350&quot;,
+      &quot;E250&quot;
+    ],
+    &quot;Galvalume Structure&quot;: [
+      &quot;AZ150 GSM (350 MPA)&quot;,
+      &quot;AZ200 GSM (550 MPA)&quot;
+    ]
+  }
+}</value>
+    </values>
+    <values>
+        <field>tp_segment__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

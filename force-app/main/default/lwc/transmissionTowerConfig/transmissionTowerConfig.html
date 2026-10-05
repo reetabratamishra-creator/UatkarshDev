@@ -1,0 +1,1963 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">{modalTitle}</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 50vh;">
+                <template if:false={hasEstimatorType}>
+                <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium slds-p-around_small slds-box slds-theme_default">
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            name="estimatorType"
+                            label="Type of Tower"
+                            value={selectedType}
+                            options={typeOptions}
+                            onchange={handleTypeChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                </div>
+                </template>
+
+<!-- ================= STANDARD POLE ================= -->
+<template if:true={isTower}>
+
+<!-- SECTION: pvt_general_details -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>General Details - Tower</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE BASICS" value={pvt_price_basics} options={pvt_price_basics_options} data-field="pvt_price_basics" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvt_price_module_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE MODULE" value={pvt_price_module} options={pvt_price_module_options} data-field="pvt_price_module" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pvt_price_variable_month_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE VARIABLE (MONTH)" value={pvt_price_variable_month} options={pvt_price_variable_month_options} data-field="pvt_price_variable_month" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pvt_price_variable_year_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE VARIABLE (YEAR)" value={pvt_price_variable_year} options={pvt_price_variable_year_options} data-field="pvt_price_variable_year" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pvt_ms_quantity_pv_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="MS QUANTITY" value={pvt_ms_quantity_pv} data-field="pvt_ms_quantity_pv" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_ht_quantity_pv_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="HT QUANTITY" value={pvt_ht_quantity_pv} data-field="pvt_ht_quantity_pv" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_ms_quantity_firm_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="MS QUANTITY" value={pvt_ms_quantity_firm} data-field="pvt_ms_quantity_firm" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_ht_quantity_firm_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="HT QUANTITY" value={pvt_ht_quantity_firm} data-field="pvt_ht_quantity_firm" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+
+<!-- SECTION: pvt_pv_tower -->
+<template if:true={is_pvt_pv_tower_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV - Pricing Model (Tower)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART A</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Blooms" value={pvt_pv_blooms} data-field="pvt_pv_blooms" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Billets" value={pvt_pv_billets} data-field="pvt_pv_billets" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Average of Blooms & Billets" value={pvt_pv_avg_of_blooms} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Conversion to Angles" value={pvt_pv_convergence_to_angles} data-field="pvt_pv_convergence_to_angles" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="RM Cost" value={pvt_pv_rm_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART B - OVERHEADS</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Cost of production" value={pvt_pv_cost_of_production} data-field="pvt_pv_cost_of_production" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Interest Component on product cycle & Inventory Carrying Cost and Working capital" value={pvt_pv_interest_component_on_product_cycle} data-field="pvt_pv_interest_component_on_product_cycle" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Value as per IEEMA" value={pvt_pv_zinc_value_as_IEEMA} data-field="pvt_pv_zinc_value_as_IEEMA" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Consumption (%)" value={pvt_pv_zinc_consumption_percent} data-field="pvt_pv_zinc_consumption_percent" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={pvt_pv_zinc_consumption_space} data-field="pvt_pv_zinc_consumption_space" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc value" value={pvt_pv_zinc_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvt_pv_zinc_value_610_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_pv_zinc_value_610} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_zinc_value_900_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_pv_zinc_value_900} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_zinc_value_1000_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_pv_zinc_value_1000} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ZINC Coating</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="610 GSM" value={pvt_pv_610_gsm_label} data-field="pvt_pv_610_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_pv_610_gsm} data-field="pvt_pv_610_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="900 GSM" value={pvt_pv_900_gsm_label} data-field="pvt_pv_900_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_pv_900_gsm} data-field="pvt_pv_900_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="1000 GSM" value={pvt_pv_1000_gsm_label} data-field="pvt_pv_1000_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_pv_1000_gsm} data-field="pvt_pv_1000_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="Proto (if required)" value={pvt_pv_proto} options={pvt_pv_proto_options} data-field="pvt_pv_proto" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvt_pv_proto_required_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Proto Cost" value={pvt_pv_proto_required} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap (%)" value={pvt_pv_scrap} data-field="pvt_pv_scrap" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap Value" value={pvt_pv_scrap_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvt_pv_part_c_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - c</b></div>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_interest_component_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Interest Component (as per respective payment terms)?" checked={pvt_pv_interest_component} data-field="pvt_pv_interest_component" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_prevailing_rate_of_bank_interest_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Prevailing rate of Bank Interest" value={pvt_pv_prevailing_rate_of_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_market_price_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Market Price" value={pvt_pv_market_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_no_of_days_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="No Of Days" value={pvt_pv_no_of_days} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - D</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin" value={pvt_pv_margin} data-field="pvt_pv_margin" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="ADDITIONAL PRICING (HT SECTIONS)" value={pvt_pv_additional_pricing} data-field="pvt_pv_additional_pricing" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm -->
+<template if:true={is_pvt_firm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM - Pricing Model (Tower)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART A</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Angles" value={pvt_firm_angles} data-field="pvt_firm_angles" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Price" value={pvt_firm_zinc_price} data-field="pvt_firm_zinc_price" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Consumption (%)" value={pvt_firm_zinc_consumption_percent} data-field="pvt_firm_zinc_consumption_percent" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Value" value={pvt_firm_zinc_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvt_firm_zinc_value_610_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_firm_zinc_value_610} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_zinc_value_900_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_firm_zinc_value_900} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_zinc_value_1000_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_firm_zinc_value_1000} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Cost of production" value={pvt_firm_cost_of_production} data-field="pvt_firm_cost_of_production" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ZINC COATING</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="610 GSM" value={pvt_firm_610_gsm_label} data-field="pvt_firm_610_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_firm_610_gsm} data-field="pvt_firm_610_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="900 GSM" value={pvt_firm_900_gsm_label} data-field="pvt_firm_900_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_firm_900_gsm} data-field="pvt_firm_900_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="1000 GSM" value={pvt_firm_1000_gsm_label} data-field="pvt_firm_1000_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvt_firm_1000_gsm} data-field="pvt_firm_1000_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART B</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Interest Component on product cycle & Inventory Carrying Cost and Working capital" value={pvt_firm_interest_component_on_product_cycle} data-field="pvt_firm_interest_component_on_product_cycle" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap Value" value={pvt_firm_scrap_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="Proto (if required)" value={pvt_firm_proto} options={pvt_firm_proto_options} data-field="pvt_firm_proto" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvt_firm_proto_required_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Proto Cost" value={pvt_firm_proto_required} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_part_c_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - C</b></div>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_interest_component_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Interest Component (as per respective payment terms)?" checked={pvt_firm_interest_component} data-field="pvt_firm_interest_component" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_prevailing_rate_of_bank_interest_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Prevailing rate of Bank Interest" value={pvt_firm_prevailing_rate_of_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_market_price_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Market Price" value={pvt_firm_market_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_no_of_days_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="No Of Days" value={pvt_firm_no_of_days} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - D</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin" value={pvt_firm_margin} data-field="pvt_firm_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="ADDITIONAL PRICING (HT SECTIONS)" value={pvt_firm_additional_pricing} data-field="pvt_firm_additional_pricing" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ms610_gsm -->
+<template if:true={is_pvt_pv_ms610_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ms610_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ms610_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ht610_gsm -->
+<template if:true={is_pvt_pv_ht610_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ht610_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ht610_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ht610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ms900_gsm -->
+<template if:true={is_pvt_pv_ms900_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ms900_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ms900_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ht900_gsm -->
+<template if:true={is_pvt_pv_ht900_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ht900_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ht900_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ht900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ms1000_gsm -->
+<template if:true={is_pvt_pv_ms1000_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ms1000_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ms1000_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_pv_ht1000_gsm -->
+<template if:true={is_pvt_pv_ht1000_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_pv_ht1000_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_pv_ht1000_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_pv_ht1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ms610_gsm -->
+<template if:true={is_pvt_firm_ms610_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ms610_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ms610_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ht610_gsm -->
+<template if:true={is_pvt_firm_ht610_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ht610_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ht610_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ht610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ms900_gsm -->
+<template if:true={is_pvt_firm_ms900_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ms900_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ms900_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ht900_gsm -->
+<template if:true={is_pvt_firm_ht900_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ht900_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ht900_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ht900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ms1000_gsm -->
+<template if:true={is_pvt_firm_ms1000_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Firm-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ms1000_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ms1000_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_firm_ht1000_gsm -->
+<template if:true={is_pvt_firm_ht1000_gsm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvt_firm_ht1000_gsm_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvt_firm_ht1000_gsm_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvt_firm_ht1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvt_formula_block -->
+<template if:true={is_pvt_formula_block_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Internal Formulas Section</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+  <template if:true={is_pvt_N5_N12_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content N5 - N12" value={pvt_N5_N12} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_O5_O12_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content O5 - O12" value={pvt_O5_O12} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_P5_P12_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content P5 - P12" value={pvt_P5_P12} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_T6_T13_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content T6 - T13" value={pvt_T6_T13} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_U6_U13_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content U6 - U13" value={pvt_U6_U13} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_V6_V13_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content V6 - V13" value={pvt_V6_V13} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_AW22_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content AW22" value={pvt_AW22} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_AO31_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Rate & Cost AO31" value={pvt_AO31} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_C19_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content C19" value={pvt_C19} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_G61_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content G61" value={pvt_G61} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_G60_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CELL Content G60" value={pvt_G60} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_bank_interest_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Price Variation Bank Interest" value={pvt_pv_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_firm_bank_interest_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="FIRM Bank Interest" value={pvt_firm_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvt_pv_CPI_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Consumer Price Index" value={pvt_pv_CPI} data-field="pvt_pv_CPI" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+</template>
+
+<!-- ================= CUSTOMIZED POLE ================= -->
+<template if:true={isSubstation}>
+
+<!-- SECTION: pvs_general_details -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>General Details - Substation</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE MODEL" value={pvs_price_model} options={pvs_price_model_options} data-field="pvs_price_model" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvs_price_module_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE MODULE" value={pvs_price_module} options={pvs_price_module_options} data-field="pvs_price_module" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pvs_price_variable_month_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE VARIATION (MONTH)" value={pvs_price_variable_month} options={pvs_price_variable_month_options} data-field="pvs_price_variable_month" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pvs_price_variable_year_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PRICE VARIABLE (YEAR)" value={pvs_price_variable_year} options={pvs_price_variable_year_options} data-field="pvs_price_variable_year" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+</div></div>
+
+<!-- SECTION: pvs_substation_type -->
+<template if:true={is_pvs_substation_type_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Substation Type</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Gantry structure" checked={pvs_gantry_structure} data-field="pvs_gantry_structure" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Equipment structure" checked={pvs_equipment_structure} data-field="pvs_equipment_structure" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Composite Structure" checked={pvs_composite_structure} data-field="pvs_composite_structure" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="MS Quantity" value={pvs_gantry_structure_ms_quantity1} data-field="pvs_gantry_structure_ms_quantity1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="MS Quantity" value={pvs_equipment_structure_ms_quantity2} data-field="pvs_equipment_structure_ms_quantity2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="MS Quantity" value={pvs_composite_structure_ms_quantity3} data-field="pvs_composite_structure_ms_quantity3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="HT Quantity" value={pvs_gantry_structure_ht_quantity1} data-field="pvs_gantry_structure_ht_quantity1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="HT Quantity" value={pvs_equipment_structure_ht_quantity2} data-field="pvs_equipment_structure_ht_quantity2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="HT Quantity" value={pvs_composite_structure_ht_quantity3} data-field="pvs_composite_structure_ht_quantity3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv -->
+<template if:true={is_pvs_pv_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV - Pricing Model (Substation)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART A</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Blooms" value={pvs_pv_blooms} data-field="pvs_pv_blooms" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_sp_1_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={sp_1} data-field="sp_1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_billets_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Billets" value={pvs_pv_billets} data-field="pvs_pv_billets" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_avg_of_blooms_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Average of Blooms & Billets" value={pvs_pv_avg_of_blooms} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Conversion to Angles" value={pvs_pv_conversion_to_angle} data-field="pvs_pv_conversion_to_angle" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_sp_2_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={sp_2} data-field="sp_2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="RM Cost" value={pvs_pv_rm_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_sp_3_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={sp_3} data-field="sp_3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART B - OVERHEADS</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Cost of production" value={pvs_pv_cost_of_production} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Interest Component on product cycle & Inventory Carrying Cost and Working capital" value={pvs_pv_interest_component_on_product_cycle} data-field="pvs_pv_interest_component_on_product_cycle" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Value as per IEEMA" value={pvs_pv_zinc_value_as_per_ieema} data-field="pvs_pv_zinc_value_as_per_ieema" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Consumption (%)" value={pvs_pv_zinc_consumption_percent} data-field="pvs_pv_zinc_consumption_percent" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={sp_4} data-field="sp_4" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Value" value={pvs_pv_zinc_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvs_pv_zinc_value_610_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_zinc_value_610} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_zinc_value_900_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_zinc_value_900} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_zinc_value_1000_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_zinc_value_1000} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_cost_of_production_gantry_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_cost_of_production_gantry} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_cost_of_production_equipment_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_cost_of_production_equipment} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_cost_of_production_composite_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_pv_cost_of_production_composite} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ZINC COATING</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="610 GSM" value={pvs_pv_610_gsm_label} data-field="pvs_pv_610_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_pv_610_gsm} data-field="pvs_pv_610_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="900 GSM" value={pvs_pv_900_gsm_label} data-field="pvs_pv_900_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_pv_900_gsm} data-field="pvs_pv_900_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="1000 GSM" value={pvs_pv_1000_gsm_label} data-field="pvs_pv_1000_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_pv_1000_gsm} data-field="pvs_pv_1000_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="Proto (if required)" value={pvs_pv_proto} options={pvs_pv_proto_options} data-field="pvs_pv_proto" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvs_pv_proto_required_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Proto Cost" value={pvs_pv_proto_required} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap (%)" value={pvs_pv_scrap} data-field="pvs_pv_scrap" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap Value" value={pvs_pv_scrap_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvs_pv_part_c_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - c</b></div>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_interest_component_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Interest Component (as per respective payment terms)?" checked={pvs_pv_interest_component} data-field="pvs_pv_interest_component" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_prevailing_rate_of_bank_interest_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Prevailing rate of Bank Interest" value={pvs_pv_prevailing_rate_of_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_market_price_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Market Price" value={pvs_pv_market_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_no_of_days_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="No Of Days" value={pvs_pv_no_of_days} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - D</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin" value={pvs_pv_margin} data-field="pvs_pv_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="ADDITIONAL PRICING (HT SECTIONS)" value={pvs_pv_additional_pricing} data-field="pvs_pv_additional_pricing" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm -->
+<template if:true={is_pvs_firm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM - Pricing Model (Substation)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART A</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Angles" value={pvs_firm_angles} data-field="pvs_firm_angles" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Price" value={pvs_firm_zinc_price} data-field="pvs_firm_zinc_price" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Consumption (%)" value={pvs_firm_zinc_consumption_percent} data-field="pvs_firm_zinc_consumption_percent" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc Value" value={pvs_firm_zinc_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvs_firm_zinc_value_610_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_zinc_value_610} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_firm_zinc_value_900_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_zinc_value_900} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_firm_zinc_value_1000_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_zinc_value_1000} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Cost of production" value={pvs_firm_cost_of_production} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_cost_of_production_gantry} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_cost_of_production_equipment} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_firm_cost_of_production_composite} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ZINC COATING</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="610 GSM" value={pvs_firm_610_gsm_label} data-field="pvs_firm_610_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_firm_610_gsm} data-field="pvs_firm_610_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="900 GSM" value={pvs_firm_900_gsm_label} data-field="pvs_firm_900_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_firm_900_gsm} data-field="pvs_firm_900_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="1000 GSM" value={pvs_firm_1000_gsm_label} data-field="pvs_firm_1000_gsm_label" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={pvs_firm_1000_gsm} data-field="pvs_firm_1000_gsm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART B</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Scrap Value" value={pvs_firm_scrap_value} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Interest Component on product cycle & Inventory Carrying Cost and Working capital" value={pvs_firm_interest_component_on_product_cycle} data-field="pvs_firm_interest_component_on_product_cycle" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="Proto (if required)" value={pvs_firm_proto} options={pvs_firm_proto_options} data-field="pvs_firm_proto" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  <template if:true={is_pvs_firm_proto_required_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Proto Cost" value={pvs_firm_proto_required} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - c</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Interest Component (as per respective payment terms)?" checked={pvs_firm_interest_component} data-field="pvs_firm_interest_component" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Prevailing rate of Bank Interest" value={pvs_firm_prevailing_rate_of_bank_interest} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Market Price" value={pvs_firm_market_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="No Of Days" value={pvs_firm_no_of_days} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PART - D</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin" value={pvs_firm_margin} data-field="pvs_firm_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="ADDITIONAL PRICING (HT SECTIONS)" value={pvs_firm_additional_pricing} data-field="pvs_firm_additional_pricing" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ms610 -->
+<template if:true={is_pvs_pv_gantry_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ht610 -->
+<template if:true={is_pvs_pv_gantry_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ms900 -->
+<template if:true={is_pvs_pv_gantry_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ht900 -->
+<template if:true={is_pvs_pv_gantry_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ms1000 -->
+<template if:true={is_pvs_pv_gantry_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_gantry_ht1000 -->
+<template if:true={is_pvs_pv_gantry_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Gantry Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_gantry_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_gantry_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_gantry_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ms610 -->
+<template if:true={is_pvs_pv_equipment_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ht610 -->
+<template if:true={is_pvs_pv_equipment_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ms900 -->
+<template if:true={is_pvs_pv_equipment_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ht900 -->
+<template if:true={is_pvs_pv_equipment_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ms1000 -->
+<template if:true={is_pvs_pv_equipment_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_equipment_ht1000 -->
+<template if:true={is_pvs_pv_equipment_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Equipment Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_equipment_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_equipment_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_equipment_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ms610 -->
+<template if:true={is_pvs_pv_composite_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ht610 -->
+<template if:true={is_pvs_pv_composite_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ms900 -->
+<template if:true={is_pvs_pv_composite_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ht900 -->
+<template if:true={is_pvs_pv_composite_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ms1000 -->
+<template if:true={is_pvs_pv_composite_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_pv_composite_ht1000 -->
+<template if:true={is_pvs_pv_composite_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>PV-Composite Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_pv_composite_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_pv_composite_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_pv_composite_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ms610 -->
+<template if:true={is_pvs_firm_gantry_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Gantry Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ht610 -->
+<template if:true={is_pvs_firm_gantry_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Firm-Gantry Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ms900 -->
+<template if:true={is_pvs_firm_gantry_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Gantry Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ht900 -->
+<template if:true={is_pvs_firm_gantry_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Gantry Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ms1000 -->
+<template if:true={is_pvs_firm_gantry_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Gantry Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_gantry_ht1000 -->
+<template if:true={is_pvs_firm_gantry_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Gantry Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_gantry_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_gantry_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_gantry_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ms610 -->
+<template if:true={is_pvs_firm_equipment_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_equipment_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_equipment_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ht610 -->
+<template if:true={is_pvs_firm_equipment_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_equipment_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_equipment_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ms900 -->
+<template if:true={is_pvs_firm_equipment_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_FIRM_equipment_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_FIRM_equipment_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ht900 -->
+<template if:true={is_pvs_firm_equipment_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_equipment_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_equipment_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ms1000 -->
+<template if:true={is_pvs_firm_equipment_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_equipment_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_equipment_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_equipment_ht1000 -->
+<template if:true={is_pvs_firm_equipment_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Equipment Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_equipment_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_equipment_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_equipment_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ms610 -->
+<template if:true={is_pvs_firm_composite_ms610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-MS-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ms610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ms610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ms610_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ht610 -->
+<template if:true={is_pvs_firm_composite_ht610_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-HT-610 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ht610_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ht610_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ht610_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ms900 -->
+<template if:true={is_pvs_firm_composite_ms900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-MS-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ms900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ms900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ms900_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ht900 -->
+<template if:true={is_pvs_firm_composite_ht900_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-HT-900 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ht900_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ht900_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ht900_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ms1000 -->
+<template if:true={is_pvs_firm_composite_ms1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-MS-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ms1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ms1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ms1000_gsm_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_firm_composite_ht1000 -->
+<template if:true={is_pvs_firm_composite_ht1000_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FIRM-Composite Structure-HT-1000 GSM</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_firm_composite_ht1000_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_firm_composite_ht1000_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_firm_composite_ht1000_quantity} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_formula_block -->
+<template if:true={is_pvs_formula_block_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Internal Section</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+  <template if:true={is_AE27_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE27} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE70_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE70} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE113_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE113} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE41_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE41} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE84_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE84} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE127_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE127} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE55_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE55} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE98_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE98} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AE141_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AE141} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM27_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM27} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM70_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM70} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM113_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM113} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM41_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM41} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM84_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM84} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM127_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM127} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM55_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM55} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM98_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM98} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_AM141_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={AM141} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_BJ34} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_BT29} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_G61} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_G60} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvt_C19_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvt_C19} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_pv_CPI_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Consumer Price Index" value={pvs_pv_CPI} data-field="pvs_pv_CPI" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+</template>
+
+<!-- ================= NUTS AND BOLTS ================= -->
+<template if:true={isNutsAndBolts}>
+
+<!-- SECTION: pvs_nuts_bolts_types -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Nuts & Bolts Types</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Type of Grade (Nuts & Bolts) & Foundation" checked={pvs_type_of_grade} data-field="pvs_type_of_grade" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Proto Assembly Testing (Not included in Price)" checked={pvs_proto_assembly_testing} data-field="pvs_proto_assembly_testing" onchange={handleFieldChange} ></lightning-input>
+    </div>
+</div></div>
+
+<!-- SECTION: pvs_details_type_of_grade -->
+<template if:true={is_pvs_details_type_of_grade_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Type of Grade</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="5.6" checked={pvs_type_5_6} data-field="pvs_type_5_6" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="6.8" checked={pvs_type_6_8} data-field="pvs_type_6_8" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="8.8" checked={pvs_type_8_8} data-field="pvs_type_8_8" onchange={handleFieldChange} ></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_foundation_bolt -->
+<template if:true={is_pvs_foundation_bolt_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Foundation Bolt</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Foundation Bolt" checked={pvs_foundation_bolt_checkbox} data-field="pvs_foundation_bolt_checkbox" onchange={handleFieldChange} ></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_ms_template_without_galvanization -->
+<template if:true={is_pvs_ms_template_without_galvanization_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>MS Template (without Galvanization)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="MS Template (without Galvanization)" checked={pvs_ms_template_without_galvanization_checkbox} data-field="pvs_ms_template_without_galvanization_checkbox" onchange={handleFieldChange} ></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_proto_assembly_testing_section -->
+<template if:true={is_pvs_proto_assembly_testing_section_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Proto Assembly Testing (Not included in Price)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Price for Proto Assembly" value={pvs_price_of_proto_assembly} data-field="pvs_price_of_proto_assembly" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_details_type_of_grade_5_6 -->
+<template if:true={is_pvs_details_type_of_grade_5_6_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>GRADE - 5.6</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_type_5_6_price_unit} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_type_5_6_price_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_type_5_6_margin} data-field="pvs_type_5_6_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_type_5_6_quantity} data-field="pvs_type_5_6_quantity" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_details_type_of_grade_6_8 -->
+<template if:true={is_pvs_details_type_of_grade_6_8_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>GRADE - 6.8</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_type_6_8_price_unit} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_type_6_8_price_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_type_6_8_margin} data-field="pvs_type_6_8_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_type_6_8_quantity} data-field="pvs_type_6_8_quantity" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_details_type_of_grade_8_8 -->
+<template if:true={is_pvs_details_type_of_grade_8_8_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>GRADE - 8.8</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_type_8_8_price_unit} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_type_8_8_price_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_type_8_8_margin} data-field="pvs_type_8_8_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_type_8_8_quantity} data-field="pvs_type_8_8_quantity" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_detail_foundation_bolt -->
+<template if:true={is_pvs_detail_foundation_bolt_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>FOUNDATION BOLT</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Price" value={pvs_detail_foundation_bolt_price_unit} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={pvs_detail_foundation_bolt_price_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_detail_foundation_bolt_margin} data-field="pvs_detail_foundation_bolt_margin" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_detail_foundation_bolt_quantity} data-field="pvs_detail_foundation_bolt_quantity" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_detail_ms_template_pv -->
+<template if:true={is_pvs_detail_ms_template_pv_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>MS TEMPLATE (PV)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Price" value={pvs_detail_ms_template_price_pv} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_detail_ms_template_margin_pv} data-field="pvs_detail_ms_template_margin_pv" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_detail_ms_template_quantity_pv} data-field="pvs_detail_ms_template_quantity_pv" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvs_detail_ms_template_price_pv_gantry_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_pv_gantry} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_detail_ms_template_price_pv_equipment_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_pv_equipment} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_detail_ms_template_price_pv_composite_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_pv_composite} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+
+<!-- SECTION: pvs_detail_ms_template_firm -->
+<template if:true={is_pvs_detail_ms_template_firm_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>MS TEMPLATE (Firm)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Price" value={pvs_detail_ms_template_price_firm} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Margin %" value={pvs_detail_ms_template_margin_firm} data-field="pvs_detail_ms_template_margin_firm" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={pvs_detail_ms_template_quantity_firm} data-field="pvs_detail_ms_template_quantity_firm" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_pvs_detail_ms_template_price_firm_gantry_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_firm_gantry} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_detail_ms_template_price_firm_equipment_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_firm_equipment} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pvs_detail_ms_template_price_firm_composite_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={pvs_detail_ms_template_price_firm_composite} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+</template>
+
+<!-- ================= PRICE VARIATION ================= -->
+<template if:true={isPriceVariation}>
+
+<!-- SECTION: pvf_price_variation -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Price Variation</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PRICE QUOTED / CONFIRMED</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="MS" value={pvf_ms} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="HT" value={pvf_ht} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>1 MONTHS PRIOR TO THE TENDERING ( IN CASE OF TENDER)</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Blooms" value={pvf_blooms} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Billets" value={pvf_billets} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Zinc" value={pvf_zinc} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Consumer Price Index" value={pvf_consumer_price_index} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+
+<!-- SECTION: pv_dispatch_inspection_month -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Dispatch/Inspection Month</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="FORMULA" value={pv_formula} options={pv_formula_options} data-field="pv_formula" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  <template if:true={is_pv_base_month_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="BASE MONTH" value={pv_base_month} options={pv_base_month_options} data-field="pv_base_month" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pv_base_year_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="BASE MONTH" value={pv_base_year} options={pv_base_year_options} data-field="pv_base_year" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_pv_blooms_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="BLOOMS" value={pv_blooms} data-field="pv_blooms" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pv_billets_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="BILLETS" value={pv_billets} data-field="pv_billets" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pv_zinc_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="ZINC" value={pv_zinc} data-field="pv_zinc" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_pv_consumer_price_index_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="CONSUMER PRICE INDEX" value={pv_consumer_price_index} data-field="pv_consumer_price_index" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

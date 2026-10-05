@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>SP_IS_4923_2017_Rectangular_2_8_50</label>
+    <protected>false</protected>
+    <values>
+        <field>Designation__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Pipe_Class__c</field>
+        <value xsi:type="xsd:string">2.8</value>
+    </values>
+    <values>
+        <field>Shape__c</field>
+        <value xsi:type="xsd:string">Rectangular</value>
+    </values>
+    <values>
+        <field>Size_NB__c</field>
+        <value xsi:type="xsd:string">50</value>
+    </values>
+    <values>
+        <field>Standard__c</field>
+        <value xsi:type="xsd:string">IS 4923 : 2017</value>
+    </values>
+    <values>
+        <field>Steel_Type__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Weight_Per_Meter__c</field>
+        <value xsi:type="xsd:double">2.89</value>
+    </values>
+</CustomMetadata>

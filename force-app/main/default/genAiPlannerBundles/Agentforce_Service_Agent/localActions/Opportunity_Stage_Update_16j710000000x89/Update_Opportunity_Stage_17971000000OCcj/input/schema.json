@@ -1,0 +1,42 @@
+{
+  "required" : [ "OppId", "StageName" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "ClosureDate" : {
+      "title" : "ClosureDate",
+      "description" : "Pass a proper date value ",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "ExpectedDealValue" : {
+      "title" : "ExpectedDealValue",
+      "description" : "Pass Expected Deal Value given by user",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "LostReason" : {
+      "title" : "LostReason",
+      "description" : "Pass Lost Reason Value given by user",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "OppId" : {
+      "title" : "OppId",
+      "description" : "Pass Opportunity Id stored by you",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "StageName" : {
+      "title" : "StageName",
+      "description" : "Pass the stage name given by user",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

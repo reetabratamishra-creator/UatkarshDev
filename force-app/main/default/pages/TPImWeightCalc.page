@@ -1,0 +1,373 @@
+<!-- TPImWeightCalc - International Marketing weight calculation sheet (Transmission Pole).
+     Copy of the Transmission Pole section of HMWeightCalaculationMA, wired to
+     TPImWeightCalcController: prices in the quote currency. Domestic page untouched.
+     Deepanjan (26 Sep 2026) -->
+<apex:page standardController="Quote"
+           extensions="TPImWeightCalcController"
+           renderAs="pdf"
+           applyHtmlTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false"
+           >
+<html>
+<head>
+<meta charset="UTF-8"/>
+<style>
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10pt;
+    line-height: 1.5;
+    color: #222;
+    background: #fff;
+}
+
+@page {
+    size: A4;
+    margin: 0mm;
+}
+
+@page standard-content {
+    size: A4;
+    margin: 38mm 0mm 30mm 0mm;
+    @top-left { content: element(header); }
+    @bottom-left { content: element(footer); }
+}
+
+.page-break  { page-break-before: always; }
+.avoid-break { page-break-inside: avoid; }
+
+div.corporate-header {
+    position: running(header);
+    top: 0; left: 0;
+    width: 300%;
+    height: 38mm;
+    padding: 0; margin: 0;
+}
+.header-lime-line { width: 155%; border-bottom: 3px solid #99cc33; }
+.header-inner { padding: 4mm 20mm 2mm 20mm; }
+.header-right { float: right; width: 20%; text-align: right; position: relative; z-index: 999; }
+.logo-img { height: 22mm; width: auto; display: inline-block; background-color: #fff; padding: 1px; }
+.header-left { float: left; width: 75%; margin-top: 2mm; }
+.company-name { font-size: 14pt; font-weight: bold; color: #000; margin-bottom: 2px; text-align: right; }
+.office-details { font-size: 7.5pt; color: #333; line-height: 1.4; text-align: right; }
+
+div.corporate-footer {
+    position: running(footer);
+    bottom: 0; left: 0;
+    width: 300%;
+    height: 30mm;
+    padding: 0; margin: 0;
+}
+.footer-lime-line { width: 155%; border-top: 3px solid #99cc33; }
+.footer-inner { padding: 2mm 20mm 0mm 20mm; font-size: 7pt; color: #333; line-height: 1.4; text-align: right; }
+.factory-details { margin-bottom: 3px; }
+.social-row { margin-top: 4px; font-size: 7.5pt; }
+
+div.document-body { page: standard-content; }
+div.document-body-inner { padding: 2mm 20mm 2mm 20mm; }
+
+.row-banner {
+    background: #2e7d32; color: #fff;
+    font-size: 10pt; font-weight: bold;
+    padding: 4px 10px; margin-bottom: 10px; text-align: center;
+}
+
+.sec-title {
+    text-align: center; font-size: 12pt; font-weight: bold;
+    font-style: italic; text-decoration: underline;
+    margin: 14px 0 10px 0;
+}
+.sec-title-sm {
+    text-align: center; font-size: 10.5pt; font-weight: bold;
+    font-style: italic; text-decoration: underline;
+    margin: 10px 0 8px 0;
+}
+
+.ref-block { margin: 8px 0 6px 0; font-size: 9pt; }
+.ref-block p { margin-bottom: 3px; }
+
+/* ── MERGED MAST INFO TABLE ── */
+.mast-tbl { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+.mast-tbl thead th {
+    background: #c8c8c8; border: 1px solid #888;
+    padding: 4px 5px; font-weight: bold;
+    text-align: center; vertical-align: middle;
+}
+.mast-tbl tbody td {
+    border: 1px solid #bbb; padding: 3px 6px;
+    vertical-align: middle;
+}
+.mast-tbl tbody tr:nth-child(even) td { background: #f7f7f7; }
+.mast-row-lbl {
+    text-align: left !important; font-weight: bold;
+    background: #efefef !important; width: 20%;
+}
+.mast-tbl .section-hdr td {
+    background: #2e7d32 !important; color: #fff;
+    font-weight: bold; font-size: 8pt;
+    padding: 3px 6px; text-align: left;
+}
+.mast-tbl .subtotal-hdr td {
+    background: #e8e8e8 !important;
+    font-weight: bold; font-size: 8pt;
+    padding: 3px 6px;
+}
+
+/* ── SEGMENT TABLE (multi-col inside mast-tbl) ── */
+.seg-tbl { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+.seg-tbl thead th {
+    background: #c8c8c8; border: 1px solid #888;
+    padding: 4px 5px; font-weight: bold;
+    text-align: center; vertical-align: middle;
+}
+.seg-tbl tbody td {
+    border: 1px solid #bbb; padding: 3px 5px;
+    text-align: center; vertical-align: middle;
+}
+.seg-tbl tbody tr:nth-child(even) td { background: #f7f7f7; }
+.seg-row-lbl {
+    text-align: left !important; font-weight: bold;
+    background: #efefef !important; width: 22%;
+}
+
+/* ── TOTAL WEIGHT ROW ── */
+.wt-row td {
+    background: #e8e8e8 !important; font-weight: bold;
+    font-size: 10pt; border: 1.5px solid #555 !important;
+}
+
+/* ── CONFIG TABLE ── */
+.cfg-tbl { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 7.2pt; }
+.cfg-tbl th {
+    background: #c8c8c8; border: 1px solid #888; padding: 3px;
+    text-align: center; font-weight: bold; vertical-align: middle; line-height: 1.2;
+}
+.cfg-tbl td {
+    border: 1px solid #bbb; padding: 3px;
+    text-align: center; vertical-align: middle; font-size: 7.2pt;
+}
+
+/* ── AOL TABLE ── */
+.aol-tbl { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8.5pt; }
+.aol-tbl th { background: #c8c8c8; border: 1px solid #888; padding: 4px 7px; font-weight: bold; text-align: left; }
+.aol-tbl td { border: 1px solid #bbb; padding: 4px 7px; }
+
+/* ── COSTING TABLE ── */
+.cost-tbl { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 8pt; }
+.cost-tbl thead th {
+    background: #c8c8c8; border: 1px solid #888;
+    padding: 4px 5px; font-weight: bold;
+    text-align: left; vertical-align: middle;
+}
+.cost-tbl tbody td { border: 1px solid #ccc; padding: 3px 5px; vertical-align: top; }
+.cost-tbl tbody tr:nth-child(even) td { background: #fafafa; }
+.sub  td { background: #f3f3f3 !important; font-size: 7.6pt; }
+.zero td { color: #999; }
+.c-sno  { width: 6%;  text-align: center; }
+.c-item { width: 15%; }
+.c-desc { width: 20%; }
+.c-unit { width: 7%;  text-align: center; }
+.c-qty  { width: 11%; text-align: right; }
+.c-cost { width: 13%; text-align: right; }
+.c-tqty { width: 11%; text-align: right; }
+
+/* ── SUMMARY ROWS ── */
+.sum-row td {
+    background: #e5e5e5 !important; font-weight: bold;
+    font-size: 9.5pt; border: 1.5px solid #666;
+    padding: 5px 8px; text-align: right;
+}
+.grand-row td {
+    background: #d5e8d4 !important; font-weight: bold;
+    font-size: 11pt; border: 2px solid #2e7d32;
+    padding: 7px 10px; text-align: right;
+}
+
+.sp6  { height: 6px; }
+.sp12 { height: 12px; }
+
+/* ── LP WEIGHT LABEL ROWS ── */
+.lp-wt-label {
+    width: 55%; font-weight: bold; font-style: italic;
+    text-decoration: underline; border: 1px solid #999;
+    padding: 4px 6px; background: #efefef;
+}
+.lp-wt-value {
+    width: 45%; font-weight: bold; border: 1px solid #999;
+    padding: 4px 6px; font-size: 10pt;
+}
+
+</style>
+</head>
+<body>
+<apex:outputPanel layout="none" rendered="{!hasImError}"><div style="padding:20mm;color:#a00;font-weight:bold;">Sheet could not be built: {!imError}</div></apex:outputPanel>
+
+<!-- RUNNING HEADER -->
+<div class="corporate-header">
+    <div class="header-inner">
+        <div class="header-right">
+            <apex:image url="{!$Resource.UtkarshLogo}" styleClass="logo-img"/>
+        </div>
+        <div class="header-left">
+            <div class="company-name">Utkarsh India Limited</div>
+            <div class="office-details">
+                Corporate Office: Arrjavv Square, 95A Elliot Road, 4th Floor, Kolkata - 700016<br/>
+                P: 033 2264 6666 / 2265 888 &nbsp;|&nbsp; E: info@utkarshindia.in &nbsp;|&nbsp; W: www.utkarshindia.in
+            </div>
+        </div>
+        <div style="clear:both;"></div>
+    </div>
+    <div class="header-lime-line"></div>
+</div>
+
+<!-- RUNNING FOOTER -->
+<div class="corporate-footer">
+    <div class="footer-lime-line"></div>
+    <div class="footer-inner">
+        <div class="factory-details">F1: Nh6. Vill-Jangalpur, Po: Andul Mouri, Howrah - 711302 &nbsp;|&nbsp; P: 033 2669 0833 / 1151 / 1571</div>
+        <div class="factory-details">F2: NH2, Durgapur Expressway, PO: Gurap, Hoogly - 712303 &nbsp;|&nbsp; P: 03213 253996</div>
+        <div class="social-row">CIN: US1109 WB1995PLC070893</div>
+    </div>
+</div>
+
+<!-- ============================================================
+     TRANSMISSION POLE - one spec block per pole line (item / segment)
+============================================================ -->
+<apex:repeat value="{!tpRowList}" var="tp">
+<div class="document-body">
+<div class="document-body-inner">
+
+    <div class="ref-block">
+        <p><strong>Ref</strong> &nbsp;- <apex:outputText value="{!soWRef}"/></p>
+        <p><strong>Date</strong> - <apex:outputText value="{!soWDate}"/></p>
+    </div>
+
+    <div class="sec-title">Transmission Pole &#8211; Weight Calculator</div>
+
+    <div style="margin-bottom:22px;">
+        <div class="row-banner"><apex:outputText value="{!tp.itemName}"/></div>
+
+        <div style="font-weight:bold;font-style:italic;text-decoration:underline;margin:8px 0 4px 0;font-size:9.5pt;">General</div>
+        <table class="mast-tbl avoid-break">
+            <thead>
+                <tr>
+                    <th style="width:55%; text-align:left;">DESCRIPTION</th>
+                    <th style="width:45%; text-align:left;">VALUE</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td class="mast-row-lbl">Pole Type</td><td><apex:outputText value="{!tp.poleType}"/></td></tr>
+                <tr><td class="mast-row-lbl">Height of Pole (m)</td><td><apex:outputText value="{!tp.height}"/></td></tr>
+                <tr><td class="mast-row-lbl">Top Diameter (mm)</td><td><apex:outputText value="{!tp.topDia}"/></td></tr>
+                <tr><td class="mast-row-lbl">Bottom Diameter (mm)</td><td><apex:outputText value="{!tp.botDia}"/></td></tr>
+                <tr><td class="mast-row-lbl">No. of Polygonal Sides</td><td><apex:outputText value="{!tp.noOfSides}"/></td></tr>
+                <apex:outputPanel layout="none" rendered="{!NOT(tp.isSeg2)}">
+                    <tr><td class="mast-row-lbl">Segment Length (mm)</td><td><apex:outputText value="{!tp.segLength}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Segment Thickness (mm)</td><td><apex:outputText value="{!tp.thickness}"/></td></tr>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!tp.isSeg2}">
+                    <tr><td class="mast-row-lbl">Segment-2 Length (Top) (mm)</td><td><apex:outputText value="{!tp.lenTop}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Segment-1 Length (Bot) (mm)</td><td><apex:outputText value="{!tp.lenBot}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Segment-2 Thickness (Top) (mm)</td><td><apex:outputText value="{!tp.thkTop}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Segment-1 Thickness (Bot) (mm)</td><td><apex:outputText value="{!tp.thkBot}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Overlap (mm)</td><td><apex:outputText value="{!tp.overlap}"/></td></tr>
+                </apex:outputPanel>
+            </tbody>
+        </table>
+
+        <div style="font-weight:bold;font-style:italic;text-decoration:underline;margin:8px 0 4px 0;font-size:9.5pt;">Bearing Plate</div>
+        <table class="mast-tbl avoid-break">
+            <tbody>
+                <tr><td class="mast-row-lbl">Bearing Plate Type</td><td><apex:outputText value="{!tp.bearingPlateType}"/></td></tr>
+                <tr><td class="mast-row-lbl">Size / Dia of Bearing Plate (mm)</td><td><apex:outputText value="{!tp.bpSize}"/></td></tr>
+                <tr><td class="mast-row-lbl">Thickness of Bearing Plate (mm)</td><td><apex:outputText value="{!tp.bpThickness}"/></td></tr>
+            </tbody>
+        </table>
+
+        <div style="font-weight:bold;font-style:italic;text-decoration:underline;margin:8px 0 4px 0;font-size:9.5pt;">Cable Details</div>
+        <table class="mast-tbl avoid-break">
+            <tbody>
+                <tr><td class="mast-row-lbl">Pole Cable Dia (mm)</td><td><apex:outputText value="{!tp.poleCabDia}"/></td></tr>
+                <tr><td class="mast-row-lbl">Pole Cable Thickness (mm)</td><td><apex:outputText value="{!tp.poleCabThickness}"/></td></tr>
+            </tbody>
+        </table>
+
+        <div style="font-weight:bold;font-style:italic;text-decoration:underline;margin:8px 0 4px 0;font-size:9.5pt;">Other Details</div>
+        <table class="mast-tbl avoid-break">
+            <tbody>
+                <tr><td class="mast-row-lbl">DAN</td><td><apex:outputText value="{!tp.dan}"/></td></tr>
+                <tr><td class="mast-row-lbl">Note</td><td><apex:outputText value="{!tp.note}"/></td></tr>
+                <tr><td class="mast-row-lbl">Extra Micron</td><td><apex:outputText value="{!tp.extraMicron}"/></td></tr>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(tp.specialText))}">
+                    <tr><td class="mast-row-lbl">Special Description</td><td><apex:outputText value="{!tp.specialText}"/></td></tr>
+                    <tr><td class="mast-row-lbl">Special Description Unit Price ({!currencyCode})</td><td><apex:outputText value="{!tp.specialUnitPrice}"/></td></tr>
+                </apex:outputPanel>
+                <apex:outputPanel layout="none" rendered="{!NOT(ISBLANK(windSpeed))}">
+                    <tr><td class="mast-row-lbl">Wind Speed</td><td><apex:outputText value="{!windSpeed}"/></td></tr>
+                </apex:outputPanel>
+                <tr><td class="mast-row-lbl">Base Price (INR / kg)</td><td><apex:outputText value="{!tp.basePrice}"/></td></tr>
+                <tr><td class="mast-row-lbl">Realization (INR / kg)</td><td><apex:outputText value="{!tp.realization}"/></td></tr>
+                <tr><td class="mast-row-lbl">Realization on Segment Price (INR / kg)</td><td><apex:outputText value="{!tp.realizationOnPrice}"/></td></tr>
+            </tbody>
+        </table>
+
+        <table class="mast-tbl avoid-break">
+            <tbody>
+                <tr class="wt-row">
+                    <td style="width:55%;"><strong>Weight (kg)</strong></td>
+                    <td style="width:45%;"><strong><apex:outputText value="{!tp.weight}"/></strong></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+</div>
+</apex:repeat>
+
+<!-- WEIGHT & COSTING SUMMARY -->
+<div class="document-body">
+<div class="document-body-inner">
+
+    <div class="sec-title">Transmission Pole &#8211; Weight &amp; Costing</div>
+    <apex:outputPanel layout="none" rendered="{!NOT(isInr)}">
+        <p style="text-align:center;font-size:8.5pt;margin:0 0 6px 0;">Unit Price / Unit Cost in {!currencyCode} (1 {!currencyCode} = INR {!exchangeRate}, as frozen on the quotation).</p>
+    </apex:outputPanel>
+
+    <table class="cost-tbl">
+        <thead>
+            <tr>
+                <th class="c-sno">S.No.</th>
+                <th style="width:38%">Item</th>
+                <th style="width:12%; text-align:right;">Weight (kg)</th>
+                <th style="width:10%; text-align:right;">Quantity</th>
+                <th style="width:14%; text-align:right;">Unit Price ({!currencyCode})</th>
+                <th style="width:14%; text-align:right;">Unit Cost ({!currencyCode})</th>
+            </tr>
+        </thead>
+        <tbody>
+            <apex:repeat value="{!tpRowList}" var="tp">
+                <tr>
+                    <td class="c-sno"><apex:outputText value="{!tp.rowIndex}"/></td>
+                    <td><apex:outputText value="{!tp.itemName}"/></td>
+                    <td style="text-align:right;"><apex:outputText value="{!tp.weight}"/></td>
+                    <td style="text-align:right;"><apex:outputText value="{!tp.quantity}"/></td>
+                    <td style="text-align:right;"><apex:outputText value="{!tp.unitPrice}"/></td>
+                    <td style="text-align:right;"><apex:outputText value="{!tp.unitCost}"/></td>
+                </tr>
+            </apex:repeat>
+        </tbody>
+    </table>
+
+    <div style="border-top:1px solid #aaa; margin-top:40px;"></div>
+
+</div>
+</div>
+
+</body>
+</html>
+</apex:page>

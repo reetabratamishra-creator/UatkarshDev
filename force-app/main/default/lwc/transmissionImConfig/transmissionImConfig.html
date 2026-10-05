@@ -1,0 +1,373 @@
+<template>
+    <template if:true={isLoading}>
+        <div class="im-loading">
+            <div class="im-load-card">
+                <div class="im-load-text" role="status" aria-live="polite">{loadText}</div>
+                <div class="im-progress"><div class="im-progress-bar" style={loadBarStyle}></div></div>
+            </div>
+        </div>
+    </template>
+    <template if:true={loadError}><div class="im-alert">{loadError}</div></template>
+
+    <template if:false={isLoading}>
+        <template if:true={crossNote}><div class="im-note im-note_err">{crossNote}</div></template>
+        <template if:true={pricingNote}><div class="im-note">{pricingNote}</div></template>
+        <template if:true={rateSourceNote}><div class={rateSourceCls}>{rateSourceNote}</div></template>
+        <template if:true={hasProductTypeChips}>
+            <div class="im-typebar">
+                <span class="im-typebar-cap">PRODUCT TYPES ON THIS QUOTE</span>
+                <template for:each={productTypeChips} for:item="t">
+                    <button key={t.key} type="button" class={t.cls} data-type={t.type} onclick={goToProductType}>
+                        {t.label}
+                        <template if:true={t.hasTrigger}><span class="im-typechip-dot">APPROVAL</span></template>
+                    </button>
+                </template>
+            </div>
+        </template>
+
+        <template for:each={accordions} for:item="acc">
+            <template if:true={acc.visible}>
+                <section key={acc.key} class="im-acc">
+                    <button type="button" class="im-acc-head" data-key={acc.key} data-open={acc.expanded} onclick={toggle}>
+                        <lightning-icon icon-name={acc.chev} size="x-small" class="im-chev"></lightning-icon>
+                        <span class="im-no">{acc.no}</span><span class="im-acc-title">{acc.label}</span>
+                    </button>
+
+                    <template if:true={acc.expanded}>
+                        <div class="im-acc-body">
+                            <div class="im-grid">
+                                <template for:each={acc.inline} for:item="f">
+                                    <div key={f.key} class={f.cls} style={f.spanStyle}>
+                                        <template if:true={f.isBlankCell}><span class="im-blank"></span></template>
+                                        <template if:false={f.isBlankCell}>
+                                            <template if:true={f.isSectionHeader}><div class="im-header">{f.label}</div></template>
+                                            <template if:true={f.isCellHeader}><div class="im-cellhead">{f.label}</div></template>
+                                            <template if:true={f.isSpacer}><div class="im-spacer">{f.label}</div></template>
+                                            <template if:false={f.isHeader}>
+                                                <template if:true={f.isCheckbox}>
+                                                    <label class="im-checkline"><input type="checkbox" class="im-checkbox" data-api={f.apiName} checked={f.checked} disabled={f.readOnly} onchange={handleInput} /><span>{f.label}</span></label>
+                                                </template>
+                                                <template if:false={f.isCheckbox}>
+                                                    <template if:true={f.hasLabel}><label class="im-label">{f.label}<template if:true={f.required}><span class="im-req">*</span></template></label></template>
+                                                    <template if:true={f.isReadOnlyValue}>
+                                                        <div class={f.valueCls}>
+                                                            <span class="im-value-num">{f.display}</span>
+                                                            <template if:true={f.unit}><span class="im-value-unit">{f.unit}</span></template>
+                                                        </div>
+                                                        <template if:true={f.fcValue}><div class="im-fc">{currencyCode} {f.fcValue}</div></template>
+                                                    </template>
+                                                    <template if:false={f.isReadOnlyValue}>
+                                                        <template if:true={f.isPicklist}>
+                                                            <select class={f.selectCls} value={f.value} data-api={f.apiName} data-required={f.reqAttr} onchange={handleInput}>
+                                                                <option value="">Select…</option>
+                                                                <template for:each={f.options} for:item="o"><option key={o.value} value={o.value} selected={o.selected}>{o.label}</option></template>
+                                                            </select>
+                                                        </template>
+                                                        <template if:true={f.isNumber}>
+                                                            <input type="number" inputmode="decimal" step="any" onwheel={handleWheel} class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} min={f.min} onchange={handleInput} />
+                                                        </template>
+                                                        <template if:true={f.isText}>
+                                                            <input type="text" class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} onchange={handleInput} />
+                                                        </template>
+                                                        <template if:true={f.isTextarea}>
+                                                            <textarea class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} rows="2" value={f.value} onchange={handleInput}></textarea>
+                                                        </template>
+                                                    </template>
+                                                    <template if:true={f.err}><div class="im-err">{f.err}</div></template>
+                                                </template>
+                                            </template>
+                                        </template>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <template for:each={acc.folders} for:item="folder">
+                                <template if:true={folder.visible}>
+                                    <div key={folder.key} class={folder.folderCls}>
+                                        <div class="im-folder-head">
+                                            <span class="im-no im-no_sm">{folder.no}</span><span>{folder.label}</span>
+                                            <template if:true={folder.isTrigger}><span class="im-trigger-tag">APPROVAL TRIGGER</span></template>
+                                        </div>
+
+                                        <template if:true={folder.expanded}>
+                                            <div class="im-folder-body">
+                                                <template for:each={folder.uiGroups} for:item="g">
+                                                    <div key={g.key} class={g.groupCls}>
+                                                        <template if:true={g.collapsible}>
+                                                            <button type="button" class="im-group-head" data-key={g.key} data-open={g.expanded} onclick={toggle}>
+                                                                <lightning-icon icon-name={g.chev} size="xx-small" class="im-chev"></lightning-icon>
+                                                                <span>{g.label}</span>
+                                                                <template if:true={g.isTrigger}><span class="im-trigger-tag">APPROVAL TRIGGER</span></template>
+                                                            </button>
+                                                        </template>
+                                                        <template if:false={g.collapsible}>
+                                                            <div class="im-group-head im-group-head_static">{g.label}<template if:true={g.isTrigger}><span class="im-trigger-tag">APPROVAL TRIGGER</span></template></div>
+                                                        </template>
+
+
+                                                        <template if:true={g.openInModal}>
+                                                            <div class="im-tablecard">
+                                                                <div class="im-tablecard-info">
+                                                                    <lightning-icon icon-name="utility:table" size="x-small"></lightning-icon>
+                                                                    <span class="im-tablecard-name">{g.label}</span>
+                                                                    <span class="im-tablecard-sub">{g.filledLabel}</span>
+                                                                </div>
+                                                                <button type="button" class="im-openbtn" data-key={g.key} onclick={openGroupModal}>Open</button>
+                                                            </div>
+                                                        </template>
+
+                                                        <template if:false={g.openInModal}>
+                                                            <template if:true={g.expanded}>
+                                                                <template if:true={g.isTable}>
+                                                                    <div class="im-tblwrap">
+                                                                        <div class="im-tbl im-tbl_inline">
+                                                                            <template for:each={g.tableRows} for:item="row">
+                                                                                <div key={row.key} class={row.rowCls}>
+                                                                                    <template for:each={row.cells} for:item="f">
+                                                                                        <div key={f.key} class={f.cls} style={f.spanStyle}>
+                                            <template if:true={f.isBlankCell}><span class="im-blank"></span></template>
+                                            <template if:false={f.isBlankCell}>
+                                                <template if:true={f.isSectionHeader}><div class="im-header">{f.label}</div></template>
+                                                <template if:true={f.isCellHeader}><div class="im-cellhead">{f.label}</div></template>
+                                                <template if:true={f.isSpacer}><div class="im-spacer">{f.label}</div></template>
+                                                <template if:false={f.isHeader}>
+                                                    <template if:true={f.isCheckbox}>
+                                                        <label class="im-checkline"><input type="checkbox" class="im-checkbox" data-api={f.apiName} checked={f.checked} disabled={f.readOnly} onchange={handleInput} /><span>{f.label}</span></label>
+                                                    </template>
+                                                    <template if:false={f.isCheckbox}>
+                                                        <template if:true={f.hasLabel}><span class="im-subcap">{f.label}</span></template>
+                                                        <template if:true={f.isReadOnlyValue}>
+                                                            <div class={f.valueCls}>
+                                                                <span class="im-value-num">{f.display}</span>
+                                                                <template if:true={f.unit}><span class="im-value-unit">{f.unit}</span></template>
+                                                            </div>
+                                                            <template if:true={f.fcValue}><div class="im-fc">{currencyCode} {f.fcValue}</div></template>
+                                                        </template>
+                                                        <template if:false={f.isReadOnlyValue}>
+                                                            <template if:true={f.isPicklist}>
+                                                                <select class={f.selectCls} value={f.value} data-api={f.apiName} data-required={f.reqAttr} onchange={handleInput}>
+                                                                    <option value="">Select…</option>
+                                                                    <template for:each={f.options} for:item="o"><option key={o.value} value={o.value} selected={o.selected}>{o.label}</option></template>
+                                                                </select>
+                                                            </template>
+                                                            <template if:true={f.isNumber}>
+                                                                <input type="number" inputmode="decimal" step="any" onwheel={handleWheel} class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} min={f.min} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isText}>
+                                                                <input type="text" class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isTextarea}>
+                                                                <textarea class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} rows="2" value={f.value} onchange={handleInput}></textarea>
+                                                            </template>
+                                                        </template>
+                                                        <template if:true={f.err}><div class="im-err">{f.err}</div></template>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                    <template if:true={row.canRemove}>
+                                                                                        <button type="button" class="im-rowdel" data-key={row.removeKey} title={row.removeTitle} onclick={removeTableRow}>
+                                            <lightning-icon icon-name="utility:delete" size="xx-small" alternative-text="Delete row"></lightning-icon>
+                                        </button>
+                                                                                    </template>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                                <template if:false={g.isTable}>
+                                                                    <div class={g.bodyCls}>
+                                                                        <template for:each={g.fields} for:item="f">
+                                                                            <div key={f.key} class={f.cls} style={f.spanStyle}>
+                                            <template if:true={f.isBlankCell}><span class="im-blank"></span></template>
+                                            <template if:false={f.isBlankCell}>
+                                                <template if:true={f.isSectionHeader}><div class="im-header">{f.label}</div></template>
+                                                <template if:true={f.isCellHeader}><div class="im-cellhead">{f.label}</div></template>
+                                                <template if:true={f.isSpacer}><div class="im-spacer">{f.label}</div></template>
+                                                <template if:false={f.isHeader}>
+                                                    <template if:true={f.isCheckbox}>
+                                                        <label class="im-checkline"><input type="checkbox" class="im-checkbox" data-api={f.apiName} checked={f.checked} disabled={f.readOnly} onchange={handleInput} /><span>{f.label}</span></label>
+                                                    </template>
+                                                    <template if:false={f.isCheckbox}>
+                                                        <template if:true={f.hasLabel}><label class="im-label">{f.label}<template if:true={f.required}><span class="im-req">*</span></template></label></template>
+                                                        <template if:true={f.isReadOnlyValue}>
+                                                            <div class={f.valueCls}>
+                                                                <span class="im-value-num">{f.display}</span>
+                                                                <template if:true={f.unit}><span class="im-value-unit">{f.unit}</span></template>
+                                                            </div>
+                                                            <template if:true={f.fcValue}><div class="im-fc">{currencyCode} {f.fcValue}</div></template>
+                                                        </template>
+                                                        <template if:false={f.isReadOnlyValue}>
+                                                            <template if:true={f.isPicklist}>
+                                                                <select class={f.selectCls} value={f.value} data-api={f.apiName} data-required={f.reqAttr} onchange={handleInput}>
+                                                                    <option value="">Select…</option>
+                                                                    <template for:each={f.options} for:item="o"><option key={o.value} value={o.value} selected={o.selected}>{o.label}</option></template>
+                                                                </select>
+                                                            </template>
+                                                            <template if:true={f.isNumber}>
+                                                                <input type="number" inputmode="decimal" step="any" onwheel={handleWheel} class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} min={f.min} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isText}>
+                                                                <input type="text" class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isTextarea}>
+                                                                <textarea class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} rows="2" value={f.value} onchange={handleInput}></textarea>
+                                                            </template>
+                                                        </template>
+                                                        <template if:true={f.err}><div class="im-err">{f.err}</div></template>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                                                            </div>
+                                                                        </template>
+                                                                    </div>
+                                                                </template>
+                                                                <template if:true={g.hasCalc}>
+                                                                    <div class="im-tablecard im-tablecard_calc">
+                                                                        <div class="im-tablecard-info">
+                                                                            <lightning-icon icon-name="utility:advanced_function" size="x-small"></lightning-icon>
+                                                                            <span class="im-tablecard-name">{g.calcLabel}</span>
+                                                                            <span class="im-tablecard-sub">read-only</span>
+                                                                        </div>
+                                                                        <button type="button" class="im-openbtn" data-key={g.calcKey} onclick={openGroupModal}>Open</button>
+                                                                    </div>
+                                                                </template>
+                                                            </template>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+                    </template>
+                </section>
+            </template>
+        </template>
+
+        <template if:true={hasModalGroup}>
+            <div class="im-gm-bg" onclick={closeGroupModal}></div>
+            <div class="im-gm">
+                <div class="im-gm-head">
+                    <span>{modalGroup.label}</span>
+                    <button type="button" class="im-gm-x" onclick={closeGroupModal}>&times;</button>
+                </div>
+                <div class="im-gm-body">
+                    <template if:true={modalGroup.isTable}>
+                        <div class="im-tbl">
+                            <template for:each={modalGroup.tableRows} for:item="row">
+                                <div key={row.key} class={row.rowCls}>
+                                    <span class="im-tbl-no">{row.no}</span>
+                                    <template for:each={row.cells} for:item="f">
+                                        <div key={f.key} class={f.cls} style={f.spanStyle}>
+                                            <template if:true={f.isBlankCell}><span class="im-blank"></span></template>
+                                            <template if:false={f.isBlankCell}>
+                                                <template if:true={f.isSectionHeader}><div class="im-header">{f.label}</div></template>
+                                                <template if:true={f.isCellHeader}><div class="im-cellhead">{f.label}</div></template>
+                                                <template if:true={f.isSpacer}><div class="im-spacer">{f.label}</div></template>
+                                                <template if:false={f.isHeader}>
+                                                    <template if:true={f.isCheckbox}>
+                                                        <label class="im-checkline"><input type="checkbox" class="im-checkbox" data-api={f.apiName} checked={f.checked} disabled={f.readOnly} onchange={handleInput} /><span>{f.label}</span></label>
+                                                    </template>
+                                                    <template if:false={f.isCheckbox}>
+                                                        <template if:true={f.hasLabel}><span class="im-subcap">{f.label}</span></template>
+                                                        <template if:true={f.isReadOnlyValue}>
+                                                            <div class={f.valueCls}>
+                                                                <span class="im-value-num">{f.display}</span>
+                                                                <template if:true={f.unit}><span class="im-value-unit">{f.unit}</span></template>
+                                                            </div>
+                                                            <template if:true={f.fcValue}><div class="im-fc">{currencyCode} {f.fcValue}</div></template>
+                                                        </template>
+                                                        <template if:false={f.isReadOnlyValue}>
+                                                            <template if:true={f.isPicklist}>
+                                                                <select class={f.selectCls} value={f.value} data-api={f.apiName} data-required={f.reqAttr} onchange={handleInput}>
+                                                                    <option value="">Select…</option>
+                                                                    <template for:each={f.options} for:item="o"><option key={o.value} value={o.value} selected={o.selected}>{o.label}</option></template>
+                                                                </select>
+                                                            </template>
+                                                            <template if:true={f.isNumber}>
+                                                                <input type="number" inputmode="decimal" step="any" onwheel={handleWheel} class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} min={f.min} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isText}>
+                                                                <input type="text" class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} onchange={handleInput} />
+                                                            </template>
+                                                            <template if:true={f.isTextarea}>
+                                                                <textarea class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} rows="2" value={f.value} onchange={handleInput}></textarea>
+                                                            </template>
+                                                        </template>
+                                                        <template if:true={f.err}><div class="im-err">{f.err}</div></template>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template if:true={row.canRemove}>
+                                        <button type="button" class="im-rowdel" data-key={row.removeKey} title={row.removeTitle} onclick={removeTableRow}>
+                                            <lightning-icon icon-name="utility:delete" size="xx-small" alternative-text="Delete row"></lightning-icon>
+                                        </button>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                        <template if:true={modalGroup.canAddRow}>
+                            <button type="button" class="im-addrow" data-key={modalGroup.key} onclick={addTableRow}>{modalGroup.addRowLabel}</button>
+                        </template>
+                    </template>
+                    <template if:false={modalGroup.isTable}>
+                        <div class="im-grid">
+                            <template for:each={modalGroup.fields} for:item="f">
+                                <div key={f.key} class={f.cls} style={f.spanStyle}>
+                                    <template if:true={f.isBlankCell}><span class="im-blank"></span></template>
+                                    <template if:false={f.isBlankCell}>
+                                        <template if:true={f.isSectionHeader}><div class="im-header">{f.label}</div></template>
+                                        <template if:true={f.isCellHeader}><div class="im-cellhead">{f.label}</div></template>
+                                        <template if:true={f.isSpacer}><div class="im-spacer">{f.label}</div></template>
+                                        <template if:false={f.isHeader}>
+                                            <template if:true={f.isCheckbox}>
+                                                <label class="im-checkline"><input type="checkbox" class="im-checkbox" data-api={f.apiName} checked={f.checked} disabled={f.readOnly} onchange={handleInput} /><span>{f.label}</span></label>
+                                            </template>
+                                            <template if:false={f.isCheckbox}>
+                                                <template if:true={f.hasLabel}><label class="im-label">{f.label}<template if:true={f.required}><span class="im-req">*</span></template></label></template>
+                                                <template if:true={f.isReadOnlyValue}>
+                                                    <div class={f.valueCls}>
+                                                        <span class="im-value-num">{f.display}</span>
+                                                        <template if:true={f.unit}><span class="im-value-unit">{f.unit}</span></template>
+                                                    </div>
+                                                    <template if:true={f.fcValue}><div class="im-fc">{currencyCode} {f.fcValue}</div></template>
+                                                </template>
+                                                <template if:false={f.isReadOnlyValue}>
+                                                    <template if:true={f.isPicklist}>
+                                                        <select class={f.selectCls} value={f.value} data-api={f.apiName} data-required={f.reqAttr} onchange={handleInput}>
+                                                            <option value="">Select…</option>
+                                                            <template for:each={f.options} for:item="o"><option key={o.value} value={o.value} selected={o.selected}>{o.label}</option></template>
+                                                        </select>
+                                                    </template>
+                                                    <template if:true={f.isNumber}>
+                                                        <input type="number" inputmode="decimal" step="any" onwheel={handleWheel} class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} min={f.min} onchange={handleInput} />
+                                                    </template>
+                                                    <template if:true={f.isText}>
+                                                        <input type="text" class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} value={f.value} onchange={handleInput} />
+                                                    </template>
+                                                    <template if:true={f.isTextarea}>
+                                                        <textarea class={f.inputCls} data-api={f.apiName} data-required={f.reqAttr} rows="2" value={f.value} onchange={handleInput}></textarea>
+                                                    </template>
+                                                </template>
+                                                <template if:true={f.err}><div class="im-err">{f.err}</div></template>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+                <div class="im-gm-foot"><button type="button" class="im-openbtn" onclick={closeGroupModal}>Done</button></div>
+            </div>
+        </template>
+
+        <template if:true={hasErrors}><div class="im-engine-err" title={errorText}>Formula warnings: {errorText}</div></template>
+    </template>
+</template>

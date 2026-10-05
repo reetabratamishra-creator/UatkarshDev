@@ -1,0 +1,21 @@
+<template>
+    <div class="slds-grid slds-wrap slds-gutters">
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-combobox label="Select Payment Terms" name="selectPaymentTerms" value={selectPaymentTerms} options={paymentTermsOptions} onchange={handleChange}></lightning-combobox>
+        </div>
+        <template if:true={selectPaymentTerms}>
+            <template if:true={isAgainstLc}>
+                <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                    <lightning-input type="number" label="Usance Interest (Buyer)" name="usanceInterestBuyer" value={usanceInterestBuyer} onchange={handleChange}></lightning-input>
+                </div>
+                <div class="slds-col slds-size_1-of-2 slds-m-top_small">
+                    <lightning-input type="number" label="Usance Interest (Seller)" name="usanceInterestSeller" value={usanceInterestSeller} onchange={handleChange}></lightning-input>
+                </div>
+            </template>
+        </template>
+    </div>
+    <div class="slds-m-top_medium slds-text-align_right">
+        <lightning-button label="Cancel" onclick={handleClose} class="slds-m-right_small"></lightning-button>
+        <lightning-button label="Save" variant="brand" onclick={handleSave}></lightning-button>
+    </div>
+</template>

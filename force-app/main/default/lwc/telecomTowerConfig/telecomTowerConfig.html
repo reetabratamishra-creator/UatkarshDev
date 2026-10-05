@@ -1,0 +1,230 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 90%; width: 90%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">TELECOM TOWER PART DETAILS - {typeOfTower}</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium custom-scrollbar" style="height:60vh; overflow-y:auto;">
+                
+                <!-- Angular Section -->
+                <template if:true={isAngular}>
+                    <!-- Part A: Raw Material Cost -->
+                    <div class="slds-box slds-m-bottom_medium slds-theme_shade border-blue">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Part A - Raw Material Cost</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input type="number" label="RAW MATERIAL COST" value={angRmc} read-only></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part B: Zinc -->
+                    <div class="slds-box slds-m-bottom_medium border-blue">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Part B - Zinc</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="ZINC VALUE" value={angZincValue} onchange={handleAngZincValueChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="ZINC CONVERSION (%)" value={angZincConversionPercent} onchange={handleAngZincConversionChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="TOTAL ZINC VALUE" value={angTotalZincValue} read-only></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part C: Conversion -->
+                    <div class="slds-box slds-m-bottom_medium border-blue">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Part C - Conversion</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-4 slds-p-top_large">
+                                <lightning-input type="checkbox" label="Fabrication" checked={angFabrication} onchange={handleAngFabricationChange}></lightning-input>
+                            </div>
+                            <template if:true={angFabrication}>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="Fabrication-Cost" value={angFabricationCost} onchange={handleAngFabricationCostChange}></lightning-input>
+                                </div>
+                            </template>
+                            
+                            <div class="slds-col slds-size_1-of-4 slds-p-top_large">
+                                <lightning-input type="checkbox" label="Labour" checked={angLabour} onchange={handleAngLabourChange}></lightning-input>
+                            </div>
+                            <template if:true={angLabour}>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="Labour-Cost" value={angLabourCost} onchange={handleAngLabourCostChange}></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Tubular Section -->
+                <template if:true={isTubular}>
+                    <!-- Part A: BOM Material -->
+                    <div class="slds-box slds-m-bottom_medium slds-theme_shade border-orange">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">PART A - BOM Materials</h3>
+                        
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input type="number" label="PIPE RATE" value={tubPipeRate} onchange={handleTubPipeRateChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input type="number" label="PLATE RATE" value={tubPlateRate} onchange={handleTubPlateRateChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input type="number" label="ANG/CHAN RATE" value={tubAngChanRate} onchange={handleTubAngChanRateChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-4">
+                                <lightning-input type="number" label="MISC RATE" value={tubMiscRate} onchange={handleTubMiscRateChange}></lightning-input>
+                            </div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-combobox label="MATERIAL LIST" value={tubMaterialList} options={tubMaterialListOptions} onchange={handleTubMaterialListChange}></lightning-combobox>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="TOWER WEIGHT (Kg)" value={tubTowerWeight} onchange={handleTubTowerWeightChange} step="0.001"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="number" label="RMC RATE" value={tubRmcRate} read-only></lightning-input>
+                            </div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_small">
+                            <template if:true={showBomFields}>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="PIPE COMPOSITION (%)" value={tubPipeCom} onchange={handleTubPipeComChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="PLATE COMPOSITION (%)" value={tubPlateCom} onchange={handleTubPlateComChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="ANG/CHAN COMPOSITION (%)" value={tubAngChanCom} onchange={handleTubAngChanComChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4 slds-m-top_small">
+                                    <lightning-input type="number" label="MISC COMPOSITION (%)" value={tubMiscCom} onchange={handleTubMiscComChange}></lightning-input>
+                                </div>
+                                <div class="slds-col slds-size_1-of-4 slds-m-top_small">
+                                    <lightning-input type="number" label="TOTAL COMPOSITION (%)" value={tubTotalComposition} read-only></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Part B: Zinc -->
+                    <div class="slds-box slds-m-bottom_medium border-orange">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Part B - Zinc Cost</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" label="ZINC RATE PER MT" value={tubZincRatePerMt} onchange={handleTubZincRatePerMtChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2">
+                                <lightning-input type="number" label="TOTAL ZINC VALUE" value={tubTotalZincValue} read-only></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part C: Conversion -->
+                    <div class="slds-box slds-m-bottom_medium border-orange">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small">Part C - Conversion</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-4 slds-p-top_large">
+                                <lightning-input type="checkbox" label="Fabrication" checked={tubFabrication} onchange={handleTubFabricationChange}></lightning-input>
+                            </div>
+                            <template if:true={tubFabrication}>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="Fabrication-Cost" value={tubFabricationCost} onchange={handleTubFabricationCostChange}></lightning-input>
+                                </div>
+                            </template>
+                            
+                            <div class="slds-col slds-size_1-of-4 slds-p-top_large">
+                                <lightning-input type="checkbox" label="Labour" checked={tubLabour} onchange={handleTubLabourChange}></lightning-input>
+                            </div>
+                            <template if:true={tubLabour}>
+                                <div class="slds-col slds-size_1-of-4">
+                                    <lightning-input type="number" label="Labour-Cost" value={tubLabourCost} onchange={handleTubLabourCostChange}></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Part D: Margin -->
+                <div class="slds-box slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small">Part D - Margin</h3>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-4">
+                            <lightning-input type="number" label="MARGIN (%)" value={margin} onchange={handleMarginChange}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ex-Works Price (Line Items) -->
+                <div class="slds-box slds-m-bottom_medium border-green">
+                    <h3 class="slds-text-heading_small slds-m-bottom_small slds-grid slds-grid_align-spread">
+                        <span>Ex-works Price</span>
+                        <lightning-button label="Add Product" icon-name="utility:add" onclick={handleAddProduct}></lightning-button>
+                    </h3>
+                    
+                    <div class="slds-grid slds-wrap slds-p-bottom_small slds-border_bottom" style="font-weight: bold;">
+                        <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">PRODUCT DETAILS</div>
+                        <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">TOWER WEIGHT-MT</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">QTY</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">UOM</div>
+                        <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">RATE PER MT</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">UNIT COST</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">UNIT PRICE</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">TOTAL VALUE</div>
+                        <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">ACTION</div>
+                    </div>
+
+                    <template for:each={products} for:item="prod" for:index="index">
+                        <div key={prod.id} class="slds-grid slds-wrap slds-m-top_small slds-p-bottom_small slds-border_bottom slds-grid_vertical-align-center">
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="text" data-id={prod.id} name="details" value={prod.details} onchange={handleProductChange} variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" data-id={prod.id} name="weight" value={prod.weight} onchange={handleProductChange} variant="label-hidden" step="0.001"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" data-id={prod.id} name="quantity" value={prod.quantity} onchange={handleProductChange} variant="label-hidden" min="1"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="text" value={prod.uom} read-only variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_2-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" value={prod.ratePerMt} read-only variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" value={prod.unitCost} read-only variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" value={prod.unitPrice} read-only variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small">
+                                <lightning-input type="number" value={prod.totalValue} read-only variant="label-hidden"></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-12 slds-p-horizontal_x-small slds-text-align_center">
+                                <lightning-button-icon icon-name="utility:delete" variant="bare" alternative-text="Delete" data-id={prod.id} onclick={handleRemoveProduct}></lightning-button-icon>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+            </div>
+            
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

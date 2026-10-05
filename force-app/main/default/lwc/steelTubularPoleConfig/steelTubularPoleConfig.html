@@ -1,0 +1,1778 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Steel Tubular Pole Estimator</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 50vh;">
+                <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium slds-p-around_small slds-box slds-theme_default">
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            name="estimatorType"
+                            label="Type of Pole"
+                            value={selectedType}
+                            options={typeOptions}
+                            onchange={handleTypeChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                </div>
+
+<!-- ================= STANDARD POLE ================= -->
+<template if:true={isStandard}>
+
+<!-- SECTION: std_general_details -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>General Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="MS / GI - 1" value={ms_gi_1} options={ms_gi_1_options} data-field="ms_gi_1" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="HEIGHT OF POLE" value={height_1} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_ms_gi_2_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="MS / GI - 2" value={ms_gi_2} options={ms_gi_2_options} data-field="ms_gi_2" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_height_2_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="HEIGHT OF POLE" value={height_2} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_ms_gi_3_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="MS / GI - 3" value={ms_gi_3} options={ms_gi_3_options} data-field="ms_gi_3" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_height_3_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="HEIGHT OF POLE" value={height_3} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+
+<!-- SECTION: designation_1 -->
+<template if:true={is_designation_1_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>( Designation-1) STP IS - 2713 (7M - 16M)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>POLE DETAILS</b></div>
+    </div>
+  <template if:true={is_d1_tolerance_percent_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Tolerance (%)" value={d1_tolerance_percent} data-field="d1_tolerance_percent" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_tol_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="F.O.R" value={d1_for} options={d1_for_options} data-field="d1_for" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  <template if:true={is_d1_lump_sum_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Lump sum" value={d1_lump_sum} data-field="d1_lump_sum" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_transportation_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Transportation (pcs)" value={d1_transportation} data-field="d1_transportation" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_for_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Designation (D1)" value={d1_designation} options={d1_designation_options} data-field="d1_designation" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Tolerance" value={d1_tolerance} options={d1_tolerance_options} data-field="d1_tolerance" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_added_up} data-field="d1_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_quantity} data-field="d1_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Base Weight" value={d1_base_weight} read-only></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Base Length" value={d1_base_length} read-only></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Pole Weight (KG)" value={d1_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Pole Total Amount" value={d1_pole_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Pole Payment Term" value={d1_pole_payment_term} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>BASE PLATE</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="MS / GI" checked={d1_bp_ms_gi} data-field="d1_bp_ms_gi" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Sister Plate" checked={d1_bp_sister_plate} data-field="d1_bp_sister_plate" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_bp_ms_gi_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_reflect_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Reflect separately in offer?" value={d1_bp_ms_gi_reflect} options={d1_bp_ms_gi_reflect_options} data-field="d1_bp_ms_gi_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_reflect_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Reflect separately in offer?" value={d1_bp_sp_reflect} options={d1_bp_sp_reflect_options} data-field="d1_bp_sp_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={d1_bp_ms_gi_length} data-field="d1_bp_ms_gi_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_width_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Width (m)" value={d1_bp_ms_gi_width} data-field="d1_bp_ms_gi_width" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_thickness_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={d1_bp_ms_gi_thickness} data-field="d1_bp_ms_gi_thickness" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_bp_ms_gi_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_bp_ms_gi_added_up} data-field="d1_bp_ms_gi_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ms_gi_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_bp_ms_gi_quantity} data-field="d1_bp_ms_gi_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={d1_bp_sp_length} data-field="d1_bp_sp_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_width_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Width (m)" value={d1_bp_sp_width} data-field="d1_bp_sp_width" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_thickness_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={d1_bp_sp_thickness} data-field="d1_bp_sp_thickness" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_bp_sp_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_bp_sp_added_up} data-field="d1_bp_sp_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_sp_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_bp_sp_quantity} data-field="d1_bp_sp_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cast Iron (IS)" checked={d1_bp_cast_iron_is} data-field="d1_bp_cast_iron_is" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_bp_ci_is_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_is_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Dia (inches)" value={d1_bp_ci_is_dia} data-field="d1_bp_ci_is_dia" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_is_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_bp_ci_is_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_is_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_bp_ci_is_added_up} data-field="d1_bp_ci_is_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_is_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_bp_ci_is_quantity} data-field="d1_bp_ci_is_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_is_reflect_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Reflect in offer?" value={d1_bp_ci_is_reflect} options={d1_bp_ci_is_reflect_options} data-field="d1_bp_ci_is_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cast Iron (Commercial)" checked={d1_bp_cast_iron_comm} data-field="d1_bp_cast_iron_comm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_bp_ci_comm_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_comm_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Dia (inches)" value={d1_bp_ci_comm_dia} data-field="d1_bp_ci_comm_dia" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_comm_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_bp_ci_comm_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_comm_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_bp_ci_comm_added_up} data-field="d1_bp_ci_comm_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_comm_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_bp_ci_comm_quantity} data-field="d1_bp_ci_comm_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_bp_ci_comm_reflect_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Reflect in offer?" value={d1_bp_ci_comm_reflect} options={d1_bp_ci_comm_reflect_options} data-field="d1_bp_ci_comm_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Base Plate Total Ammount</b></div>
+    </div>
+  <template if:true={is_d1_bp_ms_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="MS Base Plate Total Amount" value={d1_bp_ms_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_sp_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Sister Plate Total Amount" value={d1_sp_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_cast_iron_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Cast Iron Total Amount" value={d1_cast_iron_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_cast_iron_comm_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Cast Iron (Comm) Total Amount" value={d1_cast_iron_comm_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>BRACKETS</b></div>
+    </div>
+  <template if:true={is_d1_br_ms_gs_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="MS / GS" value={d1_br_ms_gs} options={d1_br_ms_gs_options} data-field="d1_br_ms_gs" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_br_swan_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_dia_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Dia (MM)" value={d1_br_dia} options={d1_br_dia_options} data-field="d1_br_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_br_thickness_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Thickness (mm)" value={d1_br_thickness} options={d1_br_thickness_options} data-field="d1_br_thickness" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_br_length_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Length (m)" value={d1_br_length} options={d1_br_length_options} data-field="d1_br_length" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Single Arm" checked={d1_br_single_arm} data-field="d1_br_single_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_br_sa_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_sa_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_br_sa_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_sa_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_br_sa_added_up} data-field="d1_br_sa_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_sa_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_br_sa_quantity} data-field="d1_br_sa_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Double Arm" checked={d1_br_double_arm} data-field="d1_br_double_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_br_da_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_da_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_br_da_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_da_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_br_da_added_up} data-field="d1_br_da_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_da_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_br_da_quantity} data-field="d1_br_da_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Triple Arm" checked={d1_br_triple_arm} data-field="d1_br_triple_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_br_ta_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ta_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_br_ta_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ta_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_br_ta_added_up} data-field="d1_br_ta_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ta_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_br_ta_quantity} data-field="d1_br_ta_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Four Arm" checked={d1_br_four_arm} data-field="d1_br_four_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_br_fa_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_fa_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_br_fa_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_fa_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_br_fa_added_up} data-field="d1_br_fa_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_fa_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_br_fa_quantity} data-field="d1_br_fa_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Ring Arm" checked={d1_br_ring_arm} data-field="d1_br_ring_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_br_ra_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ra_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_br_ra_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ra_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_br_ra_added_up} data-field="d1_br_ra_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ra_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_br_ra_quantity} data-field="d1_br_ra_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Brackets Total Ammount</b></div>
+    </div>
+  <template if:true={is_d1_br_sa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Single Arm Total Amount" value={d1_br_sa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_da_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Double Arm Total Amount" value={d1_br_da_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ta_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Tripple Arm Total Amount" value={d1_br_ta_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_fa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Four Arm Total Amount" value={d1_br_fa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_br_ra_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Ring Arm Total Amount" value={d1_br_ra_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>SWAN</b></div>
+    </div>
+  <template if:true={is_d1_swan_ms_gs_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="MS / GS" value={d1_swan_ms_gs} options={d1_swan_ms_gs_options} data-field="d1_swan_ms_gs" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_hdr_spacer_active_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Single" checked={d1_swan_single} data-field="d1_swan_single" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_swan_s_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_s_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_swan_s_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_s_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_swan_s_added} data-field="d1_swan_s_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_s_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_swan_s_qty} data-field="d1_swan_s_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Double" checked={d1_swan_double} data-field="d1_swan_double" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_swan_d_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_d_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_swan_d_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_d_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_swan_d_added} data-field="d1_swan_d_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_d_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_swan_d_qty} data-field="d1_swan_d_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Triple" checked={d1_swan_triple} data-field="d1_swan_triple" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_swan_t_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_t_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={d1_swan_t_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_t_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_swan_t_added} data-field="d1_swan_t_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_t_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_swan_t_qty} data-field="d1_swan_t_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Swan Total Ammount</b></div>
+    </div>
+  <template if:true={is_d1_swan_sa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Single Arm Total Amount" value={d1_swan_sa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_da_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Double Arm Total Amount" value={d1_swan_da_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_swan_ta_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Tripple Arm Total Amount" value={d1_swan_ta_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>FOUNDATION BOLT</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Foundation Bolt" checked={d1_fb_check} data-field="d1_fb_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_fb_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia of FOUNDATION BOLT" value={d1_fb_dia} options={d1_fb_dia_options} data-field="d1_fb_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length of Bolt" value={d1_fb_length} data-field="d1_fb_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_qty_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Bolt Quantity" value={d1_fb_qty} data-field="d1_fb_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / SETS" value={d1_fb_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_fb_added_up} data-field="d1_fb_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_fb_quantity} data-field="d1_fb_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_spacer2_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ADDITIONAL DETAILS</b></div>
+    </div>
+  <template if:true={is_d1_ad_top_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_dia_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Dia (MM)" value={d1_ad_cep_dia} options={d1_ad_cep_dia_options} data-field="d1_ad_cep_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_thickness_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Thickness (mm)" value={d1_ad_cep_thickness} options={d1_ad_cep_thickness_options} data-field="d1_ad_cep_thickness" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_length_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Length (m)" value={d1_ad_cep_length} options={d1_ad_cep_length_options} data-field="d1_ad_cep_length" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cable entry pipe" checked={d1_ad_cep_check} data-field="d1_ad_cep_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_ad_cep_false_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_qty_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="No. of Pipes IN A set" value={d1_ad_cep_qty} data-field="d1_ad_cep_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate" value={d1_ad_cep_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_cep_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={d1_ad_cep_added_up} data-field="d1_ad_cep_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_fb_ad_cep_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={d1_fb_ad_cep_quantity} data-field="d1_fb_ad_cep_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_mid_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Additional items" checked={d1_ad_add_check} data-field="d1_ad_add_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_d1_ad_add_false_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_d1_ad_add_note_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="* Special Note*" value={d1_ad_add_note} data-field="d1_ad_add_note" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Foundation And Additional Total Ammount</b></div>
+    </div>
+  <template if:true={is_d1_foundation_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Foundation Total Amount" value={d1_foundation_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_d1_addi_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Additional Total Amount" value={d1_addi_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Total Ammount Final Calculation</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Total Amount" value={d1_final_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Added Up-Cost" value={d1_final_added_up_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Added STD. Rate" value={d1_final_added_up_std_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Unit Cost" value={d1_final_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final List Price" value={d1_final_list_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: designation_2 -->
+<template if:true={is_designation_2_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>( Designation-2) STP IS - 2713 (7M - 16M)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+</div></div>
+</template>
+
+<!-- SECTION: designation_3 -->
+<template if:true={is_designation_3_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>( Designation-3) STP IS - 2713 (7M - 16M)</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+</div></div>
+</template>
+</template>
+
+<!-- ================= CUSTOMIZED POLE ================= -->
+<template if:true={isCustomized}>
+
+<!-- SECTION: cp_general_details -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>General Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>HEIGHT OF POLE</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label=" " value={cp_height_1} data-field="cp_height_1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  <template if:true={is_cp_height_2_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label=" " value={cp_height_2} data-field="cp_height_2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_cp_ghost_h2_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_cp_height_3_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label=" " value={cp_height_3} data-field="cp_height_3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_cp_ghost_h3_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>NO. OF SECTION</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label=" " value={c1_sections} options={c1_sections_options} data-field="c1_sections" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  <template if:true={is_c2_sections_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label=" " value={c2_sections} options={c2_sections_options} data-field="c2_sections" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_cp_ghost_s2_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c3_sections_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label=" " value={c3_sections} options={c3_sections_options} data-field="c3_sections" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_cp_ghost_s3_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+</div></div>
+
+<!-- SECTION: customized_1 -->
+<template if:true={is_customized_1_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Customized 1</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="MS / GI" value={c1_ms_gi} options={c1_ms_gi_options} data-field="c1_ms_gi" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Tolerance" value={c1_tolerance} options={c1_tolerance_options} data-field="c1_tolerance" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="RATE / PCS" value={c1_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_added_up} data-field="c1_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_quantity} data-field="c1_quantity" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Top section (Swan)" checked={c1_swan} data-field="c1_swan" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_top_sec_hdr_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>TOP SECTION</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_pole_dim_hdr_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>POLE DIMENSION</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_pole_dim_hdr_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_tol_pct_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Tolerance (%)" value={c1_tol_pct} data-field="c1_tol_pct" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_tol_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="F.O.R" value={c1_for} options={c1_for_options} data-field="c1_for" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  <template if:true={is_c1_for_lump_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Lump sum" value={c1_for_lump} data-field="c1_for_lump" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_for_transp_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Transportation (pcs)" value={c1_for_transp} data-field="c1_for_transp" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_for_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_top_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia (mm)" value={c1_top_dia} options={c1_top_dia_options} data-field="c1_top_dia" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_top_thk_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_top_thk} data-field="c1_top_thk" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_top_len_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_top_len} data-field="c1_top_len" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_top_dash1_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_top_dash2_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_top_dash3_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_hdr2_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>MIDDLE SECTION 2</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia (mm)" value={c1_mid2_dia} options={c1_mid2_dia_options} data-field="c1_mid2_dia" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_thk_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_mid2_thk} data-field="c1_mid2_thk" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_len_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_mid2_len} data-field="c1_mid2_len" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_d1_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_d2_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid2_d3_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_hdr2_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>MIDDLE SECTION 3</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia (mm)" value={c1_mid3_dia} options={c1_mid3_dia_options} data-field="c1_mid3_dia" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_thk_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_mid3_thk} data-field="c1_mid3_thk" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_len_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_mid3_len} data-field="c1_mid3_len" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_d1_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_d2_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid3_d3_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_hdr2_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>MIDDLE SECTION 4</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia (mm)" value={c1_mid4_dia} options={c1_mid4_dia_options} data-field="c1_mid4_dia" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_thk_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_mid4_thk} data-field="c1_mid4_thk" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_len_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_mid4_len} data-field="c1_mid4_len" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_d1_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_d2_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_mid4_d3_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_hdr1_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>BOTTOM SECTION</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia (mm)" value={c1_bot_dia} options={c1_bot_dia_options} data-field="c1_bot_dia" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_thk_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_bot_thk} data-field="c1_bot_thk" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_len_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_bot_len} data-field="c1_bot_len" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_d1_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_d2_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bot_d3_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>--</b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>SECTION WEIGHTS</b></div>
+    </div>
+  <template if:true={is_c1_section1_normal_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 1 Normal Weight (KG)" value={c1_section1_normal_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section1_additional_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 1 Additional Weight (KG)" value={c1_section1_additional_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section1_final_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 1 Final Weight (KG)" value={c1_section1_final_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sec1_unit_price_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 1 Unit Price" value={c1_sec1_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section2_normal_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 2 Normal Weight (KG)" value={c1_section2_normal_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section2_additional_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 2 Additional Weight (KG)" value={c1_section2_additional_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section2_final_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 2 Final Weight (KG)" value={c1_section2_final_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sec2_unit_price_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 2 Unit Price" value={c1_sec2_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section3_normal_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 3 Normal Weight (KG)" value={c1_section3_normal_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section3_additional_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 3 Additional Weight (KG)" value={c1_section3_additional_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section3_final_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 3 Final Weight (KG)" value={c1_section3_final_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sec3_unit_price_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 3 Unit Price" value={c1_sec3_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section4_normal_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 4 Normal Weight (KG)" value={c1_section4_normal_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section4_additional_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 4 Additional Weight (KG)" value={c1_section4_additional_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section4_final_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 4 Final Weight (KG)" value={c1_section4_final_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sec4_unit_price_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 4 Unit Price" value={c1_sec4_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section5_normal_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 5 Normal Weight (KG)" value={c1_section5_normal_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section5_additional_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 5 Additional Weight (KG)" value={c1_section5_additional_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_section5_final_weight_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 5 Final Weight (KG)" value={c1_section5_final_weight} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sec5_unit_price_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Section 5 Unit Price" value={c1_sec5_unit_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_pole_payment_term_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Pole Payment Term" value={c1_pole_payment_term} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>BASE PLATE</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="MS / GI" checked={c1_bp_ms_gi} data-field="c1_bp_ms_gi" onchange={handleFieldChange} ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Sister Plate" checked={c1_bp_sister_plate} data-field="c1_bp_sister_plate" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_bp_ms_gi_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_reflect_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Reflect separately in offer?" value={c1_bp_ms_gi_reflect} options={c1_bp_ms_gi_reflect_options} data-field="c1_bp_ms_gi_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_reflect_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Reflect separately in offer?" value={c1_bp_sp_reflect} options={c1_bp_sp_reflect_options} data-field="c1_bp_sp_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_bp_ms_gi_length} data-field="c1_bp_ms_gi_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_width_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Width (m)" value={c1_bp_ms_gi_width} data-field="c1_bp_ms_gi_width" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_thickness_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_bp_ms_gi_thickness} data-field="c1_bp_ms_gi_thickness" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_bp_ms_gi_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_bp_ms_gi_added_up} data-field="c1_bp_ms_gi_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ms_gi_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_bp_ms_gi_quantity} data-field="c1_bp_ms_gi_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length (m)" value={c1_bp_sp_length} data-field="c1_bp_sp_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_width_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Width (m)" value={c1_bp_sp_width} data-field="c1_bp_sp_width" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_thickness_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Thickness (mm)" value={c1_bp_sp_thickness} data-field="c1_bp_sp_thickness" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_bp_sp_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_bp_sp_added_up} data-field="c1_bp_sp_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_sp_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_bp_sp_quantity} data-field="c1_bp_sp_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cast Iron (IS)" checked={c1_bp_cast_iron_is} data-field="c1_bp_cast_iron_is" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_bp_ci_is_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_is_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Dia (inches)" value={c1_bp_ci_is_dia} data-field="c1_bp_ci_is_dia" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_is_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_bp_ci_is_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_is_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_bp_ci_is_added_up} data-field="c1_bp_ci_is_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_is_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_bp_ci_is_quantity} data-field="c1_bp_ci_is_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_is_reflect_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Reflect in offer?" value={c1_bp_ci_is_reflect} options={c1_bp_ci_is_reflect_options} data-field="c1_bp_ci_is_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cast Iron (Commercial)" checked={c1_bp_cast_iron_comm} data-field="c1_bp_cast_iron_comm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_bp_ci_comm_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_comm_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Dia (inches)" value={c1_bp_ci_comm_dia} data-field="c1_bp_ci_comm_dia" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_comm_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_bp_ci_comm_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_comm_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_bp_ci_comm_added_up} data-field="c1_bp_ci_comm_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_comm_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_bp_ci_comm_quantity} data-field="c1_bp_ci_comm_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_bp_ci_comm_reflect_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Reflect in offer?" value={c1_bp_ci_comm_reflect} options={c1_bp_ci_comm_reflect_options} data-field="c1_bp_ci_comm_reflect" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Base Plate Total Ammount</b></div>
+    </div>
+  <template if:true={is_c1_bp_ms_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="MS Base Plate Total Amount" value={c1_bp_ms_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_sp_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Sister Plate Total Amount" value={c1_sp_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_cast_iron_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Cast Iron Total Amount" value={c1_cast_iron_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_cast_iron_comm_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Cast Iron (Comm) Total Amount" value={c1_cast_iron_comm_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>BRACKETS</b></div>
+    </div>
+  <template if:true={is_c1_br_ms_gs_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="MS / GS" value={c1_br_ms_gs} options={c1_br_ms_gs_options} data-field="c1_br_ms_gs" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_br_swan_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_dia_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Dia (MM)" value={c1_br_dia} options={c1_br_dia_options} data-field="c1_br_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_br_thickness_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Thickness (mm)" value={c1_br_thickness} options={c1_br_thickness_options} data-field="c1_br_thickness" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_br_length_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Length (m)" value={c1_br_length} options={c1_br_length_options} data-field="c1_br_length" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Single Arm" checked={c1_br_single_arm} data-field="c1_br_single_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_br_sa_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_sa_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_br_sa_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_sa_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_br_sa_added_up} data-field="c1_br_sa_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_sa_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_br_sa_quantity} data-field="c1_br_sa_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Double Arm" checked={c1_br_double_arm} data-field="c1_br_double_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_br_da_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_da_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_br_da_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_da_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_br_da_added_up} data-field="c1_br_da_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_da_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_br_da_quantity} data-field="c1_br_da_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Triple Arm" checked={c1_br_triple_arm} data-field="c1_br_triple_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_br_ta_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ta_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_br_ta_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ta_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_br_ta_added_up} data-field="c1_br_ta_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ta_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_br_ta_quantity} data-field="c1_br_ta_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Four Arm" checked={c1_br_four_arm} data-field="c1_br_four_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_br_fa_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_fa_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_br_fa_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_fa_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_br_fa_added_up} data-field="c1_br_fa_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_fa_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_br_fa_quantity} data-field="c1_br_fa_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Ring Arm" checked={c1_br_ring_arm} data-field="c1_br_ring_arm" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_br_ra_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ra_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_br_ra_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ra_added_up_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_br_ra_added_up} data-field="c1_br_ra_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ra_quantity_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_br_ra_quantity} data-field="c1_br_ra_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Brackets Total Ammount</b></div>
+    </div>
+  <template if:true={is_c1_br_sa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Single Arm Total Amount" value={c1_br_sa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_da_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Double Arm Total Amount" value={c1_br_da_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ta_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Tripple Arm Total Amount" value={c1_br_ta_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_fa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Four Arm Total Amount" value={c1_br_fa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_br_ra_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Brackets Ring Arm Total Amount" value={c1_br_ra_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>SWAN</b></div>
+    </div>
+  <template if:true={is_c1_swan_ms_gs_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="MS / GS" value={c1_swan_ms_gs} options={c1_swan_ms_gs_options} data-field="c1_swan_ms_gs" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_hdr_spacer_active_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Single" checked={c1_swan_single} data-field="c1_swan_single" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_swan_s_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_s_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_swan_s_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_s_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_swan_s_added} data-field="c1_swan_s_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_s_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_swan_s_qty} data-field="c1_swan_s_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Double" checked={c1_swan_double} data-field="c1_swan_double" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_swan_d_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_d_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_swan_d_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_d_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_swan_d_added} data-field="c1_swan_d_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_d_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_swan_d_qty} data-field="c1_swan_d_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Triple" checked={c1_swan_triple} data-field="c1_swan_triple" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_swan_t_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_t_rate_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / PCS" value={c1_swan_t_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_t_added_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_swan_t_added} data-field="c1_swan_t_added" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_t_qty_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_swan_t_qty} data-field="c1_swan_t_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Swan Total Ammount</b></div>
+    </div>
+  <template if:true={is_c1_swan_sa_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Single Arm Total Amount" value={c1_swan_sa_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_da_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Double Arm Total Amount" value={c1_swan_da_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_swan_ta_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="Swan Tripple Arm Total Amount" value={c1_swan_ta_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>FOUNDATION BOLT</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Foundation Bolt" checked={c1_fb_check} data-field="c1_fb_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_fb_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_dia_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-combobox label="Dia of FOUNDATION BOLT" value={c1_fb_dia} options={c1_fb_dia_options} data-field="c1_fb_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_length_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Length of Bolt" value={c1_fb_length} data-field="c1_fb_length" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_qty_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Bolt Quantity" value={c1_fb_qty} data-field="c1_fb_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate / SETS" value={c1_fb_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_fb_added_up} data-field="c1_fb_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_fb_quantity} data-field="c1_fb_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_spacer2_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>ADDITIONAL DETAILS</b></div>
+    </div>
+  <template if:true={is_c1_ad_top_spacer_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_dia_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Dia (MM)" value={c1_ad_cep_dia} options={c1_ad_cep_dia_options} data-field="c1_ad_cep_dia" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_thickness_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Thickness (mm)" value={c1_ad_cep_thickness} options={c1_ad_cep_thickness_options} data-field="c1_ad_cep_thickness" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_length_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-combobox label="Length (m)" value={c1_ad_cep_length} options={c1_ad_cep_length_options} data-field="c1_ad_cep_length" onchange={handleFieldChange} required ></lightning-combobox>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Cable entry pipe" checked={c1_ad_cep_check} data-field="c1_ad_cep_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_ad_cep_false_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_qty_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="No. of Pipes IN A set" value={c1_ad_cep_qty} data-field="c1_ad_cep_qty" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_rate_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Rate" value={c1_ad_cep_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_cep_added_up_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Added-up (%)" value={c1_ad_cep_added_up} data-field="c1_ad_cep_added_up" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_fb_ad_cep_quantity_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={c1_fb_ad_cep_quantity} data-field="c1_fb_ad_cep_quantity" onchange={handleFieldChange} required  step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_mid_spacer_visible}>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-6 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Additional items" checked={c1_ad_add_check} data-field="c1_ad_add_check" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_c1_ad_add_false_spacer_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b> </b></div>
+    </div>
+  </template>
+  <template if:true={is_c1_ad_add_note_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="* Special Note*" value={c1_ad_add_note} data-field="c1_ad_add_note" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Foundation And Additional Total Ammount</b></div>
+    </div>
+  <template if:true={is_c1_foundation_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Foundation Total Amount" value={c1_foundation_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_c1_addi_total_amount_visible}>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="Additional Total Amount" value={c1_addi_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+  </template>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>Total Ammount Final Calculation</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Total Amount" value={c1_final_total_amount} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Added Up-Cost" value={c1_final_added_up_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Added STD. Rate" value={c1_final_added_up_std_rate} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final Unit Cost" value={c1_final_unit_cost} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Final List Price" value={c1_final_list_price} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION: customized_2 -->
+<template if:true={is_customized_2_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Customized 2</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+</div></div>
+</template>
+
+<!-- SECTION: customized_3 -->
+<template if:true={is_customized_3_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Customized 3</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+</div></div>
+</template>
+</template>
+
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

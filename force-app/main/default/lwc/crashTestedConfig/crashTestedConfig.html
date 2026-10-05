@@ -1,0 +1,193 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width:95%;width:95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium">Crash Tested Details</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium" style="min-height:55vh;">
+
+                <!-- General Details -->
+                <div class="slds-box slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_medium">General Details - Crash Type</h3>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning-combobox label="Crash Tested Type" value={crashType} options={crashTypeOptions} onchange={handleCrashTypeChange} required></lightning-combobox>
+                        </div>
+                    </div>
+
+                    <template lwc:if={crashType}>
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="checkbox" label="Configure Natrax?" checked={addNatrax} onchange={handleNatraxChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-3">
+                                <lightning-input type="checkbox" label="Configure Alka?" checked={addAlka} onchange={handleAlkaChange}></lightning-input>
+                            </div>
+                            <template lwc:if={isWBeam}>
+                                <div class="slds-col slds-size_1-of-3">
+                                    <lightning-input type="checkbox" label="Configure Transpolis?" checked={addTranspolis} onchange={handleTranspolisChange}></lightning-input>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- ═══════════════ W-BEAM NATRAX ═══════════════ -->
+                <template lwc:if={showNatrax}>
+                    <template lwc:if={isWBeam}>
+                        <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #0070d2;">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#0070d2;">W-Beam — Natrax (Base Rate: ₹84/kg)</h3>
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness" value={wn.beamThickness} options={wnBeamOptions} data-field="beamThickness" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness" value={wn.postThickness} options={wnPostOptions} data-field="postThickness" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Spacer Thickness" value={wn.spacerThickness} options={wnSpacerOptions} data-field="spacerThickness" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Post Height" value={wn.postHeight} data-field="postHeight" onchange={handleWnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Spacer Length" value={wn.spacerLength} data-field="spacerLength" onchange={handleWnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Nuts &amp; Bolts" value={wn.nutsBolts} options={nutsBoltsOptions} data-field="nutsBolts" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={wn.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={wn.quantityRm} data-field="quantityRm" onchange={handleWnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={wn.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleWnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={wn.Transportation} data-field="Transportation" disabled={wnIsExWorks} onchange={handleWnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Full Vehicle Freight" value={wn.fvf} data-field="fvf" disabled={wnIsExWorks} onchange={handleWnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={wn.margin} data-field="margin" onchange={handleWnChange}></lightning-input></div>
+                            </div>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0f5ff;padding:8px;border-radius:4px;">
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={wn.totalWt} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={wn.rateRm} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={wn.unitPrice} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={wn.unitCost} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={wn.listPrice} read-only></lightning-input></div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ═══════════════ W-BEAM ALKA ═══════════════ -->
+                <template lwc:if={showAlka}>
+                    <template lwc:if={isWBeam}>
+                        <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #2e844a;">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#2e844a;">W-Beam — Alka (Base Rate: ₹85/kg)</h3>
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness" value={wa.beamThickness} options={waBeamOptions} data-field="beamThickness" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Centre to Centre" value={wa.centreTocentre} options={waCtcOptions} data-field="centreTocentre" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness" value={wa.postThickness} options={waPostThicknessOptions} data-field="postThickness" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Post Height" value={wa.postHeight} data-field="postHeight" onchange={handleWaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Nuts &amp; Bolts" value={wa.nutsBolts} options={nutsBoltsOptions} data-field="nutsBolts" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={wa.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={wa.quantityRm} data-field="quantityRm" onchange={handleWaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={wa.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleWaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={wa.Transportation} data-field="Transportation" disabled={waIsExWorks} onchange={handleWaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Full Vehicle Freight" value={wa.fvf} data-field="fvf" disabled={waIsExWorks} onchange={handleWaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={wa.margin} data-field="margin" onchange={handleWaChange}></lightning-input></div>
+                            </div>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0fff4;padding:8px;border-radius:4px;">
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={wa.totalWt} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={wa.rateRm} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={wa.unitPrice} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={wa.unitCost} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={wa.listPrice} read-only></lightning-input></div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ═══════════════ W-BEAM TRANSPOLIS ═══════════════ -->
+                <template lwc:if={showTranspolis}>
+                    <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #bf7326;">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#bf7326;">W-Beam — Transpolis (Base Rate: ₹84/kg)</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness" value={wt.beamThickness} options={wtBeamOptions} data-field="beamThickness" onchange={handleWtChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness" value={wt.postThickness} options={wtPostOptions} data-field="postThickness" onchange={handleWtChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Post Height" value={wt.postHeight} data-field="postHeight" onchange={handleWtChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Nuts &amp; Bolts" value={wt.nutsBolts} options={nutsBoltsOptions} data-field="nutsBolts" onchange={handleWtChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={wt.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleWtChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={wt.quantityRm} data-field="quantityRm" onchange={handleWtChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={wt.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleWtChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={wt.Transportation} data-field="Transportation" disabled={wtIsExWorks} onchange={handleWtChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Full Vehicle Freight" value={wt.fvf} data-field="fvf" disabled={wtIsExWorks} onchange={handleWtChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={wt.margin} data-field="margin" onchange={handleWtChange}></lightning-input></div>
+                        </div>
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#fff8f0;padding:8px;border-radius:4px;">
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={wt.totalWt} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={wt.rateRm} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={wt.unitPrice} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={wt.unitCost} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={wt.listPrice} read-only></lightning-input></div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ═══════════════ THRIE-BEAM NATRAX ═══════════════ -->
+                <template lwc:if={showNatrax}>
+                    <template lwc:if={isThrieBeam}>
+                        <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #0070d2;">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#0070d2;">Thrie-Beam — Natrax (Base Rate: ₹84/kg)</h3>
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness" value={tn.beamThickness} options={tnBeamOptions} data-field="beamThickness" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness" value={tn.postThickness} options={tnPostOptions} data-field="postThickness" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Spacer Thickness" value={tn.spacerThickness} options={tnSpacerOptions} data-field="spacerThickness" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Post Height" value={tn.postHeight} data-field="postHeight" onchange={handleTnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Spacer Length" value={tn.spacerLength} data-field="spacerLength" onchange={handleTnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Nuts &amp; Bolts" value={tn.nutsBolts} options={nutsBoltsOptions} data-field="nutsBolts" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={tn.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={tn.quantityRm} data-field="quantityRm" onchange={handleTnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={tn.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleTnChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={tn.Transportation} data-field="Transportation" disabled={tnIsExWorks} onchange={handleTnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Full Vehicle Freight" value={tn.fvf} data-field="fvf" disabled={tnIsExWorks} onchange={handleTnChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={tn.margin} data-field="margin" onchange={handleTnChange}></lightning-input></div>
+                            </div>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0f5ff;padding:8px;border-radius:4px;">
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={tn.totalWt} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={tn.rateRm} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={tn.unitPrice} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={tn.unitCost} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={tn.listPrice} read-only></lightning-input></div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ═══════════════ THRIE-BEAM ALKA ═══════════════ -->
+                <template lwc:if={showAlka}>
+                    <template lwc:if={isThrieBeam}>
+                        <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #2e844a;">
+                            <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#2e844a;">Thrie-Beam — Alka (Base Rate: ₹85/kg)</h3>
+                            <div class="slds-grid slds-wrap slds-gutters">
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness" value={ta.beamThickness} options={taBeamOptions} data-field="beamThickness" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Centre to Centre" value={ta.centreTocentre} options={taCtcOptions} data-field="centreTocentre" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness" value={ta.postThickness} options={taPostThicknessOptions} data-field="postThickness" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Post Height" value={ta.postHeight} data-field="postHeight" onchange={handleTaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Nuts &amp; Bolts" value={ta.nutsBolts} options={nutsBoltsOptions} data-field="nutsBolts" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={ta.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={ta.quantityRm} data-field="quantityRm" onchange={handleTaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={ta.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleTaChange}></lightning-combobox></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={ta.Transportation} data-field="Transportation" disabled={taIsExWorks} onchange={handleTaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Full Vehicle Freight" value={ta.fvf} data-field="fvf" disabled={taIsExWorks} onchange={handleTaChange}></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={ta.margin} data-field="margin" onchange={handleTaChange}></lightning-input></div>
+                            </div>
+                            <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0fff4;padding:8px;border-radius:4px;">
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={ta.totalWt} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={ta.rateRm} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={ta.unitPrice} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={ta.unitCost} read-only></lightning-input></div>
+                                <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={ta.listPrice} read-only></lightning-input></div>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+            </div>
+
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

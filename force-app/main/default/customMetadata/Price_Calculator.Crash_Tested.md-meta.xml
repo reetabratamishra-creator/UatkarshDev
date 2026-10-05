@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Crash Tested</label>
+    <protected>false</protected>
+    <values>
+        <field>Add_On_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Base_Amount__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Department__c</field>
+        <value xsi:type="xsd:string">Crash Tested</value>
+    </values>
+    <values>
+        <field>GST__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:type="xsd:string">[{&quot;apiName&quot;:&quot;common_base_rate&quot;,&quot;defaultValue&quot;:76},{&quot;apiName&quot;:&quot;wb_natrax_rate_rm&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;wb_alka_2cc_rate&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;wb_alka_4cc_rate&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;wb_trans_rate_rm&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;tb_natrax_rate_rm&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;tb_alka_2cc_rate&quot;,&quot;defaultValue&quot;:0},{&quot;apiName&quot;:&quot;tb_alka_266cc_rate&quot;,&quot;defaultValue&quot;:0}]</value>
+    </values>
+    <values>
+        <field>fm_general_detail__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>man_riding_lift__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>rateCard__c</field>
+        <value xsi:type="xsd:string">{&quot;PICKLIST_OPTIONS&quot;:{&quot;crashTypeOptions&quot;:[&quot;W-Beam&quot;,&quot;Thrie-Beam&quot;],&quot;transOptions&quot;:[&quot;Ex-works&quot;,&quot;F.O.R (Freight on Road)&quot;],&quot;nutsBoltsOptions&quot;:[&quot;Gr 4.6/4.8&quot;,&quot;Gr 8.8&quot;],&quot;zincOptions&quot;:[&quot;Regular&quot;,&quot;Average 77 micron&quot;,&quot;Minimum 77 micron&quot;]},&quot;BASE_RATES&quot;:{&quot;W-Beam - Natrax&quot;:84,&quot;W-Beam - Alka&quot;:85,&quot;W-Beam - Transpolis&quot;:84,&quot;Thrie-Beam - Natrax&quot;:84,&quot;Thrie-Beam - Alka&quot;:85}}</value>
+    </values>
+    <values>
+        <field>tp_segment__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

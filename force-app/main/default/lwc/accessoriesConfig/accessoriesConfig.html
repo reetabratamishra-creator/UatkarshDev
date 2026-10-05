@@ -1,0 +1,141 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width:98%;width:98%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium">ACCESSORIES &amp; MISCELLANEOUS DETAILS</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium" style="min-height:55vh;">
+
+                <!-- ACCESSORIES DETAILS -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default">
+                    <h3 class="slds-text-heading_small slds-m-bottom_medium" style="font-weight:bold;color:#0070d2;">Accessories Details</h3>
+                    <div class="slds-scrollable_x">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" style="width:100%; min-width:1200px;">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col"><div class="slds-truncate" title="W/T BEAM">W/T BEAM</div></th>
+                                    <th scope="col" style="width:15%;"><div class="slds-truncate" title="ACCESSORIES">ACCESSORIES</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="LENGTH (MM/MTR)">LENGTH</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="WIDTH (MM/MTR)">WIDTH</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="HEIGHT (MM/MTR)">HEIGHT</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="WEIGHT (KG)">WEIGHT</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="UOM">UOM</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="RATE">RATE</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="QTY (IN ONE SET)">QTY(SET)</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="QTY (NO.)">QTY(NO)</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="REMARK">REMARK</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={accessoriesRows} for:item="row" for:index="index">
+                                    <tr key={row.id}>
+                                        <td><lightning-combobox variant="label-hidden" value={row.beamType} options={beamOptions} data-index={index} data-field="beamType" onchange={handleAccChange}></lightning-combobox></td>
+                                        <td><lightning-combobox variant="label-hidden" value={row.accessory} options={accessoryOptions} data-index={index} data-field="accessory" onchange={handleAccChange}></lightning-combobox></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.length} data-index={index} data-field="length" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.width} data-index={index} data-field="width" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.height} data-index={index} data-field="height" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.weight} data-index={index} data-field="weight" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-combobox variant="label-hidden" value={row.uom} options={uomOptions} data-index={index} data-field="uom" onchange={handleAccChange}></lightning-combobox></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.rate} data-index={index} data-field="rate" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.qtyOneSet} data-index={index} data-field="qtyOneSet" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.qtyNo} data-index={index} data-field="qtyNo" onchange={handleAccChange}></lightning-input></td>
+                                        <td><lightning-input type="text" variant="label-hidden" value={row.remark} data-index={index} data-field="remark" onchange={handleAccChange}></lightning-input></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- MISCELLANEOUS DETAILS -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default">
+                    <h3 class="slds-text-heading_small slds-m-bottom_medium" style="font-weight:bold;color:#2e844a;">Miscellaneous Details</h3>
+                    
+                    <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium">
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning-combobox label="Trans. in offer?" value={transInOffer} options={transOptions} data-field="transInOffer" onchange={handleGlobalChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning-input type="number" label="Transportation (Kg)" value={transportation} data-field="transportation" onchange={handleGlobalChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-3">
+                            <lightning-input type="number" label="Full Vehicle Freight" value={fvf} data-field="fvf" onchange={handleGlobalChange}></lightning-input>
+                        </div>
+                    </div>
+
+                    <div class="slds-scrollable_x">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" style="width:100%; min-width:1200px;">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col" style="width:15%;"><div class="slds-truncate" title="DESCRIPTION">DESCRIPTION</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="LENGTH (MM/MTR)">LENGTH</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="THICKNESS (MM)">THICKNESS</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="WEIGHT (KG)">WEIGHT</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="UOM">UOM</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="RATE">RATE</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="QTY (IN ONE SET)">QTY(SET)</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="QTY (NO.)">QTY(NO)</div></th>
+                                    <th scope="col"><div class="slds-truncate" title="REMARK">REMARK</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={miscRows} for:item="row" for:index="index">
+                                    <tr key={row.id}>
+                                        <td><lightning-input type="text" variant="label-hidden" value={row.description} data-index={index} data-field="description" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.length} data-index={index} data-field="length" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.thickness} data-index={index} data-field="thickness" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.weight} data-index={index} data-field="weight" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-combobox variant="label-hidden" value={row.uom} options={uomOptions} data-index={index} data-field="uom" onchange={handleMiscChange}></lightning-combobox></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.rate} data-index={index} data-field="rate" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.qtyOneSet} data-index={index} data-field="qtyOneSet" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.qtyNo} data-index={index} data-field="qtyNo" onchange={handleMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="text" variant="label-hidden" value={row.remark} data-index={index} data-field="remark" onchange={handleMiscChange}></lightning-input></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ADDITIONAL MISCELLANEOUS DETAILS -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default">
+                    <h3 class="slds-text-heading_small slds-m-bottom_medium" style="font-weight:bold;color:#f39c12;">Additional Miscellaneous</h3>
+                    
+                    <div class="slds-scrollable_x">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" style="width:100%;">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col" style="width:40%;"><div class="slds-truncate" title="DESCRIPTION">DESCRIPTION</div></th>
+                                    <th scope="col" style="width:20%;"><div class="slds-truncate" title="UNIT">UNIT</div></th>
+                                    <th scope="col" style="width:20%;"><div class="slds-truncate" title="QUANTITY">QUANTITY</div></th>
+                                    <th scope="col" style="width:20%;"><div class="slds-truncate" title="RATE/MTR">RATE/MTR</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={addMiscRows} for:item="row" for:index="index">
+                                    <tr key={row.id}>
+                                        <td><lightning-input type="text" variant="label-hidden" value={row.description} data-index={index} data-field="description" onchange={handleAddMiscChange}></lightning-input></td>
+                                        <td><lightning-combobox variant="label-hidden" value={row.uom} options={uomOptions} data-index={index} data-field="uom" onchange={handleAddMiscChange}></lightning-combobox></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.qty} data-index={index} data-field="qty" onchange={handleAddMiscChange}></lightning-input></td>
+                                        <td><lightning-input type="number" variant="label-hidden" value={row.rate} data-index={index} data-field="rate" onchange={handleAddMiscChange}></lightning-input></td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

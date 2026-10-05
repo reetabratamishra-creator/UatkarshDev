@@ -1,0 +1,15 @@
+{
+  "required" : [ "agentdata" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "agentdata" : {
+      "title" : "agentdata",
+      "description" : "When user wants to create Lead call this",
+      "lightning:type" : "c__leadData",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType",
+  "lightning:textIndexed" : true
+}

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>SP_IS_1239_Heavy_3_2_20mm</label>
+    <protected>false</protected>
+    <values>
+        <field>Designation__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Pipe_Class__c</field>
+        <value xsi:type="xsd:string">3.2</value>
+    </values>
+    <values>
+        <field>Shape__c</field>
+        <value xsi:type="xsd:string">Heavy</value>
+    </values>
+    <values>
+        <field>Size_NB__c</field>
+        <value xsi:type="xsd:string">20mm</value>
+    </values>
+    <values>
+        <field>Standard__c</field>
+        <value xsi:type="xsd:string">IS 1239</value>
+    </values>
+    <values>
+        <field>Steel_Type__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Weight_Per_Meter__c</field>
+        <value xsi:type="xsd:double">1.87</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,772 @@
+<apex:page standardController="Quote" extensions="TelecomDocumentController" contentType="application/msword#Telecom-{!quoteNumber}.doc" applyBodyTag="false"
+           applyHtmlTag="false" showHeader="false" sidebar="false" standardStylesheets="false">
+    
+    <html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+        <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+            <style type="text/css">
+                    /* Global A4 Size Definition */
+                    @page {
+                        size: 210mm 297mm;
+                        margin: 0mm;
+                    }
+        
+                    /* Word-Specific Page Layout Definitions and Margins */
+                    @page CoverPage {
+                        size: 210mm 297mm;
+                        margin: 0mm;
+                        mso-header-margin: 0mm;
+                        mso-footer-margin: 0mm;
+                    }
+                    
+                    @page StandardContent {
+                        size: 210mm 297mm;
+                        margin: 30mm 10mm 30mm 10mm; 
+                        mso-header: h1;
+                        mso-footer: f1;
+                        mso-header-margin: 0mm;
+                        mso-footer-margin: 5mm;
+                    }
+                    
+                    div.page-cover {
+                        page: CoverPage;
+                        width: 210mm;
+                        height: 297mm;
+                        margin: 0mm;
+                    }
+                    
+                    div.document-body {
+                        page: StandardContent;
+                    }
+                
+                    .content-wrapper {
+                        padding: 2mm 18mm 2mm 18mm;
+                    }
+                    
+                    html, body {
+                        font-family: 'Arial', 'Helvetica', sans-serif;
+                        font-size: 10pt;
+                        line-height: 1.5;
+                        color: #222;
+                    }
+                    
+                    .page-break {
+                        page-break-before: always;
+                    }
+                    
+                    .avoid-break {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* ── Footer: NO background, clean like Solar ── */
+                    .footer-inner {
+                        margin-bottom: 5mm;
+                        margin-top: 5mm;
+                        font-size: 7pt;
+                        color: black;
+                        line-height: 1.4;
+                        width: 100%;
+                    }
+                    
+                    .factory-details {
+                        margin-bottom: 3px;
+                    }
+                    
+                    .social-row {
+                        margin-top: 4px;
+                        font-size: 7.5pt;
+                    }
+                    
+                    span.mso-page-number {
+                        mso-field-code: "PAGE";
+                    }
+                    span.mso-total-pages {
+                        mso-field-code: "NUMPAGES";
+                    }
+                    
+                    .main-container {
+                        border-top:  1pt solid #d7d7d7;
+                        padding:  12px 14px;
+                    }
+            
+                    .ref-section {
+                        font-size:     10pt;
+                        font-weight:   bold;
+                        line-height:   1.6;
+                        margin-bottom: 22px;
+                    }
+            
+                    .to-section {
+                        font-size:     10pt;
+                        line-height:   1.6;
+                        margin-bottom: 28px;
+                    }
+            
+                    .section-heading {
+                        font-size:       10pt;
+                        font-weight:     bold;
+                        text-decoration: underline;
+                        margin:          18px 0 14px 0;
+                        letter-spacing:  0.2px;
+                    }
+            
+                    .sub-heading {
+                        font-size:     10pt;
+                        font-weight:   bold;
+                        margin:        14px 0 6px 0;
+                    }
+            
+                    .freight-note {
+                        font-size:     10pt;
+                        font-weight:   bold;
+                        font-style:    italic;
+                        margin:        18px 0 10px 0;
+                    }
+            
+                    .general-heading {
+                        text-align:      center;
+                        font-size:       11pt;
+                        font-weight:     bold;
+                        text-decoration: underline;
+                        margin:          28px 0 18px 0;
+                    }
+            
+                    .tele-table {
+                        width:           98%;
+                        border-collapse: collapse;
+                        font-size:       9pt;
+                        margin:          0 auto 16px auto;
+                    }
+            
+                    .tele-table th {
+                        background-color: #7BBFBF;
+                        color:            #ffffff;
+                        border:           1pt solid #5a9999;
+                        padding:          6px 4px;
+                        text-align:       center;
+                        font-weight:      bold;
+                        line-height:      1.35;
+                    }
+            
+                    .tele-table td {
+                        border:           1pt solid #aaaaaa;
+                        padding:          5px 4px;
+                        text-align:       center;
+                        vertical-align:   middle;
+                        line-height:      1.35;
+                        background-color: #ffffff;
+                    }
+            
+                    .td-right { text-align: right; padding-right: 6px; }
+                    .td-left  { text-align: left;  padding-left:  6px; }
+            
+                    .general-terms {
+                        font-size:   9.5pt;
+                        line-height: 1.4;
+                    }
+            
+                    .general-terms ol {
+                        margin:       0;
+                        padding-left: 18px;
+                    }
+            
+                    .general-terms li {
+                        margin-bottom: 9px;
+                        text-align:    justify;
+                    }
+            
+                    .general-terms ul {
+                        margin:       4px 0;
+                        padding-left: 14px;
+                    }
+            
+                    .general-terms ul li {
+                        margin-bottom: 4px;
+                    }
+            
+                    .point-title { font-weight: bold; }
+            
+                    .signature-block {
+                        margin-top:  18px;
+                        font-size:   11pt;
+                        line-height: 1.6;
+                    }
+            
+                    .page-break { page-break-before: always; }
+                	
+                </style>
+        </head>
+        
+        <div style="mso-element:footer" id="f1">
+                <div class="footer-inner" style="margin-bottom: 5mm; margin-top: 5mm; font-size: 7pt; color: black; line-height: 1.4; width: 100%;">
+                    <table width="100%" style="border-collapse: collapse; border: none; font-size: 7pt; color: black;">
+                        <tr>
+                            <td width="30%" style="text-align: left; vertical-align: bottom; border: none; padding: 0;">
+                                Page <span class="mso-page-number"></span> of <span class="mso-total-pages"></span>
+                            </td>
+                            
+                            <td width="70%" style="text-align: right; vertical-align: bottom; border: none; padding: 0;">
+                                <div class="factory-details">
+                                    F1: Nh6, Vill-Jangalpur, Po: Andul Mouri, Howrah 711302, P:033 2669 0833/1151,1571, F: +9103326693856. F2:NH2, Durgapur Expressway,<br/>
+                                    PO: Gurap, Hoogly 712303, P:03213 253996
+                                </div>
+                                <div class="factory-details">
+                                    CIN: U51109 WB1995PLC070893
+                                </div>
+                                <div class="social-row">
+                                    We are on: <strong>Facebook | Instagram | LinkedIn | YouTube</strong>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        
+            <div style="mso-element:header" id="h-blank">
+                <p style="margin: 0; padding: 0; font-size: 1px;">&nbsp;</p>
+            </div>
+            <div style="mso-element:footer" id="f-blank">
+                <p style="margin: 0; padding: 0; font-size: 1px;">&nbsp;</p>
+            </div>
+
+        <body>   
+             <div style="mso-element:header" id="h1">
+                <table width="100%" style="border-collapse: collapse;">
+                    <tr>
+                        <td width="30%" style="text-align: right;">
+                            <img src="{!logoBase64}" alt="Logo" width="650" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="document-body">
+                <div class="content-wrapper">                   
+                    <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse;">
+                        <tr>
+                            <td style="padding:12px 14px;">
+                
+                                <div class="ref-section">
+                                    Ref:- UIL/Telecom/26-27/{!quoteNumber}<br/>
+                                    Date:- {!todayDate}
+                                </div>
+                
+                                <div class="to-section">
+                                    To,<br/>
+                                    <strong>{!quoteAccount}</strong>
+                                </div>
+                
+                                <p style="font-size:10pt; margin:0 0 4px 0;">Kind Attention</p>
+                                <p style="font-size:10pt; margin:0 0 20px 0;">
+                                    Mr/Ms, Mahmmad Ashreed-DealDox
+                                </p>
+                
+                                <p style="font-size:10pt; line-height:1.5; text-align:justify;
+                                          word-break:break-word; margin:0 0 16px 0;">
+                                    We are pleased to submit herewith our offer for Manufacturing, and
+                                    Supply of Telecom Tower as per your requirement. The details of our
+                                    proposal are as here under:
+                                </p>
+                
+                                <!-- ── PRICES heading ─────────────────────────────────── -->
+                                <div class="section-heading">PRICES:</div>
+                
+                                <!-- ── BOM availability message (conditional) ─────────── -->
+                                <apex:outputPanel rendered="{!isBOMNotAvailable}">
+                                    <p style="font-size:10pt; line-height:1.5; margin:0 0 16px 0;">
+                                        Please refer to our below price Offer which is tentative as the
+                                        BOM is not available and hence the weight considered is also
+                                        tentative. Further, prices are basic and all applicable taxes
+                                        are extra.
+                                    </p>
+                                </apex:outputPanel>
+                
+                                <apex:outputPanel rendered="{!isBOMAvailable}">
+                                    <p style="font-size:10pt; line-height:1.5; margin:0 0 16px 0;">
+                                        Further, prices are basic and all applicable taxes are extra.
+                                    </p>
+                                </apex:outputPanel>
+                
+                                <apex:outputPanel rendered="{!!isBOMAvailable && !isBOMNotAvailable}">
+                                    <p style="font-size:10pt; line-height:1.5; margin:0 0 16px 0;">
+                                        Further, prices are basic and all applicable taxes are extra.
+                                    </p>
+                                </apex:outputPanel>
+                
+                                <!-- ════════════════════════════════════════════════════════
+                                     TELECOM TOWER PART DETAILS  – one table per sub-type
+                                     ════════════════════════════════════════════════════════ -->
+                                <apex:repeat value="{!towerDetailGroups}" var="grp">
+                
+                                    <div class="sub-heading">{!grp.subType}</div>
+                
+                                    <table class="tele-table" border="1" cellpadding="5" cellspacing="0">
+                                        <colgroup>
+                                            <col style="width:5%;"/>
+                                            <col style="width:14%;"/>
+                                            <col style="width:11%;"/>
+                                            <col style="width:13%;"/>
+                                            <col style="width:6%;"/>
+                                            <col style="width:7%;"/>
+                                            <col style="width:13%;"/>
+                                            <col style="width:13%;"/>
+                                            <col style="width:13%;"/>
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Sl<br/>No</th>
+                                                <th>Description</th>
+                                                <th>HSN<br/>Code</th>
+                                                <th>Tower Weight<br/>(in MT)</th>
+                                                <th>Qty</th>
+                                                <th>Uom</th>
+                                                <th>Rate Per MT</th>
+                                                <th>Unit Rate</th>
+                                                <th>Total Basic<br/>Rate</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <apex:repeat value="{!grp.rows}" var="r">
+                                                <tr>
+                                                    <td>{!r.slNo}</td>
+                                                    <td class="td-left">{!r.description}</td>
+                                                    <td>{!r.hsnCode}</td>
+                                                    <td>{!r.towerWeight}</td>
+                                                    <td>{!r.quantity}</td>
+                                                    <td>{!r.uom}</td>
+                                                    <td class="td-right">&#8377;{!r.ratePerMT}</td>
+                                                    <td class="td-right">&#8377;{!r.unitRate}</td>
+                                                    <td class="td-right">&#8377;{!r.totalBasicRate}</td>
+                                                </tr>
+                                            </apex:repeat>
+                                        </tbody>
+                                    </table>
+                
+                                </apex:repeat>
+                
+                                <apex:outputPanel rendered="{!isMGLForType}">
+                
+                                    <div class="freight-note">
+                                        Tentative Freight: Freight is basic and all applicable taxes
+                                        as per Minimum Guaranteed Freight.
+                                    </div>
+                
+                                    <table class="tele-table" border="1" cellpadding="5" cellspacing="0">
+                                        <colgroup>
+                                            <col style="width:20%;"/>
+                                            <col style="width:32%;"/>
+                                            <col style="width:24%;"/>
+                                            <col style="width:24%;"/>
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Location</th>
+                                                <th>Description of the Tower</th>
+                                                <th>Vehicle Loadability – MT</th>
+                                                <th>Minimum Guaranteed<br/>Freight</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <apex:repeat value="{!mglRows}" var="m">
+                                                <tr>
+                                                    <td>{!m.location}</td>
+                                                    <td class="td-left">{!m.descriptionOfTower}</td>
+                                                    <td>{!m.vehicleLoadability}</td>
+                                                    <td class="td-right">{!m.minimumGuaranteedFreight}</td>
+                                                </tr>
+                                            </apex:repeat>
+                                        </tbody>
+                                    </table>
+                
+                                </apex:outputPanel>
+                
+                                <apex:outputPanel rendered="{!isRPTForType}">
+                
+                                    <div class="freight-note">
+                                        Tentative Freight: Freight is basic and all applicable taxes.
+                                    </div>
+                
+                                    <table class="tele-table" border="1" cellpadding="5" cellspacing="0">
+                                        <colgroup>
+                                            <col style="width:50%;"/>
+                                            <col style="width:50%;"/>
+                                        </colgroup>
+                                        <thead>
+                                            <tr>
+                                                <th>Location</th>
+                                                <th>Rate Per Ton</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <apex:repeat value="{!rptRows}" var="r">
+                                                <tr>
+                                                    <td class="td-left">{!r.location}</td>
+                                                    <td class="td-right">{!r.ratePerTon}</td>
+                                                </tr>
+                                            </apex:repeat>
+                                        </tbody>
+                                    </table>
+                
+                                </apex:outputPanel>
+                
+                                
+                                <div class="general-heading">GENERAL TERMS &amp; CONDITIONS:</div>
+                
+                                <div class="general-terms">
+                                    <ol>
+                
+                                        <li>
+                                            <span class="point-title">Buyer:</span>
+                                            Buyer shall mean ! {!quoteAccount}.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Supplier:</span>
+                                            Supplier shall mean Utkarsh India Limited having its office
+                                            at 95A, Elliot Road, Arjrayv Square, Kolkata, India.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Payment Terms:</span>
+                                            Payment terms for material supply – 10% advance &amp; 90%
+                                            payment via RTGS OR LC (LC Usance in buyer account) (LOT WISE)
+                                            Before Dispatch.
+                                        </li>
+                
+                                        <li>
+                                            <apex:outputPanel layout="none" rendered="{!hasForIncoterms}">
+                                                <span class="point-title"> Transportation &amp; Freight:</span>
+                                                The rates quoted are on an F.O.R. basis and do not include unloading at the destination
+                                            </apex:outputPanel>
+                                        
+                                            <apex:outputPanel layout="none" rendered="{!hasExIncoterms}">
+                                                <span class="point-title"> Transportation &amp; Freight:</span>
+                                                The rates are on Ex - works basis
+                                            </apex:outputPanel>
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Scope of Work:</span>
+                                            Manufacturing &amp; Supply of Galvanized Telecom Tower
+                                            Structures along with accessories as per approved BOM.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Raw Material:</span>
+                                            As per prescribed guidelines. For Pipes we will use
+                                            "Utkarsh Make" as required. Only in the event that we do not
+                                            Manufacture a particular type / size only then we will procure
+                                            from another "Make".
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Lot Size &amp; Delivery Period:</span>
+                                            "0" date will be considered after the issuance of PO + Advance.
+                                            Along with all Technical details as required. The tentative
+                                            delivery period shall be mutually discussed and agreed as per
+                                            the UIL Plant's available capacity and production schedule.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Packing &amp; Forwarding:</span>
+                                            <ul>
+                                                <li>
+                                                    The prices quoted for supply of the materials are
+                                                    inclusive of standard packing and forwarding charges.
+                                                </li>
+                                                <li>
+                                                    Any type of special packing / Export Packing if required
+                                                    has to be intimated to the supplier in advance and shall
+                                                    be on chargeable basis.
+                                                </li>
+                                            </ul>
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Inspection:</span>
+                                            <ul>
+                                                <li>
+                                                    The Inspection has to be arrange within 5 Days from the
+                                                    date of finished call and the D.I. has to be provided
+                                                    within 2 working days of the inspection of the finished
+                                                    material. In case of delay in anything, interest @ 18%
+                                                    p.a. shall be charged in both case apart from the ground
+                                                    rent for storing the material for every week delayed.
+                                                </li>
+                                                <li>
+                                                    We have not considered any third-party inspection fees.
+                                                    However, we will provide necessary facilities to carryout
+                                                    routine Inspection as per our standard procedure at our
+                                                    works by your authorized representatives.
+                                                </li>
+                                                <li>
+                                                    Any travelling, lodging, boarding expenses of the
+                                                    representatives shall be borne by the Buyer.
+                                                </li>
+                                                <li>
+                                                    The raw material &amp; Finish testing will be conducted
+                                                    at UIL's in house laboratory.
+                                                </li>
+                                                <li>
+                                                    Any testing required at a 3rd party laboratory shall be
+                                                    Considered extra and shall be to the Buyers A/C.
+                                                </li>
+                                                <li>
+                                                    If for any reason the Buyer fails to depute any third
+                                                    party inspection agency to carry out the pre-delivery
+                                                    inspection, the Supplier shall at the cost of the Buyer
+                                                    conduct such third party pre-delivery inspection at the
+                                                    Supplier's factory and such inspection for all practical
+                                                    purposes shall be deemed to have been conducted at the
+                                                    behest of the Buyer. Such third party inspection conducted
+                                                    prior to delivery or dispatch of the materials shall be
+                                                    considered as final for all issues on quality and technical
+                                                    parameters.
+                                                </li>
+                                            </ul>
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Drawing:</span>
+                                            It shall always at the absolute obligation of the Buyer to
+                                            provide a proper legible valid drawing with all dimensions'
+                                            specifications and information of the product in order to
+                                            facilitate the Supplier to undertake the manufacturing of the
+                                            products based on the drawings.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Return of Goods:</span>
+                                            After obtaining satisfactory inspection clearance certificate,
+                                            once the goods are dispatched, the Buyer will not be entitled
+                                            to return the same by raising any technical issues or defects.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Quality:</span>
+                                            After obtaining satisfactory inspection clearance certificate,
+                                            once the goods are dispatched, the Buyer will not be entitled
+                                            to return the same by raising any technical issues or defects.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Quality:</span>
+                                            In the event if the results of the pre-delivery inspection
+                                            carried out at the behest of the Buyer are found to be in
+                                            conflict with the findings of the inspection made at the
+                                            Buyer's destination, by any independent inspection agency
+                                            and/or surveyor engaged by the Buyer, under such circumstances
+                                            the Buyer shall have to provide a reasonable and acceptable
+                                            explanation justifying the reason for such conflicting reports
+                                            by two different independent agencies both being appointed by
+                                            the Buyers. If the Buyer fails to substantiate the claim with
+                                            proper and acceptable explanation in that event the Buyer's
+                                            claim on quality related issues shall stand set aside.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Confidentiality:</span>
+                                            <ul>
+                                                <li>
+                                                    During the term of this Agreement, each party (the
+                                                    "disclosing party") may communicate to the other party
+                                                    (the "receiving party") information which it considers
+                                                    to be confidential ("Confidential Information"). All
+                                                    Confidential Information shall be specifically
+                                                    designated as confidential. Such Confidential
+                                                    Information may include, without limitation, trade
+                                                    secrets, know-how, inventions, technical data or
+                                                    specifications, testing methods, business or financial
+                                                    information, research and development activities,
+                                                    product and marketing plans, and customer and supplier
+                                                    information. Confidential Information that is disclosed
+                                                    orally or visually shall be documented in a written
+                                                    notice prepared by the disclosing party and delivered to
+                                                    the receiving party within thirty (30) days of the date
+                                                    of disclosure; such notice shall summarize the
+                                                    Confidential Information disclosed to the receiving
+                                                    party and reference to the time and place of disclosure.
+                                                </li>
+                                                <li>
+                                                    The receiving party agrees that it shall: (a) maintain
+                                                    all Confidential Information in strict confidence,
+                                                    except that the receiving party may disclose or permit
+                                                    the disclosure of any Confidential Information to its
+                                                    directors, officers, employees, consultants, and advisors
+                                                    who are obligated to maintain the confidential nature of
+                                                    such Confidential Information and who need to know such
+                                                    Confidential Information for the purpose set forth in
+                                                    this Agreement; (b) use all Confidential Information
+                                                    solely for the purpose set forth in this Agreement; and
+                                                    (c) allow its directors, officers, employees,
+                                                    consultants, and advisors to reproduce the Confidential
+                                                    Information only to the extent necessary to effect the
+                                                    purposes set forth in this Agreement, with all such
+                                                    reproductions being considered Confidential Information.
+                                                </li>
+                                                <li>
+                                                    The obligations of the receiving party under Clause B
+                                                    above shall not apply to the extent that the receiving
+                                                    party can demonstrate that certain Confidential
+                                                    Information: (a) was in the public domain prior to the
+                                                    time of its disclosure under this Agreement; (b) entered
+                                                    the public domain after the time of its disclosure under
+                                                    this Agreement through means other than an unauthorized
+                                                    disclosure resulting from an act or omission by the
+                                                    receiving party; (c) was independently developed or
+                                                    discovered by receiving party without use of the
+                                                    Confidential Information; (d) is or was disclosed to the
+                                                    receiving party at any time, whether prior to or after
+                                                    the time of its disclosure under this Agreement, by a
+                                                    third party having no fiduciary relationship with the
+                                                    disclosing party and having no obligation of
+                                                    confidentiality with respect to such Confidential
+                                                    Information; or (e) is required to be disclosed to
+                                                    comply with application laws or regulation, or with a
+                                                    court or administrative order, provided that, the
+                                                    disclosing party receives prior written notice of such
+                                                    disclosure and that the receiving party takes all
+                                                    reasonable and lawful actions to obtain confidential
+                                                    treatment for such disclosure and, if possible, to
+                                                    minimize the extent of such disclosure.
+                                                </li>
+                                                <li>
+                                                    The obligations set forth in this Article shall remain
+                                                    in effect for a period of five (5) years after the
+                                                    expiration or the earlier termination of this Agreement.
+                                                </li>
+                                            </ul>
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Force Majeure:</span>
+                                            <ul>
+                                                <li>
+                                                    (A) Neither Party will be liable for any failure to
+                                                    perform its obligations hereunder, other than payment
+                                                    obligations, due to unforeseen circumstances or causes
+                                                    beyond the Party's reasonable control, including,
+                                                    without limitation, acts of God, war, riot, embargoes,
+                                                    acts of civil or military authorities, acts of terrorism
+                                                    or sabotage, electronic viruses, worms or corrupting
+                                                    microcode, fire, flood, earthquake, accident, strikes,
+                                                    radiation, inability to secure transportation, failure
+                                                    of communications or electrical lines, facilities, fuel,
+                                                    energy, labour or materials. In an event of force
+                                                    majeure, either Party's time for delivery or other
+                                                    performance will be extended for a period equal to the
+                                                    duration of the delay caused thereby. The Party subject
+                                                    to the force majeure shall (A) give notice of suspension
+                                                    of its obligations as soon as reasonably practicable
+                                                    stating the date and extent of such suspension and the
+                                                    cause thereof,
+                                                </li>
+                                                <li>
+                                                    (B) use its best efforts to remedy or remove such force
+                                                    majeure with the least practicable delay, and
+                                                </li>
+                                                <li>
+                                                    (C) resume the performance of its obligations as soon
+                                                    as reasonably practicable after the remediation or
+                                                    removal of the cause. Notwithstanding anything to the
+                                                    contrary herein, if an event of force majeure can
+                                                    reasonably be expected to prevent the affected Party
+                                                    from performing its obligations for a period of at
+                                                    least three (3) months, then the other Party may
+                                                    terminate this Agreement upon not less than fifteen
+                                                    days written notice to the affected Party.
+                                                </li>
+                                            </ul>
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">
+                                                Governing Law, Arbitration and Jurisdiction:
+                                            </span>
+                                            The Courts at Kolkata shall have exclusive jurisdiction over
+                                            all unresolved disputes relating to this Agreement. The Parties
+                                            expressly consent to this jurisdiction and waive, as well as
+                                            undertake, that they will not assert any claim, with respect to
+                                            personal applicability, inconvenience of forum, venue or any
+                                            other hardship related to jurisdiction. Should there be any
+                                            dispute or difference of opinion regarding this contract, both
+                                            the parties will make all efforts to amicably settle such
+                                            disputes. Efforts at reaching an amicable settlement will be
+                                            deemed to have failed as soon as one of the contractual parties
+                                            informs the other in writing about such a deadlock. If efforts
+                                            at amicable settlement fail, all disputes arising out of this
+                                            contract or its validity will be finally decided in accordance
+                                            with the provisions of the Arbitration and Conciliation Act
+                                            1996, as amended from time to time. The arbitration proceedings
+                                            shall be headed by a sole arbitrator. The decision of the sole
+                                            arbitrator shall be binding upon the parties. The arbitration
+                                            proceedings shall be held at KOLKATA, India and conducted in
+                                            English language.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Order cancellation:</span>
+                                            Once the manufacturing clearance is issued and the Raw Material
+                                            is ordered then order cancellation will not be accepted under
+                                            any circumstances.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">
+                                                Risk Purchase &amp; Third Party Liability:
+                                            </span>
+                                            Not acceptable.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Jurisdiction:</span>
+                                            No suit or any proceedings in regard to any matter arising in
+                                            respect of this contract shall be instituted in the High Court,
+                                            Calcutta, City Civil Court at Calcutta or at the Court of small
+                                            causes at Calcutta. It is agreed that no other court shall have
+                                            jurisdiction to entertain any suit or proceedings, even though,
+                                            part of the cause of action might arise within their
+                                            jurisdiction.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Miscellaneous:</span>
+                                            The Company would issue various work orders from time to time
+                                            during the tenure of this agreement and the present Agreement
+                                            contains the general terms and conditions of the contract which
+                                            would govern and administer the work order issued by the Company
+                                            from time to time. Any specific terms and conditions not
+                                            mentioned in this agreement but mentioned in the work order
+                                            shall prevail and govern the contract. Any specific terms and
+                                            conditions mentioned herein but not mentioned in the work order
+                                            shall also continue to prevail and govern the contract. However,
+                                            in the event of any conflicting interpretation of any clauses of
+                                            this Agreement with the work order, the present agreement shall
+                                            prevail over the work order.
+                                        </li>
+                
+                                        <li>
+                                            <span class="point-title">Test 1:</span>
+                                            Testing 1
+                                        </li>
+                
+                                    </ol>
+                                        <div class="signature-block">
+                                            Thanking you,<br/>
+                                            Yours truly,<br/><br/>
+                                            <strong style="font-size:12pt;">
+                                                {!currentUser}
+                                            </strong><br/><br/>
+                                            <strong>UTKARSH INDIA LIMITED</strong>
+                                        </div>
+                                </div>               
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </body>
+
+    </html>
+</apex:page>

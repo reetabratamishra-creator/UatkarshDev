@@ -1,0 +1,200 @@
+<apex:page standardController="Quote" extensions="SteelPipesQuoteController" contentType="application/vnd.ms-excel#SteelPipesQuotation_{!quoteRecord.QuoteNumber}.xls" showHeader="false" sidebar="false" applyBodyTag="false">
+    <head>
+        <style>
+            body { font-family: sans-serif; font-size: 10px; }
+            table { border-collapse: collapse; }
+            th, td { border: 1px solid black; padding: 5px; text-align: left; }
+            .header-text { text-align: center; font-size: 12px; font-weight: bold; }
+            .bg-green { background-color: #92D050; font-weight: bold; }
+            .text-center { text-align: center; }
+            .text-right { text-align: right; }
+            .no-border { border: none !important; }
+        </style>
+    </head>
+    <body>
+        <table>
+            <!-- Main Header -->
+            <tr>
+                <td class="no-border header-text" colspan="{!12 + specialHeaderCols.size}" style="text-align: center; vertical-align: middle;">
+                    <h2>UTKARSH INDIA LIMITED</h2>
+                    <p style="font-weight: normal;">Corporate Office: Arrjavv Square, 4th Floor, 95A, E.M. Bypass, Kolkata - 700010</p>
+                    <h3>QUOTATION FOR STEEL PIPES</h3>
+                </td>
+            </tr>
+            
+            <!-- Spacing -->
+            <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+
+            <!-- Offer & Date -->
+            <tr>
+                <td colspan="4" style="font-weight:bold;">Offer No. {!offerNumber}</td>
+                <td colspan="{!5 + specialHeaderCols.size}" style="font-weight:bold; text-align:right;">Date - {!todayDate}</td>
+            </tr>
+            
+            <!-- Company Info -->
+            <tr>
+                <td colspan="4" style="font-weight:bold; vertical-align:top;">
+                    Name of the Company - {!quoteRecord.Account.Name}<br/>
+                    Address - {!companyAddress}<br/>
+                    Kind Attention - {!quoteRecord.Contact.Name}<br/>
+                    Contact No - {!contactNo}
+                </td>
+                <td colspan="{!5 + specialHeaderCols.size}" style="font-weight:bold; text-align:center; vertical-align:middle;">
+                    Mail - {!contactEmail}
+                </td>
+            </tr>
+
+            <!-- Spacing -->
+            <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+
+            <!-- SCHEDULE OF MATERIAL -->
+            <apex:outputPanel rendered="{!standardLineItems.size > 0}" layout="none">
+                <tr>
+                    <td colspan="{!12 + specialHeaderCols.size}" class="no-border">
+                        <h3 style="text-decoration: underline; margin-bottom: 5px;">SCHEDULE OF MATERIAL</h3>
+                    </td>
+                </tr>
+                <tr style="background-color: #FFFF00;">
+                    <th class="text-center">SL No</th>
+                    <th class="text-center">Pipe / Designation</th>
+                    <th class="text-center">Size(NB)</th>
+                    <th class="text-center">Thickness(mm/Standard)</th>
+                    <th class="text-center">Quantity in UOM</th>
+                    <th class="text-center">UOM</th>
+                    <th class="text-center">End Finish</th>
+                    <th class="text-center">IS Specification</th>
+                    <apex:repeat value="{!specialHeaderCols}" var="col">
+                        <th class="text-center">{!col}</th>
+                    </apex:repeat>
+                    <th class="text-center">Rate per Kg</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">GST @18%</th> 
+                    <th class="text-center">Total Price</th>
+                </tr>
+                <apex:repeat value="{!standardLineItems}" var="row">
+                    <tr>
+                        <td class="text-center">{!row['SlNo']}</td>
+                        <td class="text-center">{!row['designation']}</td>
+                        <td class="text-center">{!row['size_nb']}</td>
+                        <td class="text-center">{!IF(ISBLANK(row['display_class_thickness']), '-', row['display_class_thickness'])}</td>
+                        <td class="text-center"><apex:outputText value="{0, number, #,##0}"><apex:param value="{!row['quantity']}"/></apex:outputText></td>
+                        <td class="text-center">{!row['uom']}</td>
+                        <td class="text-center">{!row['end_finish']}</td>
+                        <td class="text-center">{!row['standard_spec_grade']}</td>
+                        <apex:repeat value="{!row['specialValuesList']}" var="sVal">
+                            <td class="text-center">{!sVal}</td>
+                        </apex:repeat>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!row['pdf_rate']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!row['pdf_base_total']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!row['pdf_gst_amount']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!row['pdf_total_price']}"/></apex:outputText></td>
+                    </tr>
+                </apex:repeat>
+                <tr>
+                    <td colspan="{!11 + specialHeaderCols.size}" class="text-right" style="font-weight: bold;">Sub Total:</td>
+                    <td class="text-right" style="font-weight: bold;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!standardTotalAmount}"/></apex:outputText>
+                    </td>
+                </tr>
+            </apex:outputPanel>
+
+            <apex:repeat value="{!specialLineItems}" var="spRow">
+                <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+                <tr>
+                    <td colspan="{!12 + specialHeaderCols.size}" class="no-border">
+                        <h3 style="text-decoration: underline; margin-bottom: 5px; margin-top: 15px;">SPECIAL ITEM - {!spRow['customHeader']}</h3>
+                    </td>
+                </tr>
+                <tr style="background-color: #FFFF00;">
+                    <th class="text-center">SL No</th>
+                    <th class="text-center">Pipe / Designation</th>
+                    <th class="text-center">Size(NB)</th>
+                    <th class="text-center">Thickness(mm/Standard)</th>
+                    <th class="text-center">Quantity in UOM</th>
+                    <th class="text-center">UOM</th>
+                    <th class="text-center">End Finish</th>
+                    <th class="text-center">IS Specification</th>
+                    <th class="text-center">{!spRow['customHeader']}</th>
+                    <th class="text-center">Rate per Kg</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">GST @18%</th> 
+                    <th class="text-center">Total Price</th>
+                    <!-- Pad remaining columns if there are special header cols -->
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+                <tr>
+                    <td class="text-center">{!spRow['SlNo']}</td>
+                    <td class="text-center">{!spRow['designation']}</td>
+                    <td class="text-center">{!spRow['size_nb']}</td>
+                    <td class="text-center">{!IF(ISBLANK(spRow['display_class_thickness']), '-', spRow['display_class_thickness'])}</td>
+                    <td class="text-center"><apex:outputText value="{0, number, #,##0}"><apex:param value="{!spRow['quantity']}"/></apex:outputText></td>
+                    <td class="text-center">{!spRow['uom']}</td>
+                    <td class="text-center">{!spRow['end_finish']}</td>
+                    <td class="text-center">{!spRow['standard_spec_grade']}</td>
+                    <td class="text-center" style="font-weight: bold;">{!spRow['customValue']}</td>
+                    <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!spRow['pdf_rate']}"/></apex:outputText></td>
+                    <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!spRow['pdf_base_total']}"/></apex:outputText></td>
+                    <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!spRow['pdf_gst_amount']}"/></apex:outputText></td>
+                    <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!spRow['pdf_total_price']}"/></apex:outputText></td>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+                <tr>
+                    <td colspan="12" class="text-right" style="font-weight: bold;">Sub Total:</td>
+                    <td class="text-right" style="font-weight: bold;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!spRow['total_price']}"/></apex:outputText>
+                    </td>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+            </apex:repeat>
+
+            <apex:outputPanel rendered="{!specialLineItems.size > 0}" layout="none">
+                <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+                <tr>
+                    <td colspan="{!11 + specialHeaderCols.size}" class="text-right no-border" style="font-weight: bold; font-size: 12px;">OVERALL GRAND TOTAL:</td>
+                    <td class="text-right" style="border: 1px solid #000; font-weight: bold; font-size: 12px;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!totalAmount}"/></apex:outputText>
+                    </td>
+                </tr>
+            </apex:outputPanel>
+
+            <!-- Spacing -->
+            <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+
+            <!-- COMMERCIAL TERMS & CONDITIONS -->
+            <tr>
+                <td colspan="{!12 + specialHeaderCols.size}" class="no-border">
+                    <h3 style="text-decoration: underline; margin-bottom: 5px;">COMMERCIAL TERMS &amp; CONDITIONS</h3>
+                </td>
+            </tr>
+            <tr><td colspan="3" class="bg-green">Offer Validity</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_offer_validity']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Delivery Period</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_delivery_period']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Payment Terms</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_payment_terms']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Price Variation Clause</td><td colspan="{!6 + specialHeaderCols.size}"><apex:outputText value="{!jsonData['tc_price_variation']}" escape="false"/></td></tr>
+            <tr><td colspan="3" class="bg-green">Transportation</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_transportation']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Vehicle Load</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_vehicle_load']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Qty Tolerance</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_qty_tolerance']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Tolerance</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_tolerance']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Inspection</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_inspection']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Pre Dispatch Inspection</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_pre_dispatch_inspection']}</td></tr>
+            <tr><td colspan="3" class="bg-green">Work Address</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_work_address']}</td></tr>
+            <tr><td colspan="3" class="bg-green">GST TIN Number</td><td colspan="{!6 + specialHeaderCols.size}">{!jsonData['tc_gst_tin_number']}</td></tr>
+            
+            <apex:outputPanel rendered="{!NOT(ISBLANK(quoteNotes))}" layout="none">
+                <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+                <tr>
+                    <td colspan="{!12 + specialHeaderCols.size}" class="no-border">
+                        <b>Notes / Remarks:</b><br/>
+                        <apex:outputText value="{!quoteNotes}" escape="false" />
+                    </td>
+                </tr>
+            </apex:outputPanel>
+
+        </table>
+    </body>
+</apex:page>

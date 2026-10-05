@@ -1,0 +1,14 @@
+{
+  "required" : [ "schdata" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "schdata" : {
+      "title" : "schdata",
+      "description" : "If user ask to create opp then call this",
+      "lightning:type" : "c__schoolData",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

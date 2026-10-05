@@ -1,0 +1,13 @@
+{
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "DummyInput" : {
+      "title" : "DummyInput",
+      "description" : "No need to provide Input",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

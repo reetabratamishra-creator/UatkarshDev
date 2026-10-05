@@ -1,0 +1,695 @@
+<apex:page standardController="Quote"
+           extensions="TransmissionImOfferController"
+           contentType="application/msword#TowerOffer-IM-{!quoteNumber}.doc"
+           applyBodyTag="false"
+           applyHtmlTag="false"
+           showHeader="false"
+           sidebar="false"
+           standardStylesheets="false">
+
+<html xmlns:o="urn:schemas-microsoft-com:office:office"
+      xmlns:w="urn:schemas-microsoft-com:office:word"
+      xmlns="http://www.w3.org/TR/REC-html40">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <style type="text/css">
+
+             /* Global A4 Size Definition */
+                    @page {
+                        size: 210mm 297mm;
+                        margin: 0mm;
+                    }
+        
+                    /* Word-Specific Page Layout Definitions and Margins */
+                    @page CoverPage {
+                        size: 210mm 297mm;
+                        margin: 0mm;
+                        mso-header-margin: 5mm;
+                        mso-footer-margin: 0mm;
+                    }
+                    
+                    @page StandardContent {
+                        size: 210mm 297mm;
+                        margin: 30mm 10mm 30mm 10mm; 
+                        mso-header: h1;
+                        mso-footer: f1;
+                        mso-header-margin: 5mm;
+                        mso-footer-margin: 5mm;
+                    }
+                
+                	@page StandardContent:last {
+                        mso-footer: f-blank;
+                    }
+                
+                    @page LastPage {
+                        size: 210mm 297mm;
+                        margin: 30mm 10mm 30mm 10mm;
+                        mso-header-margin: 5mm;
+                        mso-footer-margin: 5mm;
+                    }
+                    
+                    div.page-cover {
+                        page: CoverPage;
+                        width: 210mm;
+                        height: 297mm;
+                        margin: 0mm;
+                    }
+                    
+                    div.document-body {
+                        page: StandardContent;
+                    }
+        
+                    .content-wrapper {
+            			margin-top: 5mm;
+                        padding: 2mm 0mm;
+                    }
+        
+                    div.last-page {
+                        page: LastPage;
+                        width: 210mm;
+                        height: 297mm;
+                    }
+                    
+                    html, body {
+                        font-family: 'Arial', 'Helvetica', sans-serif;
+                        font-size: 10pt;
+                        line-height: 1.5;
+                        color: #222;
+                    }
+                    
+                    .page-break {
+                        page-break-before: always;
+                    }
+                    
+                    .avoid-break {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* ── Footer: NO background, clean like Solar ── */
+                    .footer-inner {
+                        margin-bottom: 5mm;
+                        margin-top: 5mm;
+                        font-size: 7pt;
+                        color: black;
+                        line-height: 1.4;
+                        width: 100%;
+                    }
+                    
+                    .factory-details {
+                        margin-bottom: 3px;
+                    }
+                    
+                    .social-row {
+                        margin-top: 4px;
+                        font-size: 7.5pt;
+                    }
+                    
+                    span.mso-page-number {
+                        mso-field-code: "PAGE";
+                    }
+                    span.mso-total-pages {
+                        mso-field-code: "NUMPAGES";
+                    }
+
+            .ref-section {
+                font-size: 10pt;
+                font-weight: bold;
+                line-height: 1.7;
+                margin-bottom: 22px;
+            }
+
+            .to-section {
+                font-size: 10pt;
+                line-height: 1.7;
+                margin-bottom: 30px;
+            }
+
+            .subject-section {
+                font-size: 10pt;
+                line-height: 1.6;
+                margin-bottom: 8px;
+            }
+
+            .content-text {
+                font-size: 10pt;
+                line-height: 1.6;
+                margin-bottom: 16px;
+            }
+
+            .section-heading {
+                font-size: 10pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 18px 0 14px 0;
+                letter-spacing: 0.2px;
+            }
+
+            .sub-heading {
+                font-size: 10pt;
+                font-weight: bold;
+                margin: 14px 0 5px 0;
+            }
+
+            /* ── Price tables ── */
+            .price-table-title {
+                font-size: 11pt;
+                font-weight: bold;
+                margin: 24px 0 8px 0;
+            }
+
+            .price-table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 9pt;
+                margin-bottom: 16px;
+            }
+
+            .price-table th {
+                background: #d9d9d9;
+                border: 1pt solid #cfcfcf;
+                padding: 4px 6px;
+                text-align: center;
+                font-weight: bold;
+                line-height: 1.35;
+            }
+
+            .price-table td {
+                border: 1pt solid #dcdcdc;
+                padding: 3px 6px;
+                line-height: 1.35;
+                background: #ffffff;
+            }
+
+            .price-table .center { text-align: center; }
+            .price-table .right  { text-align: right;  }
+
+            .total-row td {
+                background: #c9efef;
+                font-weight: bold;
+            }
+
+            /* ── Substation-specific rows ── */
+            .structure-header td {
+                background-color: #4a90c4;
+                color: #ffffff;
+                font-weight: bold;
+                text-align: center;
+                padding: 5px 8px;
+            }
+
+            .subst-col-detail { text-align: center; width: 40%; }
+            .subst-col-uom    { text-align: center; width: 20%; }
+            .subst-col-price  { text-align: center; width: 40%; }
+
+            .row-subst-data td { background-color: #ffffff; text-align: center; }
+            .row-subst-nuts td { background-color: #f5f5f5; text-align: center; }
+
+            /* ── General Terms ── */
+            .general-heading {
+                text-align: center;
+                font-size: 11pt;
+                font-weight: bold;
+                text-decoration: underline;
+                margin: 28px 0 18px 0;
+            }
+
+            .general-terms {
+                font-size: 9.5pt;
+                line-height: 1.4;
+            }
+
+            .general-terms p {
+                margin: 0 0 8px 0;
+            }
+
+            .general-terms .point-title {
+                font-weight: bold;
+            }
+
+            .general-terms ol {
+                margin: 0;
+                padding-left: 18px;
+            }
+
+            .general-terms li {
+                margin-bottom: 9px;
+                text-align: justify;
+            }
+
+            .general-terms ul {
+                margin: 4px 0;
+                padding-left: 14px;
+            }
+
+            .general-terms ul li {
+                margin-bottom: 3px;
+                line-height: 1.4;
+            }
+
+            .signature-block {
+                margin-top: 18px;
+                font-size: 11pt;
+                line-height: 1.6;
+            }
+
+            .bottom-space {
+                height: 50pt;
+            }
+            .proto-note{
+            	margin : 16px 0;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div style="mso-element:header" id="h1">
+            <table width="100%" style="border-collapse:collapse; border:none;">
+                <tr>
+                    <td style="padding:0; border:none;">
+                        <img src="{!logoBase64}" alt="Utkarsh India Ltd" width="100%"
+                             style="display:block; height:80pt; width:100%; object-fit:cover; margin:auto;"/>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class = "document-body">
+               <div class="content-wrapper">
+
+                <div class="main-container">
+
+                    <!-- Ref & Date -->
+                    <div class="ref-section">
+                        Ref:- UIL/TOWER&amp;SUBSTATION/26-27/{!quoteNumber}<br/>
+                        Date:- {!todayDate}
+                    </div>
+
+                    <!-- Addressee -->
+                    <div class="to-section">
+                        To,<br/>
+                        <strong>{!quoteAccount}</strong>
+                    </div>
+
+                    <!-- Subject -->
+                    <div class="subject-section">
+                        <strong>Sub:</strong>
+                        Manufacturing, Galvanizing and Supply of
+                        <strong>Transmission Tower &amp; Substation Structures.</strong>
+                    </div>
+
+                    <!-- Intro paragraph -->
+                    <div class="content-text">
+                        With reference to your Purchase Enquiry, we are pleased to offer our most
+                        competitive commercial proposal, reflecting the quality standards and value
+                        proposition associated with the product portfolio of Utkarsh India Ltd.
+                        The offer outlined below is in alignment with your required specifications
+                        and is indicative of our commitment to delivering reliable, industry-compliant
+                        solutions backed by our organization's proven track record of excellence
+                        and market reputation.
+                        <br/><br/>
+                        Details of our proposal are as under:
+                    </div>
+
+                    <!-- ─── A. SUPPLY TECHNICAL PARTICULARS ─── -->
+                    <div class="section-heading">A. SUPPLY TECHNICAL PARTICULARS:</div>
+
+                    <p style="font-size:10pt; margin:14px 0;">
+                        We shall manufacture towers as per drawings and standard technical
+                        specifications shared by {!quoteAccount}
+                    </p>
+
+                    <div class="sub-heading">Steel:</div>
+                    <ul style="font-size:10pt; margin:0 0 14px 18px; padding-left:14px;">
+                        <li style="line-height:1.6; margin-bottom:2px;">
+                            MS Steel angles: As per standard IS 2062 Grade E250
+                        </li>
+                        <li style="line-height:1.6; margin-bottom:2px;">
+                            High Tensile angles: As per standard IS 2062 Grade E350
+                        </li>
+                    </ul>
+
+                    <div class="sub-heading">Bolts/Nuts:</div>
+                    <ul style="font-size:10pt; margin:0 0 14px 18px; padding-left:14px;">
+                        <li style="line-height:1.6; margin-bottom:2px;">
+                            Bolts and Nuts: All bolts and nuts shall conform to
+                            ISO 898 Grade <strong>{!activeBoltDisplay}</strong>
+                        </li>
+                    </ul>
+
+                    <div class="sub-heading">Galvanizing:</div>
+                    <ul style="font-size:10pt; margin:0 0 14px 18px; padding-left:14px;">
+                        <li style="line-height:1.6; margin-bottom:2px;">
+                            All steels shall be hot dipped galvanized and shall conform
+                            to standard of IS 2629, IS 4759, IS 2633, IS 6745 with
+                            average coating weight of
+                            <strong>{!activeGsmDisplay} GSM</strong>
+                        </li>
+                    </ul>
+
+                    <!-- ─── B. PRICES ─── -->
+                    <div class="section-heading">B. PRICES:</div>
+
+                    <p style="font-size:10pt; margin:0 0 18px 0;">
+                        Please refer to our below price Offer for the subject enquiry
+                        for <strong>{!hasIncoterms}</strong> basis, as per IEEMA February' 2023.
+                    </p>
+
+                    <!-- ─── TOWER product tables ─── -->
+                    <apex:outputPanel rendered="{!productType == 'Tower'}">
+
+                        <apex:repeat value="{!towerTables}" var="pt">
+
+                            <div class="price-table-title">{!pt.title}</div>
+
+                            <table class="price-table" border="1" cellpadding="4" cellspacing="0">
+                                <colgroup>
+                                    <col style="width:22%;"/>
+                                    <col style="width:12%;"/>
+                                    <col style="width:22%;"/>
+                                    <col style="width:18%;"/>
+                                    <col style="width:26%;"/>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>Product Details</th>
+                                        <th>UOM</th>
+                                        <th>Unit Price ({!currencyCode})</th>
+                                        <th>Quantity</th>
+                                        <th>Total Price ({!currencyCode})</th>
+                                    </tr>
+                                </thead>
+                                <apex:repeat value="{!pt.rows}" var="row">
+                                    <tbody>
+                                        <tr>
+                                            <td class="center">{!row.label}</td>
+                                            <td class="center">{!row.uom}</td>
+                                            <td class="right">{!row.unitPrice}</td>
+                                            <td class="right">{!row.quantity}</td>
+                                            <td class="right">{!row.totalPrice}</td>
+                                        </tr>
+                                    </tbody>
+                                </apex:repeat>
+                            </table>
+
+                        </apex:repeat>
+
+                    </apex:outputPanel>
+
+                    <!-- ─── SUBSTATION product tables ─── -->
+                    <apex:outputPanel rendered="{!productType == 'Substation'}">
+
+                        <apex:repeat value="{!substationTables}" var="tbl">
+
+                            <div class="price-table-title">{!tbl.title}</div>
+
+                            <table class="price-table" border="1" cellpadding="4" cellspacing="0">
+                                <colgroup>
+                                    <col class="subst-col-detail"/>
+                                    <col class="subst-col-uom"/>
+                                    <col class="subst-col-price"/>
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th class="subst-col-detail">Product Details</th>
+                                        <th class="subst-col-uom">UOM</th>
+                                        <th class="subst-col-price">Unit Price ({!currencyCode})</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <apex:repeat value="{!tbl.sections}" var="section">
+
+                                        <!-- Structure header row -->
+                                        <tr class="structure-header">
+                                            <td colspan="3">{!section.sectionTitle}</td>
+                                        </tr>
+
+                                        <!-- Section rows -->
+                                        <apex:repeat value="{!section.rows}" var="row">
+                                            <apex:outputPanel rendered="{!row.isNuts}" layout="none">
+                                                <tr class="row-subst-nuts">
+                                                    <td>{!row.label}</td>
+                                                    <td>{!row.uom}</td>
+                                                    <td>{!row.unitPrice}</td>
+                                                </tr>
+                                            </apex:outputPanel>
+                                            <apex:outputPanel rendered="{!NOT(row.isNuts)}" layout="none">
+                                                <tr class="row-subst-data">
+                                                    <td>{!row.label}</td>
+                                                    <td>{!row.uom}</td>
+                                                    <td>{!row.unitPrice}</td>
+                                                </tr>
+                                            </apex:outputPanel>
+                                        </apex:repeat>
+
+                                    </apex:repeat>
+                                </tbody>
+                            </table>
+
+                        </apex:repeat>
+
+                    </apex:outputPanel>
+                    
+                    <apex:outputPanel rendered="{!hasProtoAssembly}">
+                        <div class="proto-note">
+                            Proto Assembly Testing - {!currencyCode} {!protoAssembly}/MT (Extra). Proto should be within 10% of the lot wise quantity with respective Manufacturing Clearance. 
+                        </div>
+                    </apex:outputPanel>
+
+                    <!-- ─── GENERAL TERMS & CONDITIONS ─── -->
+                    <div class="general-heading">
+                    GENERAL TERMS &amp; CONDITIONS:
+                </div>
+                
+                <div class="general-terms">
+                
+                    <ol>
+                
+                        <li>
+                            <span class="point-title">Buyer:</span>
+                            Buyer shall mean ! {!quoteAccount} having its office at .
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Supplier:</span>
+                            Supplier shall mean Utkarsh India Limited having its office at 95A, Elliot Road, Arjrayv Square, Kolkata, India.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Payment Terms:</span>
+                            10% Advance after issuance of Purchase order and Balance 90% Before Dispatch.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Scope of Work:</span>
+                            Manufacturing and Supply of Transmission Tower &amp; Substation.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Delivery:</span>
+                            The first mass deliveries shall start in about 120 days’ lot wise, including but not limited to, the date of receipt of the signed Contract/ Purchase Order/ Advance payment/ Manufacturing Clearance/ Engineering details and any other scope of work in Buyer’s account whichever is later. Delivery schedule however shall be mutually discussed and agreed as per the UIL Plant’s available capacity and production schedule.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Packing &amp; Forwarding:</span>
+                
+                            <ul>
+                                <li>
+                                    The prices quoted for supply of the materials are inclusive of standard packing and forwarding charges.
+                                </li>
+                
+                                <li>
+                                    Special type of packaging (if any), has to be intimated to the supplier before the finalization of the Order. If Tower-wise Packaging is required, it will be charged INR 250/MT extra.
+                                </li>
+                            </ul>
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Price Basis:</span>
+                
+                            <ul>
+                                <li>
+                                    {!pricingType} on {!hasIncoterms} Basis (INCOTERMS 2020)
+                                </li>
+                
+                                <li>
+                                    This price is exclusive of any statutory taxes and customs duty.
+                                </li>
+                
+                                <li>
+                                    "No PV ceiling is considered in the Quote."
+                                </li>
+                            </ul>
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Inspection:</span>
+                
+                            <ul>
+                                <li>
+                                    The Inspection has to be arrange within 5 Days from the date of finished call and the D.I. has to provided within 2 working days of the inspection of the finished material. In case of delay in anything interest @ 18% p.a. shall be charged in both case apart from the ground rent for storing the material for every week delayed.
+                                </li>
+                
+                                <li>
+                                    We have not considered any third-party inspection fees. However, we will provide necessary facilities to carryout routine Inspection as per our standard procedure at our works by your authorized representatives.
+                                </li>
+                
+                                <li>
+                                    Any travelling, lodging, boarding expenses of the representatives shall be borne by the Buyer.
+                                </li>
+                
+                                <li>
+                                    The raw material testing is conducted at UIL's in house laboratory.
+                                </li>
+                
+                                <li>
+                                    Any testing required at a 3rd party laboratory shall be conducted at extra charge.
+                                </li>
+                
+                                <li>
+                                    Any requirement of third party inspection of testing shall be at Buyer’s scope.
+                                </li>
+                
+                                <li>
+                                    If for any reason the Buyer fails to depute any third party inspection agency to carry out the pre-delivery inspection, the Supplier shall at the cost of the Buyer conduct such third party pre-delivery inspection at the Supplier’s factory and such inspection for all practical purposes shall be deemed to have been conducted at the behest of the Buyer. Such third party inspection conducted prior to delivery or dispatch of the materials shall be considered as final for all issues on quality and technical parameters.
+                                </li>
+                            </ul>
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Drawing:</span>
+                            It shall always at the absolute obligation of the Buyer to provide a proper legible valid drawing with all dimensions/ specifications and information of the product in order to facilitate the Supplier to undertake the manufacturing of the products based on the drawings. Any Development and Preparation of Drawings/shop-sketch will be charged extra.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Return of Goods:</span>
+                            After obtaining satisfactory inspection clearance certificate, once the goods are dispatched, the Buyer will not be entitled to return the same by raising any technical issues or defects.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Quality:</span>
+                            In the event if the results of the pre-delivery inspection carried out at the behest of the Buyer are found to be in conflict with the findings of the inspection made at the Buyer’s destination, by any independent inspection agency and/or surveyor engaged by the Buyer, under such circumstances the Buyer shall have to provide a reasonable and acceptable explanation justifying the reason for such conflicting reports by two different independent agencies both being appointed by the Buyers. If the Buyer fails to substantiate the claim with proper and acceptable explanation in that event the Buyer’s claim on quality related issues shall stand set aside.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Validity:</span>
+                            As required considering PV.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Force Majeure:</span>
+                            Neither Party will be liable for any failure to perform its obligations hereunder, other than payment obligations, due to unforeseen circumstances or causes beyond the Party’s reasonable control, including, without limitation, acts of God, war, riot, embargoes, acts of civil or military authorities, acts of terrorism or sabotage, electronic viruses, worms or corrupting microcode, fire, flood, earthquake, accidents, strikes, radiation, inability to secure transportation, failure of communications or electrical lines, facilities, fuel, energy, labour or materials.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Confidentiality:</span>
+                
+                            <ul>
+                                <li>
+                                    During the term of this Agreement, each party may communicate to the other party information which it considers to be confidential.
+                                </li>
+                
+                                <li>
+                                    Confidential Information may include trade secrets, technical data, specifications, methods, research and development activities, product and marketing plans, customer and supplier information.
+                                </li>
+                
+                                <li>
+                                    The receiving party agrees not to disclose any Confidential Information except to its employees or permitted disclosed parties.
+                                </li>
+                            </ul>
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Governing Law, Arbitration and Jurisdiction:</span>
+                            The Courts at Kolkata shall have exclusive jurisdiction over all unresolved disputes relating to this Agreement. Arbitration proceedings shall be held at KOLKATA, India and conducted in English language.
+                        </li>
+                
+                        <li>
+                            <span class="point-title">Miscellaneous:</span>
+                            The Company would issue various work orders from time to time during the tenure of this agreement and the present Agreement contains the general terms and conditions of the contract which would govern and administer the work order issued by the Company from time to time.
+                        </li>
+                
+                    </ol>
+                
+                    <div class="signature-block">
+                        Thanking you,<br/>
+                        Yours truly,<br/><br/>
+                
+                        <b>UTKARSH INDIA LIMITED</b>
+                    </div>
+                
+                </div>
+
+                    <div style="position:relative; z-index:9999; background:#ffffff;
+                                width:110%; margin-left:-5%; height:50pt;">&nbsp;</div>
+
+                </div>
+            </div>
+        </div>
+        
+    </body>
+    
+    <div style="mso-element:footer" id="f1">
+        	<div class="footer-inner">
+            	<table width="100%" style="border-collapse:collapse; border:none; font-size:7pt; color:#333333;">
+                <tr>
+                    <!-- Left: page numbers -->
+                    <td width="20%" style="text-align:left; vertical-align:bottom; border:none; padding:0;">
+                        Page <span class="mso-page-number"></span> of <span class="mso-total-pages"></span>
+                    </td>
+                    <!-- Right: Works details + social links -->
+                    <td width="80%" style="text-align:right; vertical-align:bottom; border:none; padding:0;">
+                        <div class="factory-details">
+                            <strong>Works:</strong>
+                            F1: Nh6, Vill-Jangalpur, Po: Andul Mouri, Howrah 711302,
+                            P:033 2669 0833/1151,1571, F: +9103326693856.
+                            F2:NH2, Durgapur Expressway, PO: Gurap, Hoogly 712303,
+                            P:03213 253996
+                        </div>
+                        <div class="factory-details">CIN: U51109 WB1995PLC070893</div>
+                        <div class="social-row">
+                            We are on: <strong>Facebook | Instagram | LinkedIn | YouTube</strong>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        	</div>
+    	</div>
+
+    <div style="mso-element:footer" id="f1">
+        <div class="footer-inner">
+            <table width="100%" style="border-collapse:collapse; border:none; font-size:7pt; color:#333333;">
+                <tr>
+                    <!-- Left: page numbers -->
+                    <td width="20%" style="text-align:left; vertical-align:bottom; border:none; padding:0;">
+                        Page <span class="mso-page-number"></span> of <span class="mso-total-pages"></span>
+                    </td>
+                    <!-- Right: Works details + social links -->
+                    <td width="80%" style="text-align:right; vertical-align:bottom; border:none; padding:0;">
+                        <div class="factory-details">
+                            <strong>Works:</strong>
+                            F1: Nh6, Vill-Jangalpur, Po: Andul Mouri, Howrah 711302,
+                            P:033 2669 0833/1151,1571, F: +9103326693856.
+                            F2:NH2, Durgapur Expressway, PO: Gurap, Hoogly 712303,
+                            P:03213 253996
+                        </div>
+                        <div class="factory-details">CIN: U51109 WB1995PLC070893</div>
+                        <div class="social-row">
+                            We are on: <strong>Facebook | Instagram | LinkedIn | YouTube</strong>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <div style="mso-element:header" id="h-blank">
+        <p style="margin:0; padding:0; font-size:1px;">&nbsp;</p>
+    </div>
+    <div style="mso-element:footer" id="f-blank">
+        <p style="margin:0; padding:0; font-size:1px;">&nbsp;</p>
+    </div>
+
+</html>
+</apex:page>

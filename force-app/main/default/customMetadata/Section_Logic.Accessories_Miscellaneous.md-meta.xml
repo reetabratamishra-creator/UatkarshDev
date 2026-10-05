@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Accessories &amp; Buyouts</label>
+    <protected>false</protected>
+    <values>
+        <field>Accordion_Section__c</field>
+        <value xsi:type="xsd:string">Accessories_Miscellaneous_Details_PEB</value>
+    </values>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Blueprint_Library__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Controlling_Value__c</field>
+        <value xsi:type="xsd:string">*</value>
+    </values>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:type="xsd:string">{
+  &quot;fields&quot;: [
+    {
+      &quot;apiName&quot;: &quot;MBCB_CTD_folder_2&quot;,
+      &quot;label&quot;: &quot;Accessories &amp; Buyout Items&quot;,
+      &quot;type&quot;: &quot;folder&quot;,
+      &quot;iconColor&quot;: &quot;blue&quot;,
+      &quot;modalConfigsByValue&quot;: {
+        &quot;default&quot;: {
+          &quot;title&quot;: &quot;ACCESSORIES &amp; MISCELLANEOUS DETAILS&quot;,
+          &quot;modalFields&quot;: [
+            {
+              &quot;id&quot;: &quot;acc_section&quot;,
+              &quot;label&quot;: &quot;Accessories Details&quot;,
+              &quot;expanded&quot;: true,
+              &quot;fields&quot;: [
+                { &quot;apiName&quot;: &quot;acc_header_1&quot;, &quot;label&quot;: &quot;Description&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 4 },
+                { &quot;apiName&quot;: &quot;acc_header_2&quot;, &quot;label&quot;: &quot;Size&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;acc_header_3&quot;, &quot;label&quot;: &quot;Quantity (Nos)&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;acc_header_4&quot;, &quot;label&quot;: &quot;REMARK&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 4 },
+                { &quot;apiName&quot;: &quot;acc_section_accessories_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;acc_section_length_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;acc_section_width_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;acc_section_remark_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                { &quot;apiName&quot;: &quot;acc_section_accessories_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;acc_section_length_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_width_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_remark_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                { &quot;apiName&quot;: &quot;acc_section_accessories_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;acc_section_length_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_width_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_remark_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                { &quot;apiName&quot;: &quot;acc_section_accessories_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;acc_section_length_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_width_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_remark_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                { &quot;apiName&quot;: &quot;acc_section_accessories_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;acc_section_length_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_width_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;acc_section_remark_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4}
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;buyout_section&quot;,
+              &quot;label&quot;: &quot;Buyout Items Details&quot;,
+              &quot;expanded&quot;: true,
+              &quot;fields&quot;: [
+                { &quot;apiName&quot;: &quot;buyout_header_1&quot;, &quot;label&quot;: &quot;Description&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 4 },
+                { &quot;apiName&quot;: &quot;buyout_header_2&quot;, &quot;label&quot;: &quot;Size&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;buyout_header_3&quot;, &quot;label&quot;: &quot;Quantity (Nos)&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;buyout_header_4&quot;, &quot;label&quot;: &quot;REMARK&quot;, &quot;type&quot;: &quot;header&quot;, &quot;colSpan&quot;: 4 },
+                
+                { &quot;apiName&quot;: &quot;buyout_section_accessories_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;buyout_section_length_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;buyout_section_width_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2 },
+                { &quot;apiName&quot;: &quot;buyout_section_remark_input_1&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                
+                { &quot;apiName&quot;: &quot;buyout_section_accessories_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;buyout_section_length_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_width_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_remark_input_2&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                
+                { &quot;apiName&quot;: &quot;buyout_section_accessories_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;buyout_section_length_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_width_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_remark_input_3&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                
+                { &quot;apiName&quot;: &quot;buyout_section_accessories_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;buyout_section_length_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_width_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_remark_input_4&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4},
+                
+                { &quot;apiName&quot;: &quot;buyout_section_accessories_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;picklist&quot;, &quot;colSpan&quot;: 4, &quot;options&quot;: [&quot;Std. Cage ladder&quot;, &quot;Std. Wall Polycarbonate&quot;, &quot;STAIR&quot;, &quot;Std. roof monito&quot;, &quot;Std. ridge vent&quot;, &quot;S-type louve&quot;, &quot;Bird mesh&quot;, &quot;down spout pipe pvc&quot;] },
+                { &quot;apiName&quot;: &quot;buyout_section_length_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_width_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;number&quot;, &quot;colSpan&quot;: 2},
+                { &quot;apiName&quot;: &quot;buyout_section_remark_input_5&quot;, &quot;label&quot;: &quot;&quot;, &quot;type&quot;: &quot;text&quot;, &quot;colSpan&quot;: 4}
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}</value>
+    </values>
+</CustomMetadata>

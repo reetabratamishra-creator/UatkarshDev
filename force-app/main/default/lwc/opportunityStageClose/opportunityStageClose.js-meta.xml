@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Opportunity Stage Close</masterLabel>
+    <description>Replaces the Opportunity Stage Change Flow with Apex + LWC while preserving the Flow branches and cleanup logic.</description>
+    <targets>
+        <target>lightning__RecordAction</target>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordAction">
+            <actionType>ScreenAction</actionType>
+            <objects>
+                <object>Opportunity</object>
+            </objects>
+        </targetConfig>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Opportunity</object>
+            </objects>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

@@ -1,0 +1,100 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width:95%;width:95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium">MBCB RAILWAY</h2>
+            </header>
+
+            <div class="slds-modal__content slds-p-around_medium" style="min-height:55vh;">
+
+                <!-- General Details -->
+                <div class="slds-box slds-m-bottom_medium">
+                    <h3 class="slds-text-heading_small slds-m-bottom_medium">W-Type SSDB</h3>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input type="checkbox" label="Graded" checked={showGraded} onchange={handleGradedCheckbox}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2">
+                            <lightning-input type="checkbox" label="Non-Graded" checked={showNonGraded} onchange={handleNonGradedCheckbox}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ═══════════════ GRADED ═══════════════ -->
+                <template lwc:if={showGraded}>
+                    <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #0070d2;">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#0070d2;">W-Type SSDB - GRADED</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness (Black mm)" value={graded.beamThickness} options={beamOptions} data-field="beamThickness" onchange={handleGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness (Black mm)" value={graded.postThickness} options={postThicknessOptions} data-field="postThickness" onchange={handleGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Height" value={graded.postHeight} options={postHeightOptions} data-field="postHeight" onchange={handleGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="text" label="Nuts &amp; Bolts" value={graded.nutsBolts} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={graded.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="checkbox" label="Remove Post" checked={graded.removePost} data-field="removePost" onchange={handleGradedChange} class="slds-m-top_large"></lightning-input></div>
+                            <template lwc:if={graded.removePost}>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Remove Post Value" value={graded.removePostValue} options={removePostOptions} data-field="removePostValue" onchange={handleGradedChange} required></lightning-combobox></div>
+                            </template>
+                        </div>
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={graded.quantityRm} data-field="quantityRm" onchange={handleGradedChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={graded.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={graded.transportation} data-field="transportation" disabled={gradedIsExWorks} onchange={handleGradedChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={graded.margin} data-field="margin" onchange={handleGradedChange}></lightning-input></div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0f5ff;padding:8px;border-radius:4px;">
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={graded.totalWt} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={graded.rateRm} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={graded.unitPrice} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={graded.unitCost} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={graded.listPrice} read-only></lightning-input></div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ═══════════════ NON-GRADED ═══════════════ -->
+                <template lwc:if={showNonGraded}>
+                    <div class="slds-box slds-m-bottom_medium" style="border-left:4px solid #2e844a;">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#2e844a;">W-Type SSDB - NON Graded</h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Beam Thickness (Black mm)" value={nonGraded.beamThickness} options={beamOptions} data-field="beamThickness" onchange={handleNonGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Thickness (Black mm)" value={nonGraded.postThickness} options={postThicknessOptions} data-field="postThickness" onchange={handleNonGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Post Height" value={nonGraded.postHeight} options={postHeightOptions} data-field="postHeight" onchange={handleNonGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="text" label="Nuts &amp; Bolts" value={nonGraded.nutsBolts} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Zinc Coating" value={nonGraded.zincCoating} options={zincOptions} data-field="zincCoating" onchange={handleNonGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="checkbox" label="Remove Post" checked={nonGraded.removePost} data-field="removePost" onchange={handleNonGradedChange} class="slds-m-top_large"></lightning-input></div>
+                            <template lwc:if={nonGraded.removePost}>
+                                <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Remove Post Value" value={nonGraded.removePostValue} options={removePostOptions} data-field="removePostValue" onchange={handleNonGradedChange} required></lightning-combobox></div>
+                            </template>
+                        </div>
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Quantity (RM)" value={nonGraded.quantityRm} data-field="quantityRm" onchange={handleNonGradedChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-combobox label="Trans. in offer?" value={nonGraded.transInOffer} options={transOptions} data-field="transInOffer" onchange={handleNonGradedChange}></lightning-combobox></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Transportation (Kg)" value={nonGraded.transportation} data-field="transportation" disabled={nonGradedIsExWorks} onchange={handleNonGradedChange}></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-6"><lightning-input type="number" label="Margin (%)" value={nonGraded.margin} data-field="margin" onchange={handleNonGradedChange}></lightning-input></div>
+                        </div>
+
+                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_small" style="background:#f0fff4;padding:8px;border-radius:4px;">
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Total Wt (Kg/Mtr)" value={nonGraded.totalWt} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Rate/RM (₹)" value={nonGraded.rateRm} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Price (₹)" value={nonGraded.unitPrice} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="Unit Cost (₹)" value={nonGraded.unitCost} read-only></lightning-input></div>
+                            <div class="slds-col slds-size_1-of-4"><lightning-input type="number" label="List Price (₹)" value={nonGraded.listPrice} read-only></lightning-input></div>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

@@ -1,0 +1,672 @@
+<template>
+    <div class="im-shell">
+        <!-- ============ LEFT RAIL (same shape as createQuote) ============ -->
+        <nav class="im-nav">
+            <button type="button" class={navGenerateCls} onclick={goGenerate}>
+                <lightning-icon icon-name="utility:new" size="small" variant="inverse"></lightning-icon>
+                <span>Generate<br/>Quote</span>
+            </button>
+            <button type="button" class={navQuotesCls} onclick={goQuotes}>
+                <lightning-icon icon-name="utility:list" size="small" variant="inverse"></lightning-icon>
+                <span>Quotes</span>
+            </button>
+            <button type="button" class={navDraftsCls} onclick={goDrafts}>
+                <span class="im-nav-icon"><lightning-icon icon-name="utility:edit" size="small" variant="inverse"></lightning-icon>
+                    <template if:true={hasMyDrafts}><span class="im-dot im-dot_draft">{myDraftCount}</span></template></span>
+                <span>Draft<br/>Quotes</span>
+            </button>
+            <template if:true={canManageRates}>
+                <button type="button" class={navRatesCls} onclick={goRates}>
+                    <lightning-icon icon-name="utility:money" size="small" variant="inverse"></lightning-icon>
+                    <span>Rates</span>
+                </button>
+            </template>
+            <template if:true={canViewApprovals}>
+            <button type="button" class={navApprovalsCls} onclick={goApprovals}>
+                <span class="im-nav-icon"><lightning-icon icon-name="utility:task" size="small" variant="inverse"></lightning-icon>
+                    <template if:true={hasPendingApprovals}><span class="im-dot">{pendingCount}</span></template></span>
+                <span>Pending<br/>Approvals</span>
+            </button>
+            </template>
+        </nav>
+
+        <!-- ============ MAIN ============ -->
+        <div class="im-main">
+            <header class="im-bar">
+                <template if:true={showBack}>
+                    <button type="button" class="im-back" onclick={back} title="Back">
+                        <lightning-icon icon-name="utility:chevronleft" size="x-small" variant="inverse"></lightning-icon>
+                    </button>
+                </template>
+                <span class="im-bar-title">{headerTitle}</span>
+                <template if:true={showEditor}>
+                    <span class="im-bar-pill">{quoteStatus}</span>
+                    <template if:true={revisionLabel}><span class="im-bar-pill im-bar-pill_rev">{revisionLabel}</span></template>
+                    <template if:true={isFinalized}><span class="im-bar-pill im-bar-pill_final">Finalized</span></template>
+                    <span class="im-bar-pill im-bar-pill_ccy">{currencyShort}</span>
+                </template>
+            </header>
+
+            <template if:true={isLoading}>
+                <div class="im-boot">
+                    <div class="im-overlay-card">
+                        <div class="im-overlay-text" role="status" aria-live="polite">{savingText}</div>
+                        <div class="im-progress"><div class="im-progress-bar" style={progressStyle}></div></div>
+                    </div>
+                </div>
+            </template>
+            <template if:true={isSaving}>
+                <div class="im-overlay">
+                    <div class="im-overlay-card">
+                        <div class="im-overlay-text" role="status" aria-live="polite">{savingText}</div>
+                        <div class="im-progress"><div class="im-progress-bar" style={progressStyle}></div></div>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={blocked}>
+                <div class="im-pad im-error">{denialMessage}</div>
+            </template>
+
+            <template if:false={blocked}>
+
+                <!-- ---------- GENERATE: step 1 currency ---------- -->
+                <template if:true={showCurrencyStep}>
+                    <div class="im-pad">
+                        <template if:true={needsOpp}>
+                            <lightning-record-picker label="Opportunity" object-api-name="Opportunity" placeholder="Search opportunity…" onchange={handleOppChange}></lightning-record-picker>
+                        </template>
+                        <template if:false={needsOpp}>
+                            <template if:true={noProducts}>
+                                <div class="im-error">No department enabled for International Marketing is assigned to your user.</div>
+                            </template>
+                            <template if:false={noProducts}>
+                                <div class="im-ccy-grid">
+                                    <div class="im-ccy-col">
+                                        <label class="im-step-label">SELECT A CURRENCY</label>
+                                        <select class="im-select im-select_lg" value={currencyCode} onchange={handleCurrency}>
+                                            <template for:each={currencyOptions} for:item="c">
+                                                <option key={c.value} value={c.value} selected={c.selected}>{c.label}</option>
+                                            </template>
+                                        </select>
+                                    </div>
+                                    <div class="im-ccy-col">
+                                        <label class="im-step-label">EXCHANGE RATE</label>
+                                        <div class="im-rate-card im-rate-card_lg">
+                                            <div class="im-rate-num">{rateDisplay}</div>
+                                            <template if:true={rateError}><div class="im-rate-err">{rateError}</div></template>
+                                            <template if:false={rateError}><div class="im-rate-src">{rateHint}</div></template>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="im-step-actions">
+                                    <button type="button" class="im-btn im-btn_primary im-btn_lg" onclick={startEditor}>Continue →</button>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- ---------- GENERATE: step 2 editor ---------- -->
+                <template if:true={showEditor}>
+                    <div class="im-editor">
+                        <div class="im-work">
+                            <template if:true={isRevisionChild}>
+                                <div class="im-revline">
+                                    <span class="im-revline-num">{originalQuoteNumber}</span>
+                                    <span class="im-revline-cap">ORIGINAL QUOTE</span>
+                                </div>
+                            </template>
+
+                            <template if:true={showApproverCard}>
+                                <div class="im-approver" onmouseenter={handleApproverHoverEnter} onmouseleave={handleApproverHoverLeave}>
+                                    <span class="im-approver-cap">APPROVED BY</span>
+                                    <span class="im-approver-name">{approverName}</span>
+                                    <template if:true={isApproverHovered}>
+                                        <div class="im-approver-pop">
+                                            <button type="button" class="im-approver-pophead" onclick={toggleHoverDropdown}>
+                                                <lightning-icon icon-name={hoverDropdownIcon} size="xx-small"></lightning-icon>
+                                                <span>Approval submitted on <b>{formattedSubmissionDate}</b> was <b class="im-approved">APPROVED</b></span>
+                                            </button>
+                                            <template if:true={isHoverDropdownExpanded}>
+                                                <div class="im-approver-popbody">
+                                                    <div class="im-approver-row"><span class="im-k">Submitter</span><span>{submitterName}</span><span class="im-approver-date">{formattedSubmissionDate}</span></div>
+                                                    <div class="im-approver-row"><span class="im-k">Comments</span><span>{approvalComments}</span></div>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <template if:true={notOwnerHint}>
+                                <div class="im-note im-note_err">{notOwnerHint}</div>
+                            </template>
+
+                            <div class="im-work-top">
+                                <div class="im-rate-inline">
+                                    <span class="im-rate-inline-num">{rateDisplay}</span>
+                                    <span class="im-rate-inline-src">{rateHint}</span>
+                                </div>
+                                <label class="im-toggle">
+                                    <input type="checkbox" class="im-toggle-box" checked={showCalc} onchange={handleShowCalc} />
+                                    <span>Show calculation fields</span>
+                                </label>
+                            </div>
+
+                            <lightning-tabset variant="scoped" class="im-tabs" active-tab-value={activeTab} onactive={handleTabActive}>
+                                <template lwc:if={hasTT}>
+                                    <lightning-tab label="Transmission Tower" value="TT">
+                                        <template lwc:if={ttBlocked}>
+                                            <div class="im-blocked">{blockedMessage}</div>
+                                        </template>
+                                        <template lwc:elseif={ttDraftBlocked}>
+                                            <div class="im-draft-block">
+                                                <span class="im-draft-block-tag">DRAFT EXISTS</span>
+                                                <div class="im-draft-block-msg">{ttDraftMessage}</div>
+                                                <button type="button" class="im-btn im-btn_primary" data-id={ttDraftId} onclick={continueDraft}>Open draft</button>
+                                            </div>
+                                        </template>
+                                        <template lwc:else>
+                                            <c-transmission-im-config data-im-child
+                                                opportunity-id={opportunityId} currency-code={fcLabel} exchange-rate={exchangeRate}
+                                                show-calc={showCalc} is-read-only={isLocked} initial-values={initTT} highlight-names={triggerNames} highlight-metrics={triggerMetrics}
+                                                onlineschange={handleLines}></c-transmission-im-config>
+                                        </template>
+                                    </lightning-tab>
+                                </template>
+                                <template lwc:if={hasCB}>
+                                    <lightning-tab label="Crash Barrier" value="CB">
+                                        <template lwc:if={cbBlocked}>
+                                            <div class="im-blocked">{blockedMessage}</div>
+                                        </template>
+                                        <template lwc:elseif={cbDraftBlocked}>
+                                            <div class="im-draft-block">
+                                                <span class="im-draft-block-tag">DRAFT EXISTS</span>
+                                                <div class="im-draft-block-msg">{cbDraftMessage}</div>
+                                                <button type="button" class="im-btn im-btn_primary" data-id={cbDraftId} onclick={continueDraft}>Open draft</button>
+                                            </div>
+                                        </template>
+                                        <template lwc:else>
+                                            <c-crash-barrier-im-config data-im-child
+                                                opportunity-id={opportunityId} currency-code={fcLabel} exchange-rate={exchangeRate}
+                                                show-calc={showCalc} is-read-only={isLocked} initial-values={initCB} highlight-names={triggerNames} highlight-metrics={triggerMetrics}
+                                                onlineschange={handleLines}></c-crash-barrier-im-config>
+                                        </template>
+                                    </lightning-tab>
+                                </template>
+                                <!-- High Mast department, every mast type, CROSS PRODUCT (Deepanjan, 28 Sep 2026) -->
+                                <template lwc:if={hasHMC}>
+                                    <lightning-tab label="High Mast" value="HMC">
+                                        <template lwc:if={hmcBlocked}>
+                                            <div class="im-blocked">{blockedMessage}</div>
+                                        </template>
+                                        <template lwc:elseif={hmcDraftBlocked}>
+                                            <div class="im-draft-block">
+                                                <span class="im-draft-block-tag">DRAFT EXISTS</span>
+                                                <div class="im-draft-block-msg">{hmcDraftMessage}</div>
+                                                <button type="button" class="im-btn im-btn_primary" data-id={hmcDraftId} onclick={continueDraft}>Open draft</button>
+                                            </div>
+                                        </template>
+                                        <template lwc:else>
+                                            <c-high-mast-im-config data-im-child
+                                                opportunity-id={opportunityId} currency-code={fcLabel} exchange-rate={exchangeRate}
+                                                show-calc={showCalc} is-read-only={isLocked} initial-values={initHMC} highlight-names={triggerNames} highlight-metrics={triggerMetrics}
+                                                onlineschange={handleLines}></c-high-mast-im-config>
+                                        </template>
+                                    </lightning-tab>
+                                </template>
+                                <!-- High Mast department, Transmission Pole branch only - opens straight on the
+                                     estimator (Deepanjan, 26 Sep 2026) -->
+                                <template lwc:if={hasHM}>
+                                    <lightning-tab label="Transmission Pole" value="HM">
+                                        <template lwc:if={hmBlocked}>
+                                            <div class="im-blocked">{blockedMessage}</div>
+                                        </template>
+                                        <template lwc:elseif={hmDraftBlocked}>
+                                            <div class="im-draft-block">
+                                                <span class="im-draft-block-tag">DRAFT EXISTS</span>
+                                                <div class="im-draft-block-msg">{hmDraftMessage}</div>
+                                                <button type="button" class="im-btn im-btn_primary" data-id={hmDraftId} onclick={continueDraft}>Open draft</button>
+                                            </div>
+                                        </template>
+                                        <template lwc:else>
+                                            <c-tp-im-config data-im-child
+                                                opportunity-id={opportunityId} currency-code={fcLabel} exchange-rate={exchangeRate}
+                                                show-calc={showCalc} is-read-only={isLocked} initial-values={initHM} highlight-names={triggerNames} highlight-metrics={triggerMetrics}
+                                                onlineschange={handleLines}></c-tp-im-config>
+                                        </template>
+                                    </lightning-tab>
+                                </template>
+                                <!-- Telecom Tower department - cross product (Angular / Tubular / Tubular Signalling) -->
+                                <template lwc:if={hasTel}>
+                                    <lightning-tab label="Telecom Tower" value="TEL">
+                                        <template lwc:if={telBlocked}>
+                                            <div class="im-blocked">{blockedMessage}</div>
+                                        </template>
+                                        <template lwc:elseif={telDraftBlocked}>
+                                            <div class="im-draft-block">
+                                                <span class="im-draft-block-tag">DRAFT EXISTS</span>
+                                                <div class="im-draft-block-msg">{telDraftMessage}</div>
+                                                <button type="button" class="im-btn im-btn_primary" data-id={telDraftId} onclick={continueDraft}>Open draft</button>
+                                            </div>
+                                        </template>
+                                        <template lwc:else>
+                                            <c-telecom-im-config data-im-child
+                                                opportunity-id={opportunityId} currency-code={fcLabel} exchange-rate={exchangeRate}
+                                                show-calc={showCalc} is-read-only={isLocked} initial-values={initTEL} highlight-names={triggerNames} highlight-metrics={triggerMetrics}
+                                                onlineschange={handleLines}></c-telecom-im-config>
+                                        </template>
+                                    </lightning-tab>
+                                </template>
+                            </lightning-tabset>
+
+                            <template if:true={hasApplyErrors}>
+                                <div class="im-errpanel">
+                                    <div class="im-errpanel-head">
+                                        <span>Please correct the following before applying ({applyErrorCount})</span>
+                                        <button type="button" class="im-errpanel-x" onclick={dismissErrors} title="Dismiss">×</button>
+                                    </div>
+                                    <ul class="im-errpanel-list">
+                                        <template for:each={applyErrors} for:item="e">
+                                            <li key={e.key}><span class="im-errpanel-where">{e.product} › {e.where}</span><span class="im-errpanel-field">{e.field}</span> — {e.message}</li>
+                                        </template>
+                                    </ul>
+                                </div>
+                            </template>
+                            <div class="im-footer">
+                                <div class="im-exp">
+                                    <label class="im-label"><span class="im-req">*</span> Expiration Date</label>
+                                    <input type="date" class={expirationCls} value={expirationDate} min={todayIso} readonly={isLocked} onchange={handleExpiration} />
+                                    <template if:true={expirationError}><div class="im-err">{expirationError}</div></template>
+                                </div>
+                            </div>
+                            <template if:true={routingReport}>
+                                <div class="im-report">
+                                    <div class="im-report-head"><span>Approval routing report</span><button type="button" class="im-btn im-btn_sm" onclick={clearRoutingReport}>Hide</button></div>
+                                    <pre class="im-report-body">{routingReport}</pre>
+                                </div>
+                            </template>
+                            <template if:true={rejectionReasonShown}>
+                                <div class="im-rejected"><b>Rejected:</b> {rejectionReasonShown}</div>
+                            </template>
+                            <template if:true={isInReview}>
+                                <div class="im-review-hint">In Review — pending with <b>{pendingApproverName}</b></div>
+                            </template>
+
+                            <div class="im-actions">
+                                <template if:true={lockHint}><span class="im-lock-hint">{lockHint}</span></template>
+                                <button type="button" class="im-btn" onclick={back}>Back</button>
+                                <template if:true={showExportPdf}><button type="button" class="im-btn" onclick={exportPdf}>Generate Documents</button></template>
+                                <template if:true={canClone}><button type="button" class="im-btn" onclick={cloneThisQuote}>Clone this Quote</button></template>
+                                <template if:true={canReopen}><button type="button" class="im-btn im-btn_warn" onclick={reopenForEdit} title={reopenBlockTitle}>Reopen for Edit</button></template>
+                                <template if:true={showReopenBlocked}><span class="im-lock-hint" title={reopenBlockTitle}>Already revised</span></template>
+                                <template if:true={draftSavedAt}><span class="im-draft-saved">Draft saved {draftSavedAt}</span></template>
+                                <template if:true={canSaveDraft}><button type="button" class="im-btn im-btn_draft" onclick={handleSaveAsDraft} disabled={saveDraftDisabled}>{saveDraftLabel}</button></template>
+                                <template if:true={canApply}><button type="button" class="im-btn im-btn_primary" onclick={save} disabled={isSaving}>Apply</button></template>
+                                <template if:true={canSubmit}><button type="button" class="im-btn im-btn_primary" onclick={toggleSubmitPopover}>Submit for Approval</button></template>
+                                <template if:true={canSelfApprove}><button type="button" class="im-btn im-btn_success" onclick={handleSelfApprove}>Self Approve</button></template>
+                                <template if:true={showReject}><button type="button" class="im-btn im-btn_danger" onclick={openReject}>Reject</button></template>
+                                <template if:true={showEscalate}><button type="button" class="im-btn im-btn_warn" onclick={handleEscalate}>Escalate</button></template>
+                                <template if:true={showApprove}><button type="button" class="im-btn im-btn_success" onclick={handleApprove}>Approve</button></template>
+                                <template if:true={showFinalize}><button type="button" class="im-btn im-btn_success" onclick={handleFinalize}>Finalize Quote</button></template>
+                            </div>
+
+                            <!-- submit popover: message + due date (same two inputs as domestic) -->
+                            <template if:true={showSubmitPopover}>
+                                <div class="im-popover">
+                                    <label class="im-label"><span class="im-req">*</span> Message to approver</label>
+                                    <textarea class="im-input im-textarea" rows="3" onchange={handleApprovalMessage} oninput={handleApprovalMessage}></textarea>
+                                    <label class="im-label"><span class="im-req">*</span> Approval Due Date</label>
+                                    <input type="date" class="im-input im-input_date" min={todayIso} onchange={handleDueDate} />
+                                    <div class="im-popover-actions">
+                                        <button type="button" class="im-btn" onclick={toggleSubmitPopover}>Cancel</button>
+                                        <button type="button" class="im-btn im-btn_primary" onclick={confirmSubmit} disabled={isSubmitDisabled}>Submit</button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                        <!-- ---------- QUOTE SUMMARY (side panel) ---------- -->
+                        <aside class={summaryCls}>
+                            <button type="button" class="im-summary-toggle" onclick={toggleSummary} title="Toggle summary">
+                                <lightning-icon icon-name={summaryChev} size="x-small"></lightning-icon>
+                            </button>
+                            <!-- mobile only: sticky total bar, tap to expand the lines -->
+                            <button type="button" class="im-msum-bar" onclick={toggleMobileSummary}>
+                                <span class="im-msum-label">TOTAL ({fcLabel})</span>
+                                <span class="im-msum-num">{total}</span>
+                                <span class="im-msum-count">{lineCount} items</span>
+                                <lightning-icon icon-name={mobileSummaryChev} size="x-small" variant="inverse"></lightning-icon>
+                            </button>
+                            <div class="im-summary-body">
+                                <div class="im-summary-head">
+                                    <span>QUOTE SUMMARY</span>
+                                    <span class="im-summary-count">{lineCount} items</span>
+                                </div>
+                                <div class="im-summary-total">
+                                    <span class="im-summary-total-label">TOTAL ({fcLabel})</span>
+                                    <span class="im-summary-total-num">{total}</span>
+                                </div>
+                                <template if:true={hasLines}>
+                                    <div class="im-summary-lines">
+                                        <template for:each={allLines} for:item="l">
+                                            <div key={l.key} class="im-line">
+                                                <div class="im-line-name">{l.name}</div>
+                                                <div class="im-line-meta">{l.product} · Qty {l.qty} · @ {l.unit}</div>
+                                                <div class="im-line-amt">{l.amount}</div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template if:false={hasLines}>
+                                    <div class="im-summary-empty">Lines appear here as you fill the product.</div>
+                                </template>
+                            </div>
+                        </aside>
+                    </div>
+                    <template if:true={showExport}>
+                        <div class="im-modal-bg" onclick={closeExport}></div>
+                        <div class="im-modal">
+                            <div class="im-modal-head">Generate Documents</div>
+                            <label class="im-label">Type of Offer</label>
+                            <select class="im-select im-select_offertype" value={offerType} onchange={handleOfferType}>
+                                <template for:each={offerTypeOptions} for:item="o">
+                                    <option key={o.value} value={o.value} selected={o.selected}>{o.label}</option>
+                                </template>
+                            </select>
+                            <label class="im-label">Template Sub-Type</label>
+                            <select class="im-select" value={selectedDocType} onchange={handleDocType} disabled={noDocsForOfferType}>
+                                <template for:each={docTypeOptions} for:item="d">
+                                    <option key={d.value} value={d.value} selected={d.selected}>{d.label}</option>
+                                </template>
+                            </select>
+                            <template if:true={noDocsForOfferType}><div class="im-download-hint">{noDocsHint}</div></template>
+                            <template if:true={cannotDownloadOffer}><div class="im-download-hint">{downloadHint}</div></template>
+                            <div class="im-popover-actions">
+                                <button type="button" class="im-btn" onclick={closeExport}>Close</button>
+                                <template if:true={hasPdf}><button type="button" class="im-btn" onclick={openPreview}>Preview</button></template>
+                                <template if:true={canDownloadOffer}>
+                                    <template if:true={hasExcel}><button type="button" class="im-btn" onclick={openExcel}>Excel</button></template>
+                                    <template if:true={hasWord}><button type="button" class="im-btn" onclick={openWord}>Word</button></template>
+                                    <template if:true={hasPdf}><button type="button" class="im-btn im-btn_primary" onclick={openPdf}>Download PDF</button></template>
+                                </template>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={showPreview}>
+                        <div class="im-modal-bg" onclick={closePreview}></div>
+                        <div class="im-preview">
+                            <div class="im-preview-head">
+                                <span>{previewTitle} <span class="im-preview-tag">PREVIEW</span></span>
+                                <button type="button" class="im-preview-x" onclick={closePreview}>&times;</button>
+                            </div>
+                            <iframe class="im-preview-frame" src={previewUrl} title="Offer preview"></iframe>
+                        </div>
+                    </template>
+                    <template if:true={showCloneModal}>
+                        <div class="im-modal-bg" onclick={closeCloneModal}></div>
+                        <div class="im-modal">
+                            <div class="im-modal-head">Clone this Quote</div>
+                            <label class="im-label">Target Opportunity</label>
+                            <template if:true={cloneSelectedOpp}>
+                                <div class="im-clone-sel">
+                                    <div><div class="im-doc-title">{cloneSelectedOpp.name}</div><div class="im-doc-sub">{cloneSelectedOppMeta}</div></div>
+                                    <button type="button" class="im-btn im-btn_sm" onclick={handleCloneClearOpp}>Change</button>
+                                </div>
+                            </template>
+                            <template if:false={cloneSelectedOpp}>
+                                <input type="text" class="im-input im-input_left" placeholder="Search your open opportunities by name…" value={cloneSearchTerm} oninput={handleCloneSearchChange} />
+                                <template if:true={cloneSearching}><div class="im-doc-sub">Searching…</div></template>
+                                <template if:true={hasCloneOppOptions}>
+                                    <div class="im-clone-list">
+                                        <template for:each={cloneOppOptions} for:item="o">
+                                            <button key={o.id} class="im-clone-opt" data-id={o.id} onclick={handleClonePickOpp}>
+                                                <span class="im-doc-title">{o.name}</span><span class="im-doc-sub">{o.meta}</span>
+                                            </button>
+                                        </template>
+                                    </div>
+                                </template>
+                                <template if:true={showCloneNoResults}><div class="im-doc-sub">No open opportunities match.</div></template>
+                            </template>
+                            <div class="im-popover-actions">
+                                <button type="button" class="im-btn" onclick={closeCloneModal}>Cancel</button>
+                                <button type="button" class="im-btn im-btn_primary" onclick={handleCloneCreate} disabled={isCloneCreateDisabled}>Create Clone</button>
+                            </div>
+                        </div>
+                    </template>
+                    <template if:true={showRejectModal}>
+                        <div class="im-modal-bg" onclick={closeReject}></div>
+                        <div class="im-modal">
+                            <div class="im-modal-head">Reject Quote</div>
+                            <label class="im-label"><span class="im-req">*</span> Rejection Reason</label>
+                            <textarea class="im-input im-textarea" rows="4" onchange={handleRejectionReason}></textarea>
+                            <div class="im-popover-actions">
+                                <button type="button" class="im-btn" onclick={closeReject}>Cancel</button>
+                                <button type="button" class="im-btn im-btn_danger" onclick={confirmReject} disabled={isRejectConfirmDisabled}>Reject</button>
+                            </div>
+                        </div>
+                    </template>
+                </template>
+
+                <!-- ---------- DRAFT QUOTES (my own, this opportunity) ---------- -->
+                <template if:true={isDrafts}>
+                    <div class="im-pad">
+                        <template if:true={needsOpp}>
+                            <div class="im-empty">Open this from an opportunity to see your draft quotations.</div>
+                        </template>
+                        <template if:false={needsOpp}>
+                            <template if:true={hasMyDrafts}>
+                                <div class="im-drafts">
+                                    <template for:each={myDrafts} for:item="d">
+                                        <div key={d.key} class="im-draft-card">
+                                            <div class="im-draft-card-main">
+                                                <div class="im-draft-card-no">{d.quoteNumber}<span class="im-badge im-badge_draftq">Draft</span></div>
+                                                <div class="im-draft-card-meta"><span class="im-k">Department</span> {d.productLabel}</div>
+                                                <div class="im-draft-card-meta"><span class="im-k">Currency</span> {d.currency}</div>
+                                                <div class="im-draft-card-meta"><span class="im-k">Last saved</span> {d.savedLabel}</div>
+                                                <div class="im-draft-card-meta"><span class="im-k">Created</span> {d.createdLabel}</div>
+                                            </div>
+                                            <button type="button" class="im-btn im-btn_primary" data-id={d.quoteId} onclick={continueDraft}>Continue</button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <template if:false={hasMyDrafts}>
+                                <div class="im-empty">You have no draft quotations on this opportunity.</div>
+                            </template>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- "+ New International Quote" while I have drafts here: inform only -->
+                <template if:true={showDraftPrompt}>
+                    <div class="im-modal-bg" onclick={closeDraftPrompt}></div>
+                    <div class="im-modal">
+                        <div class="im-modal-head">You have a quotation in draft</div>
+                        <div class="im-draft-prompt-text">These are saved but not applied yet. Open one to continue, or start a new quotation for another department.</div>
+                        <div class="im-draft-prompt-list">
+                            <template for:each={myDrafts} for:item="d">
+                                <div key={d.key} class="im-draft-prompt-row">
+                                    <div><b>{d.quoteNumber}</b> · {d.productLabel}<div class="im-draft-card-meta">Saved {d.savedLabel}</div></div>
+                                    <button type="button" class="im-btn im-btn_sm" data-id={d.quoteId} onclick={continueDraft}>Open draft</button>
+                                </div>
+                            </template>
+                        </div>
+                        <div class="im-popover-actions">
+                            <button type="button" class="im-btn" onclick={closeDraftPrompt}>Cancel</button>
+                            <button type="button" class="im-btn im-btn_primary" onclick={createNewAnyway}>Create new</button>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ---------- QUOTES ---------- -->
+                <template if:true={isQuotes}>
+                    <div class="im-pad">
+                        <template if:true={needsOpp}>
+                            <lightning-record-picker label="Opportunity" object-api-name="Opportunity" placeholder="Search opportunity…" onchange={handleOppChange}></lightning-record-picker>
+                        </template>
+                        <template if:false={needsOpp}>
+                            <div class="im-toolbar">
+                                <template if:true={hasQuotes}><span class="im-countbadge">{quotesCount} Quotes Found</span></template>
+                                <button type="button" class="im-btn im-btn_primary" onclick={handleNewQuote}>+ New International Quote</button>
+                            </div>
+                            <template if:true={hasQuotes}>
+                                <div class="im-table-wrap">
+                                    <table class="im-table">
+                                        <thead><tr><th>Reference</th><th>Product</th><th>Rev</th><th>Status</th><th>Currency</th><th class="im-amtcell">Amount</th><th>Approved By</th><th>Created</th><th></th></tr></thead>
+                                        <tbody>
+                                            <template for:each={familyQuotes} for:item="q">
+                                                <tr key={q.key} class="im-family-head">
+                                                    <td>
+                                                        <template if:true={q.hasOlder}><button type="button" class="im-chev-btn" data-root={q.rootId} onclick={toggleFamily} title="Show previous versions"><lightning-icon icon-name={q.chevronIcon} size="xx-small"></lightning-icon></button></template>
+                                                        <a class="im-link" data-id={q.Id} onclick={openQuote}>{q.ref}</a>
+                                                        <template if:true={q.latestTag}><span class="im-tagchip im-tagchip_latest">{q.latestTag}</span></template>
+                                                        <template if:true={q.versionChip}><span class="im-tagchip">{q.versionChip}</span></template>
+                                                        <template if:true={q.isDraft}><span class="im-badge im-badge_draftq">Draft</span></template>
+                                                        <template if:true={q.finalized}><span class="im-badge im-badge_final">Finalized</span></template>
+                                                        <template if:true={q.clonedFrom}><span class="im-tagchip im-tagchip_orig">CLONE OF {q.clonedFrom}</span></template>
+                                                    </td>
+                                                    <td class="im-prodcell">{q.productLabel}</td>
+                                                    <td>{q.rev}</td>
+                                                    <td>
+                                                        <span style={q.statusStyle}>{q.Status}</span>
+                                                        <template if:true={q.hasRejectionReason}><lightning-helptext content={q.rejectionTooltip} class="im-help"></lightning-helptext></template>
+                                                    </td>
+                                                    <td>{q.currency}</td>
+                                                    <td class="im-amtcell">{q.money}</td>
+                                                    <td>{q.approvedBy}</td>
+                                                    <td>{q.created}</td>
+                                                    <td class="im-right"><button type="button" class="im-btn im-btn_sm" data-id={q.Id} onclick={openQuote}>Open</button></td>
+                                                </tr>
+                                                <template if:true={q.isExpanded}>
+                                                    <template for:each={q.olderVersions} for:item="v">
+                                                        <tr key={v.key} class="im-family-old">
+                                                            <td class="im-old-cell">
+                                                                <span class="im-old-line">└</span>
+                                                                <a class="im-link im-link_old" data-id={v.Id} onclick={openQuote}>{v.ref}</a>
+                                                                <template if:true={v.originalTag}><span class="im-tagchip im-tagchip_orig">{v.originalTag}</span></template>
+                                                            </td>
+                                                            <td class="im-prodcell">{v.productLabel}</td>
+                                                            <td>{v.revLabel}</td>
+                                                            <td>
+                                                                <span style={v.statusStyle}>{v.Status}</span>
+                                                                <template if:true={v.hasRejectionReason}><lightning-helptext content={v.rejectionTooltip} class="im-help"></lightning-helptext></template>
+                                                            </td>
+                                                            <td>{v.currency}</td>
+                                                            <td class="im-amtcell">{v.money}</td>
+                                                            <td>{v.approvedBy}</td>
+                                                            <td>{v.created}</td>
+                                                            <td class="im-right"><button type="button" class="im-btn im-btn_sm" data-id={v.Id} onclick={openQuote}>Open</button></td>
+                                                        </tr>
+                                                    </template>
+                                                </template>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                            <template if:false={hasQuotes}><p class="im-muted">No International Marketing quotes yet for this opportunity.</p></template>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- ---------- RATES ---------- -->
+                <template if:true={isRates}>
+                    <div class="im-pad">
+                        <div class="im-ratechips" role="tablist">
+                            <button type="button" class={fxChipCls} data-mode="fx" onclick={setRateMode}>Exchange Rates</button>
+                            <button type="button" class={baseChipCls} data-mode="base" onclick={setRateMode}>Base Rates</button>
+                        </div>
+
+                        <!-- exchange rates: unchanged -->
+                        <template if:true={isFxMode}>
+                            <p class="im-muted">1 unit of each currency = ₹ (INR). Saved quotes keep their own frozen rate; this only affects new quotes.</p>
+                            <div class="im-table-wrap im-rates">
+                                <table class="im-table">
+                                    <thead><tr><th>Currency</th><th class="im-right">Rate (₹)</th></tr></thead>
+                                    <tbody>
+                                        <template for:each={rateRows} for:item="r">
+                                            <tr key={r.key}>
+                                                <td class="im-rate-code">{r.code}</td>
+                                                <td class="im-right">
+                                                    <template if:true={r.isInr}><span class="im-rate-fixed">1 (fixed)</span></template>
+                                                    <template if:false={r.isInr}>
+                                                        <input type="number" step="any" min="0" class="im-input im-input_rate" data-code={r.code} value={r.value} onchange={handleRateEdit} />
+                                                    </template>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="im-actions im-actions_static">
+                                <button type="button" class="im-btn im-btn_primary" onclick={saveRates} disabled={ratesSaving}>Save Rates</button>
+                            </div>
+                        </template>
+
+                        <!-- base rates: the domestic Quote Rate Card Manager, pointed at the International twin rows -->
+                        <template if:true={isBaseMode}>
+                            <div class="im-basepick">
+                                <label class="im-basepick-item">
+                                    <span class="im-label">Department</span>
+                                    <select class="im-select" onchange={handleBaseDept}>
+                                        <option value="">Select Department</option>
+                                        <template for:each={baseDeptOptions} for:item="o">
+                                            <option key={o.value} value={o.value} selected={o.selected}>{o.label}</option>
+                                        </template>
+                                    </select>
+                                </label>
+                                <label class="im-basepick-item">
+                                    <span class="im-label">Type / Standard</span>
+                                    <select class="im-select" onchange={handleBaseType} disabled={baseTypeDisabled}>
+                                        <option value="">Select Option</option>
+                                        <template for:each={baseTypeOptions} for:item="o">
+                                            <option key={o.value} value={o.value} selected={o.selected}>{o.label}</option>
+                                        </template>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <template if:true={hasBaseGrid}>
+                                <div class={baseStatusCls}>{baseStatusText}</div>
+                                <div class="im-table-wrap im-basegrid">
+                                    <table class="im-table">
+                                        <thead><tr>
+                                            <th>Item</th>
+                                            <th class="im-base-dom">Domestic (reference)</th>
+                                            <th class="im-base-val">International {baseValueCaption}</th>
+                                        </tr></thead>
+                                        <tbody>
+                                            <template for:each={baseRows} for:item="r">
+                                                <tr key={r.key}>
+                                                    <td class="im-base-item">{r.label}</td>
+                                                    <td class="im-base-dom">{r.domestic}</td>
+                                                    <td class="im-base-val"><input type="text" inputmode="decimal" class={r.cls} data-key={r.key} value={r.value} onchange={handleBaseEdit} /></td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <p class="im-muted im-base-note">{baseChangedCount} value(s) differ from domestic (highlighted). Blank is not allowed - enter 0 where a rate does not apply.</p>
+                                <div class="im-actions im-actions_static im-base-actions">
+                                    <button type="button" class="im-btn" onclick={copyAllDomestic}>Copy all from domestic</button>
+                                    <button type="button" class="im-btn" onclick={discardBaseChanges}>Discard changes</button>
+                                    <button type="button" class="im-btn im-btn_primary" onclick={saveBaseCard} disabled={baseSaveDisabled}>Save International Rates</button>
+                                </div>
+                            </template>
+                        </template>
+                    </div>
+                </template>
+
+                <!-- ---------- APPROVALS ---------- -->
+                <template if:true={isApprovals}>
+                    <div class="im-pad">
+                        <!-- same component the domestic screen uses -->
+                        <c-pending-approvals-list pending-quotes={pendingQuotes} onreviewquote={handleChildReviewQuote}></c-pending-approvals-list>
+                    </div>
+                </template>
+            </template>
+        </div>
+    </div>
+</template>

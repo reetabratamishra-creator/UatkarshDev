@@ -1,0 +1,148 @@
+<template>
+    <lightning-card title="Quote Rate Card Engine" icon-name="custom:custom63">
+        <div class="slds-var-p-around_medium">
+            <div class="slds-grid slds-gutters slds-wrap slds-var-m-bottom_medium">
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <lightning-combobox
+                        name="dept"
+                        label="Department Module"
+                        value={valueA}
+                        placeholder="Select Department"
+                        options={optionsA}
+                        onchange={handleAChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-2">
+                    <lightning-combobox
+                        name="subType"
+                        label="Type / Standard Layout"
+                        value={valueB}
+                        placeholder="Select Sub-Specification"
+                        options={optionsB}
+                        disabled={isBDisabled}
+                        onchange={handleBChange}>
+                    </lightning-combobox>
+                </div>
+            </div>
+
+            <template if:true={isWorkspaceActive}>
+                <div class="slds-box slds-theme_shade slds-var-m-vertical_medium">
+                    <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                        <div>
+                            <h3 class="slds-text-heading_small slds-text-title_bold">
+                                Layout Context: {valueA} <lightning-icon icon-name="utility:chevronright" size="xx-small" class="slds-m-horizontal_x-small"></lightning-icon> {valueB}
+                            </h3>
+                        </div>
+                        <div>
+                            <lightning-button-group>
+                                <button class={gridModeClass} onclick={toggleToGridMode}>
+                                    <lightning-icon icon-name="utility:table" size="x-small" variant={gridIconVariant} class="slds-m-right_xx-small"></lightning-icon> Manual Grid Mode
+                                </button>
+                                <button class={uploadModeClass} onclick={toggleToUploadMode}>
+                                    <lightning-icon icon-name="utility:upload" size="x-small" variant={uploadIconVariant} class="slds-m-right_xx-small"></lightning-icon> Excel Bulk Upload
+                                </button>
+                            </lightning-button-group>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="slds-is-relative slds-var-p-vertical_small">
+                    <template if:true={isProcessing}>
+                        <lightning-spinner alternative-text="Executing operational checks..." size="medium"></lightning-spinner>
+                    </template>
+
+                    <template if:true={isGridActiveMode}>
+                        <div class="slds-table_edit_container slds-is-relative">
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_col-bordered slds-no-row-hover">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th scope="col" style="width: 50%;" class="slds-theme_shade"><strong>Predefined Specification Field</strong></th>
+                                        <th scope="col" style="width: 50%;" class="slds-theme_shade"><strong>Input Entry Cell</strong></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={dynamicGridRows} for:item="row">
+                                        <tr key={row.name} class="slds-hint-parent">
+                                            <td class="slds-align-middle slds-theme_shade">
+                                                <span class="slds-truncate"><strong>{row.name}</strong></span>
+                                            </td>
+                                            <td>
+                                                <lightning-input 
+                                                    variant="label-hidden"
+                                                    type={row.type}
+                                                    name={row.name}
+                                                    value={row.value}
+                                                    required
+                                                    onchange={handleGridCellChange}
+                                                    class="slds-size_full">
+                                                </lightning-input>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                            <div class="slds-m-top_medium slds-text-align_right">
+                                <lightning-button variant="brand" label="Verify & Generate JSON" icon-name="utility:save" onclick={submitGridData}></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+
+                    <template if:true={isUploadActiveMode}>
+                        <div class="slds-form-element slds-text-align_center slds-box slds-box_dashed slds-var-p-around_large">
+                            <span class="slds-form-element__label slds-m-bottom_small">Select Bulk Price Sheet Document</span>
+                            <div class="slds-form-element__control slds-align_absolute-center">
+                                <div class="slds-file-selector slds-file-selector_files">
+                                    <input 
+                                        type="file" 
+                                        class="slds-file-selector__input slds-assistive-text" 
+                                        accept=".xlsx, .xls" 
+                                        id="bulk-file-input" 
+                                        onchange={handleBulkExcelUpload} 
+                                    />
+                                    <label class="slds-file-selector__body" for="bulk-file-input">
+                                        <span class="slds-file-selector__button slds-button slds-button_neutral">
+                                            <lightning-icon icon-name="utility:file" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                            Upload Bulk Excel Sheet
+                                        </span>
+                                    </label>
+                                </div>
+                            </div>
+                            <p class="slds-text-color_weak slds-m-top_small">Supported standard extensions: .xls, .xlsx</p>
+                        </div>
+                    </template>
+                </div>
+            </template>
+        </div>
+    </lightning-card>
+
+    <template if:true={isErrorModalOpen}>
+        <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header slds-theme_error slds-theme_alert-texture">
+                    <h2 class="slds-text-heading_medium slds-text-color_inverse">
+                        <lightning-icon icon-name="utility:error" size="small" variant="inverse" class="slds-m-right_small"></lightning-icon>
+                        Excel Sheet Verification Failed
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-var-p-around_medium">
+                    <p class="slds-text-heading_small slds-m-bottom_medium slds-text-color_error">
+                        We discovered critical syntax errors inside your sheet. Please fix these columns/cells and re-upload:
+                    </p>
+                    <div class="slds-box slds-scrollable_y" style="max-height: 250px; background-color: #fff0f0;">
+                        <ul class="slds-list_dotted slds-text-color_error">
+                            <template for:each={excelErrors} for:item="errorText">
+                                <li key={errorText} class="slds-p-vertical_xx-small">
+                                    <strong>{errorText}</strong>
+                                </li>
+                            </template>
+                        </ul>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <button class="slds-button slds-button_destructive" onclick={closeErrorModal}>Dismiss & Review</button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

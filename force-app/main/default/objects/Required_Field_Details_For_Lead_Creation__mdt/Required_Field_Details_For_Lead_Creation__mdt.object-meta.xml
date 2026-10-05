@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Required Field Details For Lead Creation from Agentforce chat bot</description>
+    <label>Required Field Details For Lead Creation</label>
+    <pluralLabel>Required Field Details For Lead Creation</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

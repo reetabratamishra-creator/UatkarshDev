@@ -1,0 +1,121 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Project Setup Details</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 50vh;">
+
+<!-- ================= customer_address_folder ================= -->
+<template if:true={isCustomerAddress}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Billing Address</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="STREET" value={ba_street} data-field="ba_street" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="CITY" value={ba_city} data-field="ba_city" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="ZIP-CODE" value={ba_zip_code} data-field="ba_zip_code" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="STATE" value={ba_state} data-field="ba_state" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="COUNTRY" value={ba_country} data-field="ba_country" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="PHONE NUMBER" value={ba_phone} data-field="ba_phone" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="EMAIL" value={ba_email} data-field="ba_email" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="WEBSITE" value={ba_website} data-field="ba_website" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- ================= terms_and_conditions_folder ================= -->
+<template if:true={isTermsCondition}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Terms & Condition Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Payment Terms (%)" value={tc_payment_terms_pct} data-field="tc_payment_terms_pct" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Validity (days)" value={tc_validity_days} data-field="tc_validity_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Consignment Start Date" value={tc_consignment_start} data-field="tc_consignment_start" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="Consignment End Date" value={tc_consignment_end} data-field="tc_consignment_end" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-combobox label="GST" value={tc_gst} options={tc_gst_options} data-field="tc_gst" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="Price variation" checked={tc_price_variation} data-field="tc_price_variation" onchange={handleFieldChange} ></lightning-input>
+    </div>
+</div></div>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Payment Terms</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-combobox label="PAYMENT TERMS" value={tc_payment_terms_picklist} options={tc_payment_terms_picklist_options} data-field="tc_payment_terms_picklist" onchange={handleFieldChange}  ></lightning-combobox>
+    </div>
+  <template if:true={is_tc_lc_buyer_interest_days_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="(I) USANCE INTEREST IN BUYER SCOPE(IN NUMBER OF DAYS)" value={tc_lc_buyer_interest_days} data-field="tc_lc_buyer_interest_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_tc_lc_seller_interest_days_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="(II) USANCE INTEREST IN SELLER SCOPE(IN NUMBER OF DAYS)" value={tc_lc_seller_interest_days} data-field="tc_lc_seller_interest_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_tc_lc_interest_days_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="NO. OF LC INTEREST DAYS" value={tc_lc_interest_days} data-field="tc_lc_interest_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_tc_vfs_seller_interest_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="INTEREST COMPONENT ON VFS FOR SELLER" value={tc_vfs_seller_interest} data-field="tc_vfs_seller_interest" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_tc_vfs_interest_days_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="NO. OF VFS INTEREST DAYS" value={tc_vfs_interest_days} data-field="tc_vfs_interest_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_tc_open_credit_days_visible}>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="NO. OF OPEN CREDIT DAYS" value={tc_open_credit_days} data-field="tc_open_credit_days" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

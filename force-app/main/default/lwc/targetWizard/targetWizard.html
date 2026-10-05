@@ -1,0 +1,316 @@
+<template>
+    <!-- Modal Backdrop -->
+    <div class="tw-backdrop" onclick={handleClose}>
+        <div class="tw-modal" onclick={stopPropagation}>
+            <!-- Close Button -->
+            <button class="tw-close-btn" onclick={handleClose}>
+                <lightning-icon icon-name="utility:close" size="small" alternative-text="Close"></lightning-icon>
+            </button>
+
+            <!-- Progress Steps -->
+            <div class="tw-progress">
+                <div class="tw-step">
+                    <div class={step1IconClass}>
+                        <template if:true={step1Completed}>
+                            <lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon>
+                        </template>
+                        <template if:false={step1Completed}>
+                            <span>1</span>
+                        </template>
+                    </div>
+                    <span class={step1LabelClass}>Create Target</span>
+                </div>
+                <div class={line1Class}></div>
+                <div class="tw-step">
+                    <div class={step2IconClass}>
+                        <template if:true={step2Completed}>
+                            <lightning-icon icon-name="utility:check" size="xx-small" variant="inverse"></lightning-icon>
+                        </template>
+                        <template if:false={step2Completed}>
+                            <span>2</span>
+                        </template>
+                    </div>
+                    <span class={step2LabelClass}>Select Team/Employee</span>
+                </div>
+                <div class={line2Class}></div>
+                <div class="tw-step">
+                    <div class={step3IconClass}>
+                        <span>3</span>
+                    </div>
+                    <span class={step3LabelClass}>Assign Target</span>
+                </div>
+            </div>
+
+            <!-- Step Content -->
+            <div class="tw-content">
+
+                <!-- ═══ STEP 1: Create Target ═══ -->
+                <template if:true={isStep1}>
+                    <div class="tw-step1-layout">
+                        <div class="tw-step1-form">
+                            <div class="tw-field-group">
+                                <lightning-input
+                                    label="Target Name"
+                                    value={targetName}
+                                    onchange={handleTargetNameChange}
+                                    required
+                                    class="tw-input"
+                                ></lightning-input>
+                            </div>
+
+                            <div class="tw-field-group">
+                                <lightning-combobox
+                                    label="Select Target Module*"
+                                    value={targetModule}
+                                    options={moduleOptions}
+                                    onchange={handleModuleChange}
+                                    placeholder="Select Target Module*"
+                                    class="tw-input"
+                                ></lightning-combobox>
+                            </div>
+
+                            <div class="tw-field-row">
+                                <div class="tw-field-half">
+                                    <lightning-combobox
+                                        label="Frequency*"
+                                        value={frequency}
+                                        options={frequencyOptions}
+                                        onchange={handleFrequencyChange}
+                                        placeholder="Frequency*"
+                                        class="tw-input"
+                                    ></lightning-combobox>
+                                </div>
+                                <div class="tw-field-half">
+                                    <lightning-combobox
+                                        label="Metric*"
+                                        value={metric}
+                                        options={metricOptions}
+                                        onchange={handleMetricChange}
+                                        placeholder="Metric*"
+                                        class="tw-input"
+                                    ></lightning-combobox>
+                                </div>
+                            </div>
+
+                            <div class="tw-field-group">
+                                <lightning-combobox
+                                    label="Assign To*"
+                                    value={assignToType}
+                                    options={assignToOptions}
+                                    onchange={handleAssignToChange}
+                                    placeholder="Assign To*"
+                                    class="tw-input"
+                                ></lightning-combobox>
+                            </div>
+                        </div>
+
+                        <!-- Illustration -->
+                        <div class="tw-step1-illustration">
+                            <div class="tw-illustration-box">
+                                <lightning-icon icon-name="standard:goals" size="large"></lightning-icon>
+                                <p class="tw-illustration-text">Set up your target parameters</p>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ═══ STEP 2: Select Team/Employee ═══ -->
+                <template if:true={isStep2}>
+                    <div class="tw-step2-layout">
+                        <!-- Left Panel: Available -->
+                        <div class="tw-step2-left">
+                            <div class="tw-step2-left-header">
+                                <h3 class="tw-panel-title">{step2LeftTitle}</h3>
+                                <button class="tw-btn-select-all" onclick={handleSelectAll}>+ Select All</button>
+                            </div>
+
+                            <div class="tw-step2-filters">
+                                <div class="tw-search-box">
+                                    <lightning-input
+                                        type="search"
+                                        placeholder="Search here..."
+                                        value={searchTerm}
+                                        onchange={handleSearchChange}
+                                        variant="label-hidden"
+                                        label="Search"
+                                        class="tw-search-input"
+                                    ></lightning-input>
+                                </div>
+                                <template if:true={isUserAssignment}>
+                                    <div class="tw-team-filter">
+                                        <lightning-combobox
+                                            value={selectedTeamFilter}
+                                            options={teamFilterOptions}
+                                            onchange={handleTeamFilterChange}
+                                            variant="label-hidden"
+                                            label="Team Filter"
+                                            class="tw-team-combo"
+                                        ></lightning-combobox>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <div class="tw-user-list">
+                                <template for:each={filteredAvailableItems} for:item="item">
+                                    <div key={item.id} class="tw-user-item">
+                                        <div class="tw-user-info">
+                                            <span class="tw-user-name">{item.displayName}</span>
+                                            <template if:true={item.groupName}>
+                                                <span class="tw-user-group">
+                                                    <lightning-icon icon-name="utility:groups" size="xx-small" class="tw-group-icon"></lightning-icon>
+                                                    {item.groupName}
+                                                </span>
+                                            </template>
+                                        </div>
+                                        <button class="tw-btn-select" data-id={item.id} onclick={handleSelectItem}>+ Select</button>
+                                    </div>
+                                </template>
+                                <template if:true={noAvailableItems}>
+                                    <div class="tw-no-items">No items found</div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Right Panel: Selected -->
+                        <div class="tw-step2-right">
+                            <div class="tw-step2-right-header">
+                                <h3 class="tw-panel-title">Selected {step2RightLabel}({selectedCount})</h3>
+                            </div>
+                            <div class="tw-selected-list">
+                                <template for:each={selectedItems} for:item="item">
+                                    <div key={item.id} class="tw-selected-item">
+                                        <div class="tw-selected-info">
+                                            <span class="tw-selected-name">{item.displayName}</span>
+                                            <template if:true={item.groupName}>
+                                                <span class="tw-selected-group">
+                                                    <lightning-icon icon-name="utility:groups" size="xx-small" class="tw-group-icon"></lightning-icon>
+                                                    {item.groupName}
+                                                </span>
+                                            </template>
+                                        </div>
+                                        <lightning-button-icon
+                                            icon-name="utility:delete"
+                                            variant="bare"
+                                            alternative-text="Remove"
+                                            data-id={item.id}
+                                            onclick={handleRemoveItem}
+                                            class="tw-btn-remove"
+                                        ></lightning-button-icon>
+                                    </div>
+                                </template>
+                                <template if:true={noSelectedItems}>
+                                    <div class="tw-no-items">No employees selected</div>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- ═══ STEP 3: Assign Target ═══ -->
+                <template if:true={isStep3}>
+                    <div class="tw-step3-layout">
+                        <div class="tw-step3-header">
+                            <h3 class="tw-panel-title">Assign Targets({selectedCount})</h3>
+                        </div>
+
+                        <div class="tw-step3-table-wrapper">
+                            <table class="tw-step3-table">
+                                <thead>
+                                    <tr>
+                                        <th class="tw-s3-th tw-s3-th-emp">Employee</th>
+                                        <th class="tw-s3-th tw-s3-th-target" colspan={weekColumnsCount}>Target</th>
+                                        <th class="tw-s3-th tw-s3-th-action">Actions</th>
+                                    </tr>
+                                    <tr>
+                                        <th class="tw-s3-th-sub"></th>
+                                        <template for:each={weekColumns} for:item="week">
+                                            <th key={week.key} class={week.headerClass}>
+                                                <span class="tw-week-label">{week.label}</span>
+                                            </th>
+                                        </template>
+                                        <th class="tw-s3-th-sub"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={assignmentRows} for:item="row">
+                                        <tr key={row.userId} class="tw-s3-row">
+                                            <td class="tw-s3-td-emp">
+                                                <div class="tw-emp-cell">
+                                                    <span class="tw-emp-name">{row.userName}</span>
+                                                    <template if:true={row.groupName}>
+                                                        <span class="tw-emp-group">
+                                                            <lightning-icon icon-name="utility:groups" size="xx-small" class="tw-group-icon"></lightning-icon>
+                                                            {row.groupName}
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </td>
+                                            <template for:each={row.weeks} for:item="weekData">
+                                                <td key={weekData.key} class="tw-s3-td-week">
+                                                    <template if:true={weekData.isPast}>
+                                                        <div class="tw-past-week-cell">
+                                                            <span class="tw-past-label">{weekData.label}</span>
+                                                            <div class="tw-progress-bar-container">
+                                                                <div class={weekData.progressBarClass} style={weekData.progressStyle}></div>
+                                                            </div>
+                                                            <span class="tw-past-value">{weekData.achievedValue}/{weekData.targetValue}</span>
+                                                        </div>
+                                                    </template>
+                                                    <template if:false={weekData.isPast}>
+                                                        <div class="tw-future-week-cell">
+                                                            <span class="tw-future-label">{weekData.label}</span>
+                                                            <lightning-input
+                                                                type="number"
+                                                                value={weekData.targetValue}
+                                                                variant="label-hidden"
+                                                                label="Target"
+                                                                min="0"
+                                                                data-userid={row.userId}
+                                                                data-weekdate={weekData.weekStartDate}
+                                                                onchange={handleTargetValueChange}
+                                                                class="tw-target-input"
+                                                            ></lightning-input>
+                                                        </div>
+                                                    </template>
+                                                </td>
+                                            </template>
+                                            <td class="tw-s3-td-action">
+                                                <lightning-button-icon
+                                                    icon-name="utility:delete"
+                                                    variant="bare"
+                                                    alternative-text="Remove"
+                                                    data-id={row.userId}
+                                                    onclick={handleRemoveFromAssignment}
+                                                    class="tw-btn-remove"
+                                                ></lightning-button-icon>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div class="tw-footer">
+                <template if:true={isStep1}>
+                    <button class="tw-btn-cancel" onclick={handleClose}>Cancel</button>
+                    <button class="tw-btn-next" onclick={handleNext} disabled={isNextDisabledStep1}>Next</button>
+                </template>
+                <template if:true={isStep2}>
+                    <button class="tw-btn-prev" onclick={handlePrevious}>Previous</button>
+                    <button class="tw-btn-next" onclick={handleNext} disabled={isNextDisabledStep2}>Next</button>
+                </template>
+                <template if:true={isStep3}>
+                    <button class="tw-btn-prev" onclick={handlePrevious}>Previous</button>
+                    <button class="tw-btn-finish" onclick={handleFinish} disabled={isSaving}>
+                        <template if:true={isSaving}>Saving...</template>
+                        <template if:false={isSaving}>Finish</template>
+                    </button>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

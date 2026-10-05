@@ -1,0 +1,5 @@
+{
+  "title" : "My School Form Response",
+  "description" : "My School Form Response",
+  "lightning:type" : "@apexClassType/c__ShowInputSchoolform$Schooldata"
+}

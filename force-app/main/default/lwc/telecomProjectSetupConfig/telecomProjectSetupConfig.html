@@ -1,0 +1,637 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Project Setup Details</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 50vh;">
+
+<!-- ================= tele_for_details1 ================= -->
+<template if:true={isForDetails1}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Per Metric Ton Rate</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>SL NO</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>LOCATION</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>RATE PER TON</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no1} data-field="rpt_sl_no1" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_1} data-field="rpt_location_1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_1} data-field="rpt_rate_per_ton_1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no2} data-field="rpt_sl_no2" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_2} data-field="rpt_location_2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_2} data-field="rpt_rate_per_ton_2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no3} data-field="rpt_sl_no3" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_3} data-field="rpt_location_3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_3} data-field="rpt_rate_per_ton_3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no4} data-field="rpt_sl_no4" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_4} data-field="rpt_location_4" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_4} data-field="rpt_rate_per_ton_4" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no5} data-field="rpt_sl_no5" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_5} data-field="rpt_location_5" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_5} data-field="rpt_rate_per_ton_5" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no6} data-field="rpt_sl_no6" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_6} data-field="rpt_location_6" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_6} data-field="rpt_rate_per_ton_6" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no7} data-field="rpt_sl_no7" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_7} data-field="rpt_location_7" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_7} data-field="rpt_rate_per_ton_7" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no8} data-field="rpt_sl_no8" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_8} data-field="rpt_location_8" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_8} data-field="rpt_rate_per_ton_8" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no9} data-field="rpt_sl_no9" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_9} data-field="rpt_location_9" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_9} data-field="rpt_rate_per_ton_9" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_sl_no10} data-field="rpt_sl_no10" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={rpt_location_10} data-field="rpt_location_10" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-3 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={rpt_rate_per_ton_10} data-field="rpt_rate_per_ton_10" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems1_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost1} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity1} data-field="rpt_unit_quantity1" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems2_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost2} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity2} data-field="rpt_unit_quantity2" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems3_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost3} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity3} data-field="rpt_unit_quantity3" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems4_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost4} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity4} data-field="rpt_unit_quantity4" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems5_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost5} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity5} data-field="rpt_unit_quantity5" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems6_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost6} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity6} data-field="rpt_unit_quantity6" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems7_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost7} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity7} data-field="rpt_unit_quantity7" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems8_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost8} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity8} data-field="rpt_unit_quantity8" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems9_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost9} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity9} data-field="rpt_unit_quantity9" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_rpt_lineitems10_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={rpt_unitcost10} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={rpt_unit_quantity10} data-field="rpt_unit_quantity10" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+</template>
+
+<!-- ================= tele_for_details_2 ================= -->
+<template if:true={isForDetails2}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Minimum Guranteed Loadability</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>LOCATION</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>DESCRIPTION OF THE TOWER</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>VEHICLE LOADABILITY - MT</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>MINIMUM GUARANTEED FREIGHT (PER MT)</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_1} data-field="mgl_location_1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_1} data-field="mgl_description_of_the_tower_1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_1} data-field="mgl_vehicle_loadability_1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_1} data-field="mgl_minimum_guranteed_freight_1" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_2} data-field="mgl_location_2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_2} data-field="mgl_description_of_the_tower_2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_2} data-field="mgl_vehicle_loadability_2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_2} data-field="mgl_minimum_guranteed_freight_2" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_3} data-field="mgl_location_3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_3} data-field="mgl_description_of_the_tower_3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_3} data-field="mgl_vehicle_loadability_3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_3} data-field="mgl_minimum_guranteed_freight_3" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_4} data-field="mgl_location_4" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_4} data-field="mgl_description_of_the_tower_4" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_4} data-field="mgl_vehicle_loadability_4" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_4} data-field="mgl_minimum_guranteed_freight_4" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_5} data-field="mgl_location_5" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_5} data-field="mgl_description_of_the_tower_5" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_5} data-field="mgl_vehicle_loadability_5" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_5} data-field="mgl_minimum_guranteed_freight_5" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_6} data-field="mgl_location_6" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_6} data-field="mgl_description_of_the_tower_6" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_6} data-field="mgl_vehicle_loadability_6" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_6} data-field="mgl_minimum_guranteed_freight_6" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_7} data-field="mgl_location_7" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_7} data-field="mgl_description_of_the_tower_7" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_7} data-field="mgl_vehicle_loadability_7" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_7} data-field="mgl_minimum_guranteed_freight_7" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_8} data-field="mgl_location_8" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_8} data-field="mgl_description_of_the_tower_8" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_8} data-field="mgl_vehicle_loadability_8" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_8} data-field="mgl_minimum_guranteed_freight_8" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_9} data-field="mgl_location_9" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_9} data-field="mgl_description_of_the_tower_9" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_9} data-field="mgl_vehicle_loadability_9" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_9} data-field="mgl_minimum_guranteed_freight_9" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_location_10} data-field="mgl_location_10" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={mgl_description_of_the_tower_10} data-field="mgl_description_of_the_tower_10" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_vehicle_loadability_10} data-field="mgl_vehicle_loadability_10" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-4 slds-m-bottom_small">
+      <lightning-input type="number" label="" value={mgl_minimum_guranteed_freight_10} data-field="mgl_minimum_guranteed_freight_10" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+</div></div>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems1_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost1} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity1} data-field="mgl_unit_quantity1" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems2_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost2} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity2} data-field="mgl_unit_quantity2" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems3_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost3} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity3} data-field="mgl_unit_quantity3" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems4_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost4} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity4} data-field="mgl_unit_quantity4" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems5_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost5} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity5} data-field="mgl_unit_quantity5" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems6_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost6} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity6} data-field="mgl_unit_quantity6" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems7_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost7} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity7} data-field="mgl_unit_quantity7" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems8_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost8} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity8} data-field="mgl_unit_quantity8" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems9_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost9} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity9} data-field="mgl_unit_quantity9" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+<!-- SECTION -->
+<template if:true={is_mgl_lineitems10_visible}>
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Details</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Unit Cost" value={mgl_unitcost10} read-only formatter="decimal" step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="Quantity" value={mgl_unit_quantity10} data-field="mgl_unit_quantity10" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+</template>
+
+<!-- ================= tele_terms_condition ================= -->
+<template if:true={isTermsCondition}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>TERMS AND CONDITION DETAILS</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>PAYMENT TERMS</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="" value={terms_payment_terms_vlue} data-field="terms_payment_terms_vlue" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>OFFER VALIDITY</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="number" label="OFFER VALIDITY" value={terms_offer_validity_value} data-field="terms_offer_validity_value" onchange={handleFieldChange}   step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <div class="slds-text-heading_small slds-m-top_medium"><b>SPECIAL TERMS AND CONDITIONS**</b></div>
+    </div>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="checkbox" label="" checked={terms_special_terms_checkbox} data-field="terms_special_terms_checkbox" onchange={handleFieldChange} ></lightning-input>
+    </div>
+  <template if:true={is_terms_heading1_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="1-HEADING" value={terms_heading1} data-field="terms_heading1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_terms_content1_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="CONTENT" value={terms_content1} data-field="terms_content1" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_terms_heading2_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="2-HEADING" value={terms_heading2} data-field="terms_heading2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_terms_content2_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="CONTENT" value={terms_content2} data-field="terms_content2" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_terms_heading3_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="3-HEADING" value={terms_heading3} data-field="terms_heading3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+  <template if:true={is_terms_content3_visible}>
+    <div class="slds-col slds-size_1-of-2 slds-m-bottom_small">
+      <lightning-input type="text" label="CONTENT" value={terms_content3} data-field="terms_content3" onchange={handleFieldChange}  ></lightning-input>
+    </div>
+  </template>
+</div></div>
+</template>
+
+<!-- ================= tele_customer_address ================= -->
+<template if:true={isCustomerAddress}>
+
+<!-- SECTION -->
+<div class="slds-box slds-m-bottom_medium slds-theme_shade">
+<h3 class="slds-text-heading_small slds-m-bottom_small"><b>Billing Address</b></h3>
+<div class="slds-grid slds-wrap slds-gutters">
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="STREET" value={ovr_street} data-field="ovr_street" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="CITY" value={ovr_city} data-field="ovr_city" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="STATE" value={ovr_state} data-field="ovr_state" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="text" label="COUNTRY" value={ovr_country} data-field="ovr_country" onchange={handleFieldChange}  disabled></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="ZIP-CODE" value={ovr_zip} data-field="ovr_zip" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+    <div class="slds-col slds-size_1-of-1 slds-m-bottom_small">
+      <lightning-input type="number" label="PHONE NUMBER" value={ovr_phone} data-field="ovr_phone" onchange={handleFieldChange}  disabled step="0.01"></lightning-input>
+    </div>
+</div></div>
+</template>
+
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

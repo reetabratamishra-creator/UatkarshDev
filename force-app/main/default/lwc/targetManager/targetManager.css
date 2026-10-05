@@ -1,0 +1,614 @@
+/* Flex container to manage full height and push footer down */
+.wizard-layout-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 600px; /* Base height, will grow if needed */
+    height: 100%;
+    background-color: #f9f9fb;
+}
+
+/* Main content area expands to take up available empty space */
+.wizard-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Footer sticks to the bottom of the wrapper */
+.wizard-footer {
+    background-color: #ffffff;
+    flex-shrink: 0;
+}
+
+/* Dual List Layout */
+.custom-dual-list {
+    flex-grow: 1;
+    display: flex;
+    width: 100%;
+    background-color: #f9f9fb;
+}
+
+.right-border-col {
+    border-right: 1px solid #e5e5e5;
+    padding-right: 1.5rem;
+}
+
+.left-pad-col {
+    padding-left: 1.5rem;
+}
+
+/* Left Side: Available List Styling */
+.user-list {
+    height: calc(100% - 60px); /* Adjust based on search input height */
+    min-height: 350px;
+    max-height: 500px;
+}
+
+.entity-card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+}
+
+.select-btn {
+    --sds-c-button-text-color: #0176D3;
+    font-weight: 600;
+}
+
+/* Right Side: Selected List Styling */
+.selected-list {
+    height: calc(100% - 40px);
+    min-height: 350px;
+    max-height: 500px;
+    background-color: #f3f3f5; /* Slight gray background behind selected items */
+    padding: 0.5rem;
+    border-radius: 8px;
+}
+
+.selected-card {
+    background-color: #ffffff;
+    border-radius: 6px;
+    border: 1px solid #e5e5e5;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+/* Action Buttons Custom Styling */
+.icon-red {
+    --sds-c-icon-color-foreground-default: #ea001e;
+}
+
+.btn-cancel button {
+    border-radius: 20px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    color: #ea001e;
+    border-color: #ea001e;
+}
+
+.btn-previous button {
+    border-radius: 20px;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+    color: #0176D3;
+    border-color: #0176D3;
+}
+
+.btn-next button {
+    border-radius: 20px;
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+/* Styling for the Select All button to match the screenshot */
+.custom-select-all button {
+    border: 1px solid #0176D3;
+    border-radius: 4px;
+    padding: 2px 10px;
+}
+
+/* --- Step 3 Target Table Styling --- */
+.header-green {
+    color: #4CAF50;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.target-input {
+    width: 100px;
+    margin: 0 auto;
+}
+
+/* Make Employee and Actions columns sticky when scrolling horizontally */
+.custom-target-table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.sticky-col-left {
+    position: sticky;
+    left: 0;
+    z-index: 10;
+    box-shadow: 2px 0 4px -2px rgba(0,0,0,0.1);
+}
+
+.sticky-col-right {
+    position: sticky;
+    right: 0;
+    z-index: 10;
+    box-shadow: -2px 0 4px -2px rgba(0,0,0,0.1);
+}
+
+/* --- Past Progress Bar Custom UI (Matching SS3) --- */
+.progress-container {
+    width: 80px;
+    margin: 0 auto;
+}
+
+.progress-track {
+    background-color: #f3f3f3 !important;
+    border-radius: 10px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+    margin-bottom: 4px;
+}
+
+.progress-bar-green {
+    background-color: #4CAF50 !important;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.progress-bar-orange {
+    background-color: #F89B29 !important;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.progress-text {
+    font-size: 0.8rem;
+    color: #333;
+}
+
+/* --- Custom List View Styling --- */
+.custom-list-table th {
+    font-weight: 700;
+    color: #444;
+    background-color: #f9f9fb;
+}
+
+.custom-list-table td {
+    vertical-align: middle;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+}
+
+/* The circular gray badge for "+43" */
+.extra-count-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f3f3f3;
+    color: #333;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    height: 24px;
+    width: 24px;
+    padding: 2px;
+}
+
+/* Status Badges */
+.status-badge-active {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+.status-badge-draft {
+    background-color: #fff3e0;
+    color: #e65100;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.8rem;
+}
+
+/* Colored Action Icons */
+.icon-blue {
+    --sds-c-icon-color-foreground-default: #0176D3;
+}
+
+
+/* ==========================================
+   BRUTE FORCE HOVER REMOVER FOR STEP 3
+========================================== */
+
+/* This completely disables the standard gray hover effect for rows in the step 3 table */
+.custom-target-table tbody tr:hover > td,
+.custom-target-table tbody tr:focus > td,
+.custom-target-table tbody tr.slds-has-focus > td,
+.custom-target-table tbody tr.no-hover-row:hover > td {
+    background-color: #ffffff !important;
+    box-shadow: none !important;
+}
+/* ==========================================
+   WARNING BANNER STYLING
+========================================== */
+.custom-warning-banner {
+    background-color: #ffecd6;
+    border: 1px solid #ffb74d;
+    border-radius: 4px;
+    padding: 8px 12px;
+    color: #000000;
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    width: 100%;
+}
+
+.custom-warning-banner.inline-banner {
+    width: auto;
+}
+
+.warning-icon {
+    --sds-c-icon-color-foreground-default: #e65100;
+}
+/* ==========================================
+   OVERVIEW DASHBOARD STYLING
+========================================== */
+
+.dashboard-wrapper {
+    background-color: #f3f3f5; /* Light grey background from screenshot */
+    padding: 1rem;
+    min-height: 800px;
+}
+
+.header-stats-card {
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.blue-badge {
+    background-color: #e3f2fd;
+    color: #1976d2;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Circular Progress overrides */
+.orange-ring {
+    stroke: #F89B29;
+}
+.orange-text {
+    color: #F89B29;
+}
+
+/* Dashboard Targets List Progress */
+.dash-progress-track {
+    background-color: #ececea;
+    border-radius: 10px;
+    height: 8px;
+    width: 120px;
+    overflow: hidden;
+}
+
+.dash-progress-bar {
+    background-color: #F89B29;
+    height: 100%;
+    border-radius: 10px;
+}
+
+.avatar-initials {
+    background-color: #f3f3f3;
+    color: #666;
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #ddd;
+}
+
+.list-card, .perf-card {
+    border-radius: 8px;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    height: 100%;
+}
+
+
+/* ==========================================================
+   ============   MOBILE RESPONSIVE OVERRIDES   =============
+   Everything below this line ONLY applies on small screens
+   (max-width: 768px). Desktop / Tablet-landscape / Laptop UI
+   is completely untouched and renders exactly as before.
+   ========================================================== */
+@media screen and (max-width: 768px) {
+
+    /* ---------- General page padding ---------- */
+    .dashboard-wrapper {
+        padding: 0.5rem;
+        min-height: auto;
+    }
+
+    /* ===================================================
+       OVERVIEW TAB
+       =================================================== */
+
+    /* Target / Cycle selector row - stack vertically */
+    .dashboard-wrapper > .slds-grid.slds-grid_align-end {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .dashboard-wrapper > .slds-grid.slds-grid_align-end .slds-col {
+        width: 100% !important;
+    }
+
+    .dashboard-wrapper > .slds-grid.slds-grid_align-end .slds-col lightning-combobox {
+        width: 100% !important;
+    }
+
+    /* Header stats card - stack the 5 columns */
+    .header-stats-card .slds-grid {
+        flex-direction: column;
+    }
+
+    .header-stats-card .slds-col.slds-size_1-of-5 {
+        width: 100% !important;
+        margin-bottom: 1rem;
+        text-align: left !important;
+    }
+
+    .header-stats-card .slds-col.slds-size_1-of-5:last-child {
+        margin-bottom: 0;
+    }
+
+    .header-stats-card .slds-col.slds-text-align_center {
+        text-align: center !important;
+    }
+
+    /* Targets list + Trend lines row - stack to full width */
+    .dashboard-wrapper > .slds-grid.slds-gutters_medium {
+        flex-direction: column;
+    }
+
+    .dashboard-wrapper > .slds-grid.slds-gutters_medium > .slds-col.slds-size_1-of-2 {
+        width: 100% !important;
+        margin-bottom: 1rem;
+    }
+
+    /* Top / Bottom performers row - stack */
+    .slds-grid.slds-gutters_small {
+        flex-direction: column;
+    }
+
+    .slds-grid.slds-gutters_small > .slds-col.slds-size_1-of-2 {
+        width: 100% !important;
+        margin-bottom: 1rem;
+    }
+
+    /* Team Target vs Actual + Total Cycle Completion row - stack */
+    .dashboard-wrapper > .slds-grid.slds-m-top_medium {
+        flex-direction: column;
+    }
+
+    .dashboard-wrapper > .slds-grid.slds-m-top_medium > .slds-col.slds-size_2-of-3,
+    .dashboard-wrapper > .slds-grid.slds-m-top_medium > .slds-col.slds-size_1-of-3 {
+        width: 100% !important;
+        margin-bottom: 1rem;
+    }
+
+    /* Charts - allow them to shrink with the container */
+    .trend-chart,
+    .bar-chart,
+    .doughnut-chart {
+        max-width: 100%;
+    }
+
+    /* Targets list rows - allow wrapping & truncation room */
+    .list-card ul.slds-scrollable_y li.slds-grid {
+        flex-wrap: wrap;
+    }
+
+    .list-card ul.slds-scrollable_y li.slds-grid > .slds-col.slds-size_1-of-2 {
+        width: 100% !important;
+    }
+
+    .list-card ul.slds-scrollable_y li.slds-grid > .slds-col.slds-size_1-of-2:first-child {
+        margin-bottom: 0.5rem;
+    }
+
+    .list-card ul.slds-scrollable_y li .slds-truncate {
+        max-width: 60vw !important;
+    }
+
+    .dash-progress-track {
+        width: 90px;
+    }
+
+    /* ===================================================
+       TARGETS TAB - LIST VIEW (existing targets table)
+       =================================================== */
+
+    /* Header row: title + Add Target button stack */
+    .slds-grid.slds-grid_align-spread.slds-p-bottom_medium.slds-p-horizontal_medium {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .slds-grid.slds-grid_align-spread.slds-p-bottom_medium.slds-p-horizontal_medium > div {
+        margin-bottom: 0.5rem;
+    }
+
+    .slds-grid.slds-grid_align-spread.slds-p-bottom_medium.slds-p-horizontal_medium lightning-button {
+        width: 100%;
+    }
+
+    /* Make the targets table horizontally scrollable on mobile */
+    .custom-list-table {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    .custom-list-table thead,
+    .custom-list-table tbody,
+    .custom-list-table tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
+
+    .custom-list-table .slds-truncate {
+        max-width: 140px;
+    }
+
+    /* ===================================================
+       TARGET WIZARD - shared layout
+       =================================================== */
+
+    .wizard-layout-wrapper {
+        min-height: 100vh;
+    }
+
+    .wizard-content.slds-p-around_large {
+        padding: 0.75rem !important;
+    }
+
+    /* Progress indicator path - shrink labels so it fits */
+    lightning-progress-indicator {
+        font-size: 0.75rem;
+    }
+
+    /* Footer buttons - stack and go full width */
+    .wizard-footer.slds-grid_align-end {
+        flex-wrap: wrap;
+        justify-content: stretch;
+        gap: 0.5rem;
+    }
+
+    .wizard-footer .btn-cancel,
+    .wizard-footer .btn-previous,
+    .wizard-footer .btn-next {
+        flex: 1 1 100%;
+        margin-right: 0 !important;
+    }
+
+    .wizard-footer .btn-cancel button,
+    .wizard-footer .btn-previous button,
+    .wizard-footer .btn-next button {
+        width: 100%;
+    }
+
+    /* When there are 2-3 buttons, let them sit side by side on slightly wider phones */
+    @media screen and (min-width: 481px) {
+        .wizard-footer .btn-cancel,
+        .wizard-footer .btn-previous,
+        .wizard-footer .btn-next {
+            flex: 1 1 auto;
+        }
+    }
+
+    /* ===================================================
+       STEP 1 - Create Target form
+       =================================================== */
+
+    .wizard-content .slds-grid.slds-wrap.slds-gutters_large > .slds-col.slds-size_1-of-2 {
+        width: 100% !important;
+    }
+
+    /* ===================================================
+       STEP 2 - Dual list (Employees / Selected)
+       =================================================== */
+
+    .custom-dual-list {
+        flex-direction: column;
+    }
+
+    .custom-dual-list > .slds-col.slds-size_1-of-3,
+    .custom-dual-list > .slds-col.slds-size_2-of-3 {
+        width: 100% !important;
+    }
+
+    .right-border-col {
+        border-right: none;
+        border-bottom: 1px solid #e5e5e5;
+        padding-right: 0;
+        padding-bottom: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .left-pad-col {
+        padding-left: 0;
+    }
+
+    .user-list,
+    .selected-list {
+        max-height: 300px;
+        min-height: 200px;
+    }
+
+    .entity-card,
+    .selected-card {
+        flex-wrap: wrap;
+    }
+
+    .entity-card .select-btn,
+    .selected-card .slds-grid_vertical-align-center {
+        margin-top: 0.5rem;
+    }
+
+    /* ===================================================
+       STEP 3 - Assign Target table
+       =================================================== */
+
+    .custom-warning-banner.inline-banner {
+        width: 100%;
+        font-size: 0.75rem;
+    }
+
+    /* Allow horizontal scroll on the assign-target table container */
+    .slds-scrollable_x.slds-box.slds-theme_default.slds-size_1-of-1 {
+        max-height: 60vh !important;
+    }
+
+    .custom-target-table th,
+    .custom-target-table td {
+        font-size: 0.75rem;
+        padding: 0.5rem !important;
+    }
+
+    .custom-target-table .sticky-col-left {
+        min-width: 160px !important;
+    }
+
+    /* Unfreeze the Employee and Actions columns on mobile so the table
+       scrolls normally without sticky/frozen columns */
+    .custom-target-table .sticky-col-left,
+    .custom-target-table .sticky-col-right {
+        position: static !important;
+        left: auto !important;
+        right: auto !important;
+        z-index: auto !important;
+        box-shadow: none !important;
+    }
+
+    .target-input {
+        width: 80px;
+    }
+
+    .progress-container {
+        width: 60px;
+    }
+}

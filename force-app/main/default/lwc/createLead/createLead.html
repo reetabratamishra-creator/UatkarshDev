@@ -1,0 +1,141 @@
+<template>
+    <div class="lf-wrap">
+
+        <div class="lf-header">
+            <div class="lf-icon">
+                <lightning-icon icon-name="standard:lead" size="small"></lightning-icon>
+            </div>
+            <div>
+                <p class="lf-title">Create lead</p>
+                <p class="lf-sub">Fill in the details below to submit a new lead</p>
+            </div>
+        </div>
+
+        <div class="lf-card">
+
+            <!-- Contact Info -->
+            <p class="lf-section">Personal Details</p>
+            <div class="lf-grid">
+                <div class="lf-field">
+                    <lightning-input label="First Name" name="firstName" value={firstName}
+                        placeholder="Enter first name" onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <div class="lf-field">
+                    <lightning-input label="Last Name" name="lastName" value={lastName} placeholder="Enter last name"
+                        required onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <div class="lf-field">
+                    <lightning-input label="Phone" name="phone" type="tel" value={phone}
+                        placeholder="Enter phone number" required onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <div class="lf-field">
+                    <lightning-input label="Email" name="email" type="email" value={email}
+                        placeholder="Enter email address" onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+                <div class="lf-field lf-grid-full">
+                    <lightning-input label="Company Name" name="companyName" value={companyName}
+                        placeholder="Enter company name" onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+            </div>
+
+            <div class="lf-divider"></div>
+
+            <!-- Company & Lead Details -->
+            <p class="lf-section">Lead Details</p>
+            <div class="lf-grid">
+                <div class="lf-field">
+                    <lightning-combobox name="leadSource" label="Lead Source" value={leadSource}
+                        placeholder="Select a Lead Source" options={leadSourceOptions} onchange={handleInputChange}
+                        required>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox name="leadStage" label="Lead Stage" value={leadStage}
+                        placeholder="Select a Stage" options={leadStageOptions} onchange={handleInputChange} required
+                        disabled>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="Department Name" name="departmentName" value={departmentName}
+                        placeholder="e.g. High Mast & Polygonal" options={departmentNameOptions}
+                        onchange={handleInputChange} required>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="Product Category" name="productCategory" value={productCategory}
+                        options={productCategoryOptions} onchange={handleInputChange}
+                        disabled={isProductCategoryDisabled}>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="Customer Category" name="customerCategory" value={customerCategory}
+                        options={customerCategoryOptions} onchange={handleInputChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="Industry" name="industry" value={industry} options={industryOptions}
+                        onchange={handleInputChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="Rating" name="rating" value={rating} options={ratingOptions}
+                        onchange={handleInputChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-combobox label="UOM" name="uom" value={uom} options={uomOptions}
+                        onchange={handleInputChange}>
+                    </lightning-combobox>
+                </div>
+                <div class="lf-field">
+                    <lightning-input label="Quantity" name="quantity" type="number" value={quantity}
+                        placeholder="Enter quantity" onchange={handleInputChange}>
+                    </lightning-input>
+                </div>
+            </div>
+
+            <div class="lf-divider"></div>
+            <p class="lf-section">Address Details</p>
+
+            <div class="lf-divider"></div>
+
+            <p class="lf-section">Lead Owner</p>
+            <div class="lf-field">
+                <lightning-combobox label="Lead Owner" name="ownerId" value={ownerId} placeholder="Select a Lead Owner"
+                    options={ownerOptions} onchange={handleInputChange} disabled={isOwnerDisabled} required>
+                </lightning-combobox>
+            </div>
+
+            <div class="lf-divider"></div>
+
+            <template lwc:if={isFileUploadVisible}>
+                <div class="lf-field slds-m-top_medium">
+                    <lightning-file-upload label="Attach Required Document Verification Payloads" name="fileUploader"
+                        accept={acceptedFormats} record-id={currentUserId} onuploadfinished={handleUploadFinished}
+                        multiple required>
+                    </lightning-file-upload>
+
+                    <template lwc:if={uploadedFileIds.length}>
+                        <p class="slds-text-color_success slds-m-top_x-small">
+                            ✓ Ready to process: {uploadedFileIds.length} file(s) attached on-the-fly.
+                        </p>
+                    </template>
+                </div>
+            </template>
+
+            <!-- Debug -->
+            <p class="lf-section">Debug</p>
+            <div class="lf-field">
+                <lightning-input label="User Name" name="testVariable" value={currentUserName}
+                    placeholder="Optional test string for Agentforce" onchange={handleInputChange}>
+                </lightning-input>
+            </div>
+
+        </div>
+    </div>
+</template>

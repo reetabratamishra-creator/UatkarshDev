@@ -1,0 +1,96 @@
+/* ── Outer wrap ─────────────────────────────────────── */
+.lf-wrap {
+    padding: 0.25rem 0 0.5rem;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.lf-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.lf-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    background: #EEEDFE;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.lf-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #080707;
+    margin: 0 0 2px;
+}
+
+.lf-sub {
+    font-size: 0.8125rem;
+    color: #706e6b;
+    margin: 0;
+}
+
+/* ── Card ────────────────────────────────────────────── */
+.lf-card {
+    background: #ffffff;
+    border: 1px solid #e5e5e5;
+    border-radius: 12px;
+    padding: 1.25rem 1.375rem;
+}
+
+/* ── Section label ───────────────────────────────────── */
+.lf-section {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: #534AB7;
+    margin: 0 0 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.lf-section::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #f0effe;
+}
+
+/* ── Divider ─────────────────────────────────────────── */
+.lf-divider {
+    height: 1px;
+    background: #f3f3f3;
+    margin: 1rem 0;
+}
+
+/* ── Grid ────────────────────────────────────────────── */
+.lf-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem 1rem;
+}
+
+.lf-field {
+    min-width: 0;
+}
+
+.lf-grid-full {
+    grid-column: 1 / -1;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 480px) {
+    .lf-grid {
+        grid-template-columns: 1fr;
+    }
+    .lf-grid-full {
+        grid-column: 1;
+    }
+}

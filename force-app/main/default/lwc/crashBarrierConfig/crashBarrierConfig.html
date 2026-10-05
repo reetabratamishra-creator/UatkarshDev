@@ -1,0 +1,260 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            <header class="slds-modal__header">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <h2 class="slds-text-heading_medium slds-hyphenate">Crash Barrier Estimator</h2>
+            </header>
+            <div class="slds-modal__content slds-p-around_medium" style="min-height: 50vh;">
+                <!-- Main Type Selector -->
+                <div class="slds-grid slds-wrap slds-gutters slds-m-bottom_medium slds-p-around_small slds-box slds-theme_default">
+                    <div class="slds-col slds-size_1-of-3">
+                        <lightning-combobox
+                            name="estimatorType"
+                            label="Crash Barrier Type"
+                            value={selectedType}
+                            options={typeOptions}
+                            onchange={handleTypeChange}
+                            required>
+                        </lightning-combobox>
+                    </div>
+                </div>
+
+                <lightning-tabset>
+                    <lightning-tab label="Estimator Details">
+
+                        <!-- ═══════════════════════════════════════
+                             CONVENTIONAL TYPE
+                        ═══════════════════════════════════════ -->
+                        <template if:true={isConventional}>
+                            <div class="slds-box slds-m-bottom_small">
+                                <h3 class="slds-text-heading_small slds-m-bottom_medium">General Details - Conventional Type</h3>
+                                <lightning-combobox
+                                    name="conventionalType"
+                                    label="Beam Type"
+                                    value={conventionalType}
+                                    options={conventionalTypeOptions}
+                                    onchange={handleConventionalTypeChange}
+                                    required>
+                                </lightning-combobox>
+
+                                <template if:true={conventionalType}>
+                                    <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Single Side Single Beam (SSSB)" checked={hasSSSB} onchange={handleSSSBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Single Side Double Beam (SSDB)" checked={hasSSDB} onchange={handleSSDBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Double Side Single Beam (DSSB)" checked={hasDSSB} onchange={handleDSSBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Double Side Double Beam (DSDB)" checked={hasDSDB} onchange={handleDSDBChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Render Conventional Rows -->
+                            <template for:each={configuredRows} for:item="row">
+                                <div key={row.id} class="slds-box slds-m-bottom_medium slds-theme_shade">
+                                        <h3 class="slds-text-heading_small slds-m-bottom_small"><b>{row.label}</b></h3>
+                                        
+                                        <div class="slds-grid slds-wrap slds-gutters">
+                                            <div class="slds-col slds-size_1-of-5">
+                                                <lightning-input type="number" label="Quantity (RM)" value={row.quantityRm} data-id={row.id} data-field="quantityRm" onchange={handleRowChange} required></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-5">
+                                                <lightning-combobox label="Trans. in offer?" value={row.transInOffer} options={transOptions} data-id={row.id} data-field="transInOffer" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-5">
+                                                <lightning-input type="number" label="Transportation (Kg)" value={row.transportationKg} data-id={row.id} data-field="transportationKg" onchange={handleRowChange} disabled={row.isExWorks}></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-5">
+                                                <lightning-input type="number" label="Full Vehicle Freight" value={row.fullVehicleFreight} data-id={row.id} data-field="fullVehicleFreight" onchange={handleRowChange} disabled={row.isExWorks}></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-5">
+                                                <lightning-input type="number" label="Margin (%)" value={row.margin} data-id={row.id} data-field="margin" onchange={handleRowChange}></lightning-input>
+                                            </div>
+                                        </div>
+
+                                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-combobox label="Beam Thickness" value={row.beamThickness} options={beamThicknessOptions} data-id={row.id} data-field="beamThickness" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-combobox label="Spacer Thickness" value={row.spacerThickness} options={spacerThicknessOptions} data-id={row.id} data-field="spacerThickness" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-combobox label="Post Thickness" value={row.postThickness} options={postThicknessOptions} data-id={row.id} data-field="postThickness" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-input type="number" label="Post Height" value={row.postHeight} data-id={row.id} data-field="postHeight" onchange={handleRowChange} required></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-combobox label="Space Length" value={row.spaceLength} options={spaceLengthOptions} data-id={row.id} data-field="spaceLength" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-combobox label="Zinc Coating" value={row.zincCoating} options={zincCoatingOptions} data-id={row.id} data-field="zincCoating" onchange={handleRowChange} required></lightning-combobox>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-input type="text" label="Round Bolt" value={row.roundBolt} data-id={row.id} data-field="roundBolt" onchange={handleRowChange} required></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-8">
+                                                <lightning-input type="text" label="Hex Bolt" value={row.hexBolt} data-id={row.id} data-field="hexBolt" onchange={handleRowChange} required></lightning-input>
+                                            </div>
+                                        </div>
+
+                                        <!-- Calculated Results -->
+                                        <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium" style="background:#f4f6f9; padding:8px; border-radius:4px;">
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <lightning-input type="number" label="Total Wt (Kg/Mtr)" value={row.weight} read-only></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <lightning-input type="number" label="Rate/RM (₹)" value={row.rateRm} read-only></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <lightning-input type="number" label="Unit Price (₹)" value={row.unitPrice} read-only></lightning-input>
+                                            </div>
+                                            <div class="slds-col slds-size_1-of-4">
+                                                <lightning-input type="number" label="Unit Cost (₹)" value={row.unitCost} read-only></lightning-input>
+                                            </div>
+                                        </div>
+                                    </div>
+                            </template>
+                        </template>
+
+                        <!-- ═══════════════════════════════════════
+                             CRASH TESTED TYPE
+                        ═══════════════════════════════════════ -->
+                        <template if:true={isCrashTested}>
+                            <div class="slds-box slds-m-bottom_small" style="border-left: 4px solid #d9534f;">
+                                <div class="slds-grid slds-gutters slds-m-bottom_small">
+                                    <div class="slds-col">
+                                        <h3 class="slds-text-heading_small slds-m-bottom_medium" style="color:#d9534f;">
+                                            ⚠️ Crash Tested Type <span style="font-weight:300; font-size:12px;">(Base Rate: 78 ₹/kg — includes +2 CT premium)</span>
+                                        </h3>
+                                    </div>
+                                </div>
+                                <lightning-combobox
+                                    name="crashTestedBeamType"
+                                    label="Beam Type"
+                                    value={crashTestedBeamType}
+                                    options={conventionalTypeOptions}
+                                    onchange={handleCrashTestedBeamTypeChange}
+                                    required>
+                                </lightning-combobox>
+
+                                <template if:true={crashTestedBeamType}>
+                                    <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium">
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Single Side Single Beam (SSSB)" checked={ctHasSSSB} onchange={handleCtSSSBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Single Side Double Beam (SSDB)" checked={ctHasSSDB} onchange={handleCtSSDBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Double Side Single Beam (DSSB)" checked={ctHasDSSB} onchange={handleCtDSSBChange}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="checkbox" label="Double Side Double Beam (DSDB)" checked={ctHasDSDB} onchange={handleCtDSDBChange}></lightning-input>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+
+                            <!-- Render Crash Tested Rows -->
+                            <template for:each={configuredRows} for:item="row">
+                                <div key={row.id} class="slds-box slds-m-bottom_medium" style="border-left: 4px solid #d9534f; background: #fff9f9;">
+                                    <h3 class="slds-text-heading_small slds-m-bottom_small" style="color:#d9534f;"><b>{row.label}</b></h3>
+
+                                    <div class="slds-grid slds-wrap slds-gutters">
+                                        <div class="slds-col slds-size_1-of-5">
+                                            <lightning-input type="number" label="Quantity (RM)" value={row.quantityRm} data-id={row.id} data-field="quantityRm" onchange={handleRowChange} required></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-5">
+                                            <lightning-combobox label="Trans. in offer?" value={row.transInOffer} options={transOptions} data-id={row.id} data-field="transInOffer" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-5">
+                                            <lightning-input type="number" label="Transportation (Kg)" value={row.transportationKg} data-id={row.id} data-field="transportationKg" onchange={handleRowChange} disabled={row.isExWorks}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-5">
+                                            <lightning-input type="number" label="Full Vehicle Freight" value={row.fullVehicleFreight} data-id={row.id} data-field="fullVehicleFreight" onchange={handleRowChange} disabled={row.isExWorks}></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-5">
+                                            <lightning-input type="number" label="Margin (%)" value={row.margin} data-id={row.id} data-field="margin" onchange={handleRowChange}></lightning-input>
+                                        </div>
+                                    </div>
+
+                                    <div class="slds-grid slds-wrap slds-gutters slds-m-top_small">
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-combobox label="Beam Thickness" value={row.beamThickness} options={beamThicknessOptions} data-id={row.id} data-field="beamThickness" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-combobox label="Spacer Thickness" value={row.spacerThickness} options={spacerThicknessOptions} data-id={row.id} data-field="spacerThickness" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-combobox label="Post Thickness" value={row.postThickness} options={postThicknessOptions} data-id={row.id} data-field="postThickness" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-input type="number" label="Post Height" value={row.postHeight} data-id={row.id} data-field="postHeight" onchange={handleRowChange} required></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-combobox label="Space Length" value={row.spaceLength} options={spaceLengthOptions} data-id={row.id} data-field="spaceLength" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-combobox label="Zinc Coating" value={row.zincCoating} options={zincCoatingOptions} data-id={row.id} data-field="zincCoating" onchange={handleRowChange} required></lightning-combobox>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-input type="text" label="Round Bolt" value={row.roundBolt} data-id={row.id} data-field="roundBolt" onchange={handleRowChange} required></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-8">
+                                            <lightning-input type="text" label="Hex Bolt" value={row.hexBolt} data-id={row.id} data-field="hexBolt" onchange={handleRowChange} required></lightning-input>
+                                        </div>
+                                    </div>
+
+                                    <!-- Calculated Results -->
+                                    <div class="slds-grid slds-wrap slds-gutters slds-m-top_medium" style="background:#fff0f0; padding:8px; border-radius:4px;">
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="number" label="Total Wt (Kg/Mtr)" value={row.weight} read-only></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="number" label="Rate/RM (₹)" value={row.rateRm} read-only></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="number" label="Unit Price (₹)" value={row.unitPrice} read-only></lightning-input>
+                                        </div>
+                                        <div class="slds-col slds-size_1-of-4">
+                                            <lightning-input type="number" label="Unit Cost (₹)" value={row.unitCost} read-only></lightning-input>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </template>
+
+                        <!-- Railway -->
+                        <template if:true={isRailway}>
+                            <div class="slds-box slds-text-color_error">Railway Type configuration pending...</div>
+                        </template>
+
+                        <!-- Non-Spacer -->
+                        <template if:true={isNonSpacer}>
+                            <div class="slds-box slds-text-color_error">Non-Spacer Design configuration pending...</div>
+                        </template>
+                    </lightning-tab>
+
+
+                </lightning-tabset>
+            </div>
+            <footer class="slds-modal__footer">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

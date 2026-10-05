@@ -1,0 +1,342 @@
+<template>
+    <section role="dialog" tabindex="-1" class="slds-modal slds-fade-in-open slds-modal_large">
+        <div class="slds-modal__container" style="max-width: 95%; width: 95%;">
+            
+            <!-- MODAL HEADER -->
+            <header class="slds-modal__header slds-theme_default">
+                <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleClose}>
+                    <lightning-icon icon-name="utility:close" alternative-text="close" variant="inverse" size="small"></lightning-icon>
+                    <span class="slds-assistive-text">Close</span>
+                </button>
+                <div class="slds-grid slds-grid_vertical-align-center slds-grid_align-spread">
+                    <div>
+                        <h2 class="slds-text-heading_medium slds-hyphenate" style="font-weight: 700; color: #0f172a;">
+                            HIGH MAST &amp; POLYGONAL POLE CONFIGURATOR
+                        </h2>
+                        <p class="slds-text-body_small slds-text-color_weak slds-m-top_xx-small">
+                            Engineering Weight Estimation, Structural Sizing &amp; Pricing Module
+                        </p>
+                    </div>
+
+                    <!-- LIVE METRIC CHIPS IN HEADER -->
+                    <div class="slds-grid slds-gutters_x-small">
+                        <div class="slds-col">
+                            <span class="slds-badge slds-theme_info" style="font-size: 13px; padding: 6px 12px;">
+                                Total Wt: <b>{formattedTotalWeightMt} MT</b> ({formattedTotalWeightKg} kg)
+                            </span>
+                        </div>
+                        <div class="slds-col">
+                            <span class="slds-badge slds-theme_success" style="font-size: 13px; padding: 6px 12px;">
+                                Net Total: <b>₹{formattedTotalAmount}</b>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- MODAL CONTENT -->
+            <div class="slds-modal__content slds-p-around_medium custom-scrollbar" style="max-height: 75vh; overflow-y: auto;">
+                
+                <!-- TOP SELECTION ROW: TYPE OF MAST & SUB-TYPE -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-blue">
+                    <div class="section-header">
+                        <h3 class="slds-text-heading_small" style="font-weight: 700; color: #1e3a8a;">
+                            <lightning-icon icon-name="utility:setup_assistant_guide" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            1. Mast Classification &amp; Product Type
+                        </h3>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-m-bottom_small">
+                            <lightning-combobox
+                                label="Type of Mast"
+                                value={selectedMastType}
+                                options={mastTypeOptions}
+                                onchange={handleMastTypeChange}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-m-bottom_small">
+                            <lightning-combobox
+                                label="Product Sub-Specification / Variant"
+                                value={selectedSubType}
+                                options={subTypeOptions}
+                                onchange={handleSubTypeChange}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_4-of-12 slds-m-bottom_small">
+                            <lightning-combobox
+                                label="Cross-Section Geometry"
+                                value={noOfSides}
+                                options={sidesOptions}
+                                onchange={handleSidesChange}
+                                required>
+                            </lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GENERAL SPECIFICATIONS CARD -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-orange">
+                    <div class="section-header">
+                        <h3 class="slds-text-heading_small" style="font-weight: 700; color: #9a3412;">
+                            <lightning-icon icon-name="utility:custom_apps" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            2. Structural &amp; Commercial Parameters
+                        </h3>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Mast Height (M)" value={heightOfMast} min="3" max="70" step="0.5" onchange={handleHeightChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="No. of Segments" value={noOfSegments} options={segmentCountOptions} onchange={handleSegmentCountChange} required></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="Wind Speed (m/s)" value={windSpeed} options={windSpeedOptions} onchange={handleWindSpeedChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Quantity (Sets)" value={quantity} min="1" onchange={handleQuantityChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Base Rate (₹/kg)" value={basePricePerKg} step="0.5" onchange={handleBasePriceChange} required></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Realization (₹/kg)" value={realizationPerKg} step="0.5" onchange={handleRealizationChange} required></lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEGMENTS DIMENSION & WEIGHT ESTIMATOR TABLE -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-blue">
+                    <div class="section-header">
+                        <div>
+                            <h3 class="slds-text-heading_small" style="font-weight: 700; color: #1e3a8a;">
+                                <lightning-icon icon-name="utility:matrix" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                                3. Segment Dimensional Details &amp; Slip Joint Sizing
+                            </h3>
+                            <p class="slds-text-body_small slds-text-color_weak">
+                                Formulas evaluate cross-sectional perimeter, polygonal wall area, and 5% galvanizing weight
+                            </p>
+                        </div>
+                        <div>
+                            <lightning-button label="Add Segment" icon-name="utility:add" size="small" onclick={handleAddSegment} class="slds-m-left_x-small"></lightning-button>
+                            <lightning-button label="Remove Segment" icon-name="utility:delete" size="small" onclick={handleRemoveSegment} disabled={isMinSegments} class="slds-m-left_x-small"></lightning-button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered table-custom">
+                            <thead>
+                                <tr>
+                                    <th style="width: 100px;">Segment</th>
+                                    <th>Length (mm)</th>
+                                    <th>Top OAF (mm)</th>
+                                    <th>Bottom OAF (mm)</th>
+                                    <th>Thickness (mm)</th>
+                                    <th>Overlap (mm)</th>
+                                    <th style="text-align: right;">Calculated Weight (kg)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template for:each={segments} for:item="seg">
+                                    <tr key={seg.index}>
+                                        <td>
+                                            <span class="slds-badge slds-badge_lightest" style="font-weight: 700;">
+                                                {seg.label}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <lightning-input type="number" variant="label-hidden" value={seg.length} data-index={seg.index} data-field="length" onchange={handleSegmentFieldChange} step="10"></lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-input type="number" variant="label-hidden" value={seg.oafTop} data-index={seg.index} data-field="oafTop" onchange={handleSegmentFieldChange} step="5"></lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-input type="number" variant="label-hidden" value={seg.oafBottom} data-index={seg.index} data-field="oafBottom" onchange={handleSegmentFieldChange} step="5"></lightning-input>
+                                        </td>
+                                        <td>
+                                            <lightning-combobox variant="label-hidden" value={seg.thickness} options={thicknessOptions} data-index={seg.index} data-field="thickness" onchange={handleSegmentFieldChange}></lightning-combobox>
+                                        </td>
+                                        <td>
+                                            <lightning-input type="number" variant="label-hidden" value={seg.overlap} data-index={seg.index} data-field="overlap" onchange={handleSegmentFieldChange} step="10"></lightning-input>
+                                        </td>
+                                        <td style="text-align: right; font-weight: 700; color: #1e40af;">
+                                            {seg.weightKg} kg
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background-color: #f8fafc; font-weight: 700;">
+                                    <td colspan="5" style="text-align: right;">Total Shaft Weight (Per Mast):</td>
+                                    <td colspan="2" style="text-align: right; font-size: 14px; color: #0284c7;">
+                                        {shaftTotalWeightKg} kg
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- BASE PLATE & FOUNDATION SECTION -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-green">
+                    <div class="section-header">
+                        <h3 class="slds-text-heading_small" style="font-weight: 700; color: #166534;">
+                            <lightning-icon icon-name="utility:anchor" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            4. Base Plate &amp; Foundation Anchor Cage
+                        </h3>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="Base Plate Type" value={basePlateType} options={basePlateTypeOptions} onchange={handleBasePlateTypeChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Base Plate OD / Size (mm)" value={basePlateOd} onchange={handleBasePlateOdChange} step="10"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="BP Thickness (mm)" value={basePlateThickness} onchange={handleBasePlateThicknessChange} step="1"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Bolt PCD (mm)" value={basePlatePcd} onchange={handleBasePlatePcdChange} step="10"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="Bolt Dia (mm)" value={boltDiameter} options={boltDiaOptions} onchange={handleBoltDiaChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Bolt Length (mm)" value={boltLength} onchange={handleBoltLengthChange} step="50"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="No. of Bolts" value={noOfBolts} onchange={handleNoOfBoltsChange} step="2"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-m-bottom_small">
+                            <lightning-input type="number" label="Stiffener Thk (mm)" value={stiffenerThickness} onchange={handleStiffenerThicknessChange} step="1"></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-medium-size_8-of-12 slds-m-bottom_small slds-grid slds-grid_vertical-align-center">
+                            <div class="slds-badge slds-theme_success slds-m-top_medium" style="padding: 6px 12px;">
+                                Foundation Hardware Wt: <b>{foundationWeightKg} kg</b> (Base Plate: {basePlateWeightKg} kg + Bolts/Stiffeners: {boltsWeightKg} kg)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LANTERN CARRIAGE & TOP HEADFRAME ASSEMBLY -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-blue">
+                    <div class="section-header">
+                        <h3 class="slds-text-heading_small" style="font-weight: 700; color: #1e3a8a;">
+                            <lightning-icon icon-name="utility:lightbulb" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            5. Lantern Carriage (L-Ring) &amp; Luminaires
+                        </h3>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="L-Ring Construction" value={typeOfLRing} options={lRingTypeOptions} onchange={handleLRingTypeChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="Ring Diameter (mm)" value={ringDiameter} options={ringDiaOptions} onchange={handleRingDiaChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="No. of Luminaires" value={noOfLuminaires} options={luminairesCountOptions} onchange={handleNoOfLuminairesChange}></lightning-combobox>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-m-bottom_small">
+                            <lightning-combobox label="Beam Orientation" value={typeOfLuminaires} options={beamOptions} onchange={handleTypeOfLuminairesChange}></lightning-combobox>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INTERNAL MECHANICAL KIT & ELECTRICALS -->
+                <div class="slds-box slds-m-bottom_medium slds-theme_default border-orange">
+                    <div class="section-header">
+                        <h3 class="slds-text-heading_small" style="font-weight: 700; color: #9a3412;">
+                            <lightning-icon icon-name="utility:settings" size="x-small" class="slds-m-right_x-small"></lightning-icon>
+                            6. Electro-Mechanical Operating KIT &amp; Accessories
+                        </h3>
+                    </div>
+                    <div class="slds-grid slds-wrap slds-gutters">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="High Mast Double Drum Winch" checked={includeWinch} onchange={handleIncludeWinchChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Electric Power Tool Motor" checked={includePowerTool} onchange={handleIncludePowerToolChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Stainless Steel Wire Rope (6mm 7x19)" checked={includeWireRope} onchange={handleIncludeWireRopeChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Flexible Trailing Power Cable" checked={includeTrailingCable} onchange={handleIncludeTrailingCableChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Outdoor Feeder Pillar / Control Panel" checked={includeFeederPillar} onchange={handleIncludeFeederPillarChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Aviation Obstruction Light (AOL)" checked={includeAol} onchange={handleIncludeAolChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="Lightning Arrester / ESE Terminal" checked={includeLightningArrester} onchange={handleIncludeLightningArresterChange}></lightning-input>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12 slds-p-top_small">
+                            <lightning-input type="checkbox" label="PU Paint over Galvanizing" checked={includePuPaint} onchange={handleIncludePuPaintChange}></lightning-input>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- VARIANT-SPECIFIC OPTIONS -->
+                <template if:true={isStadiumMast}>
+                    <div class="slds-box slds-m-bottom_medium slds-theme_shade border-blue">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="font-weight: 700; color: #1e3a8a;">
+                            Stadium Mast Specialized Equipment
+                        </h3>
+                        <div class="slds-grid slds-wrap slds-gutters">
+                            <div class="slds-col slds-size_1-of-2 slds-medium-size_4-of-12">
+                                <lightning-input type="checkbox" label="Man Riding Lift (Elevator Hoist)" checked={manRidingLift} onchange={handleManRidingLiftChange}></lightning-input>
+                            </div>
+                            <div class="slds-col slds-size_1-of-2 slds-medium-size_4-of-12">
+                                <lightning-input type="checkbox" label="Safety Ladder with Rest Platforms &amp; Cage" checked={ladderWithCage} onchange={handleLadderWithCageChange}></lightning-input>
+                            </div>
+                        </div>
+                    </div>
+                </template>
+
+                <template if:true={isLatchingMast}>
+                    <div class="slds-box slds-m-bottom_medium slds-theme_shade border-blue">
+                        <h3 class="slds-text-heading_small slds-m-bottom_small" style="font-weight: 700; color: #1e3a8a;">
+                            Latching Head Assembly Mechanism
+                        </h3>
+                        <p class="slds-text-body_small">
+                            Includes docking barrel hooks, self-aligning visual latch indicator flags, and rope tension release assemblies.
+                        </p>
+                    </div>
+                </template>
+
+                <!-- COMMERCIAL PRICING BREAKDOWN SUMMARY -->
+                <div class="summary-card slds-m-bottom_small">
+                    <div class="slds-grid slds-wrap slds-gutters slds-grid_vertical-align-center">
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12">
+                            <div class="metric-title">Unit Weight</div>
+                            <div class="metric-value">{formattedUnitWeightKg} <span class="metric-unit">kg/set</span></div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12">
+                            <div class="metric-title">Unit Price (Ex-Works)</div>
+                            <div class="metric-value">₹{formattedUnitPrice} <span class="metric-unit">/set</span></div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12">
+                            <div class="metric-title">Total Weight ({quantity} Sets)</div>
+                            <div class="metric-value">{formattedTotalWeightMt} <span class="metric-unit">MT</span></div>
+                        </div>
+                        <div class="slds-col slds-size_1-of-2 slds-medium-size_3-of-12">
+                            <div class="metric-title">Total Project Value</div>
+                            <div class="metric-value" style="color: #047857;">₹{formattedTotalAmount}</div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MODAL FOOTER -->
+            <footer class="slds-modal__footer slds-theme_default">
+                <button class="slds-button slds-button_neutral" onclick={handleClose}>Cancel</button>
+                <button class="slds-button slds-button_brand" onclick={handleSave}>Save Configuration</button>
+            </footer>
+        </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+</template>

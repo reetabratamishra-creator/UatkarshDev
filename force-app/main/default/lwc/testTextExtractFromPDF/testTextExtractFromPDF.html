@@ -1,0 +1,27 @@
+<template>
+    <lightning-card title="Read PDF Text Locally" icon-name="doctype:pdf">
+        <div class="slds-m-around_medium slds-is-relative">
+            
+            <!-- Show a spinner while the text is being extracted -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Extracting text..." size="small"></lightning-spinner>
+            </template>
+
+            <!-- Standard HTML file input -->
+            <div class="slds-m-bottom_medium">
+                <input type="file" accept=".pdf" onchange={handleFileChange} />
+            </div>
+
+            <!-- Render the Extracted Text on the screen -->
+            <template if:true={extractedText}>
+                <lightning-textarea 
+                    label="Extracted Text" 
+                    value={extractedText} 
+                    rows="15" 
+                    readonly>
+                </lightning-textarea>
+            </template>
+            
+        </div>
+    </lightning-card>
+</template>

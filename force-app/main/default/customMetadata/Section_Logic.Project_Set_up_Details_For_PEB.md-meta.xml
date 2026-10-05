@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Project Set-up Details For PEB</label>
+    <protected>false</protected>
+    <values>
+        <field>Accordion_Section__c</field>
+        <value xsi:type="xsd:string">Project_Setup_Details_Peb</value>
+    </values>
+    <values>
+        <field>Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Blueprint_Library__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Controlling_Value__c</field>
+        <value xsi:type="xsd:string">*</value>
+    </values>
+    <values>
+        <field>JSON_Payload__c</field>
+        <value xsi:type="xsd:string">{
+  &quot;fields&quot;: [
+    {
+      &quot;apiName&quot;: &quot;terms_and_conditions&quot;,
+      &quot;label&quot;: &quot;Terms &amp; Conditions&quot;,
+      &quot;type&quot;: &quot;folder&quot;,
+      &quot;iconColor&quot;: &quot;blue&quot;,
+      &quot;colSpan&quot;: 12,
+      &quot;modalConfigsByValue&quot;: {
+        &quot;default&quot;: {
+          &quot;title&quot;: &quot;TERMS &amp; CONDITIONS&quot;,
+          &quot;modalFields&quot;: [
+            {
+              &quot;id&quot;: &quot;payment_terms&quot;,
+              &quot;label&quot;: &quot;Payment Terms&quot;,
+              &quot;expanded&quot;: true,
+              &quot;fields&quot;: [
+                {
+                  &quot;apiName&quot;: &quot;payment_terms&quot;,
+                  &quot;label&quot;: &quot;Payment Terms&quot;,
+                  &quot;type&quot;: &quot;picklist&quot;,
+                  &quot;options&quot;: [
+                    &quot;Before Dispatch&quot;,
+                    &quot;Against LC&quot;,
+                    &quot;Against PDC&quot;,
+                    &quot;Against Open Credit&quot;,
+                    &quot;Others&quot;
+                  ],
+                  &quot;colSpan&quot;: 12
+                },
+                {
+                  &quot;apiName&quot;: &quot;lc_interest_reflect_separately&quot;,
+                  &quot;label&quot;: &quot;LC Interest Reflect Separately&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against LC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;usance_interest_buyer_days&quot;,
+                  &quot;label&quot;: &quot;(I) Usance Interest in Buyer&apos;s Account&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;Days&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against LC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;usance_interest_seller_days&quot;,
+                  &quot;label&quot;: &quot;(II) Usance Interest in Seller&apos;s Account&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;Days&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against LC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;usance_interest_percentage&quot;,
+                  &quot;label&quot;: &quot;(III) % of Usance Interest&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;%&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against LC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;against_pdc_days&quot;,
+                  &quot;label&quot;: &quot;Against PDC&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;Days&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against PDC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;pdc_interest_percentage&quot;,
+                  &quot;label&quot;: &quot;Interest (%)&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;%&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against PDC&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;against_open_credit_days&quot;,
+                  &quot;label&quot;: &quot;Against Open Credit&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;Days&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against Open Credit&quot;
+                  ]
+                },
+                {
+                  &quot;apiName&quot;: &quot;open_credit_interest_percentage&quot;,
+                  &quot;label&quot;: &quot;Interest (%)&quot;,
+                  &quot;type&quot;: &quot;number&quot;,
+                  &quot;unit&quot;: &quot;%&quot;,
+                  &quot;colSpan&quot;: 12,
+                  &quot;controllingField&quot;: &quot;payment_terms&quot;,
+                  &quot;controllingValues&quot;: [
+                    &quot;Against Open Credit&quot;
+                  ]
+                }
+              ]
+            },
+            {
+              &quot;id&quot;: &quot;tnc_details&quot;,
+              &quot;label&quot;: &quot;T&amp;C Details&quot;,
+              &quot;expanded&quot;: true,
+              &quot;fields&quot;: [
+                {
+                  &quot;apiName&quot;: &quot;delivery_schedule&quot;,
+                  &quot;label&quot;: &quot;Delivery Schedule&quot;,
+                  &quot;type&quot;: &quot;text&quot;,
+                  &quot;unit&quot;: &quot;Delivery Schedule&quot;,
+                  &quot;colSpan&quot;: 6
+                },
+                {
+                  &quot;apiName&quot;: &quot;offer_validity&quot;,
+                  &quot;label&quot;: &quot;Offer Validity&quot;,
+                  &quot;type&quot;: &quot;text&quot;,
+                  &quot;unit&quot;: &quot;Offer Validity&quot;,
+                  &quot;colSpan&quot;: 6
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  ]
+}</value>
+    </values>
+</CustomMetadata>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Online_Offline_Lead__c</fullName>
+    <externalId>false</externalId>
+    <formula>IF( ISPICKVAL( LeadSource , &apos;FACEBOOK&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;FB LEAD ADS&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;INBOUND EMAIL&apos;) , &apos;OFFLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;INBOUND PHONE CALL&apos;) , &apos;OFFLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;INDIAMART&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;ONLINE CAMPAIGNING&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;PAY PER CLICK ADS&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;WEBSITE&apos;) , &apos;ONLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;WHATSAPP CAMPAIGNING&apos;) , &apos;OFFLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;EMAIL CAMPAIGNING&apos;) , &apos;OFFLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;OFFLINE CRM&apos;) , &apos;OFFLINE&apos;,
+IF( ISPICKVAL( LeadSource , &apos;Offline Marketing&apos;) , &apos;OFFLINE&apos;,
+&apos;&apos;))))))))))))</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Online/Offline Lead</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

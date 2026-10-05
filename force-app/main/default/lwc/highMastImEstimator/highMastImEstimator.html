@@ -1,0 +1,432 @@
+<!-- highMastImEstimator - High Mast estimator of the International Marketing quote. Deepanjan (28th September 2026)
+     The hmEstimator engine drawn the way the other IM children (tpImConfig ...) draw their
+     folders: every section is a group card with a band heading; a small section is a bordered
+     table in place, a big table section is a card ("n of m filled" + OPEN) that edits in a
+     full-width panel; the computed values of a section open in the CALCULATED VALUES panel
+     (never on the card). The field markup itself (data-name / data-section, native inputs,
+     the Core SUB-TYPE x QUANTITY widget) is hmEstimator's own, so the engine is untouched.
+     No modal shell, no APPLY: the host reads the live 'imlive' payload. -->
+<template>
+    <template if:true={isLoading}>
+        <lightning-spinner alternative-text="Loading" size="medium"></lightning-spinner>
+    </template>
+    <template lwc:if={isModalOpen}>
+      <div class={imWrapCls}>
+        <div class="modal-container" onclick={stopPropagation}>
+            <div class="modal-body">
+                <template for:each={accordionSections} for:item="section">
+                    <template lwc:if={section.isVisible}>
+                        <div key={section.id} class={section.imGroupCls}>
+
+                            <div class={section.headerClass}>
+                                <button type="button" class="im-group-toggle" data-id={section.id} onclick={handleSectionToggle}>
+                                    <lightning-icon icon-name={section.chevronIcon} size="xx-small" class="chevron-icon im-chev"></lightning-icon>
+                                    <span class="section-label">{section.imLabel}</span>
+                                    <template lwc:if={section.imMissing}><span class="im-miss-tag">{section.imMissing}</span></template>
+                                </button>
+                                <!-- the computed values of this section open in a panel (a section that is
+                                     only computed carries the button on its card instead) -->
+                                <template lwc:if={section.imHeadCalc}>
+                                    <button class={section.calcBtnCls} type="button" data-id={section.id}
+                                            onclick={handleCalcOpen} title="Show the calculated values of this section">
+                                        <lightning-icon icon-name="utility:formula" size="xx-small" class="hm-calc-icon"></lightning-icon>
+                                        <span>{section.calcLabel}</span>
+                                    </button>
+                                </template>
+                            </div>
+
+                            <template lwc:if={section.isExpanded}>
+                                <div class="im-group-body">
+                                <template lwc:if={section.hasCardFields}>
+                                    <!-- big table: a card on the folder, the table itself in a full-width panel -->
+                                    <template lwc:if={section.imTable}>
+                                        <div class={section.imCardCls}>
+                                            <div class="im-tablecard-info">
+                                                <lightning-icon icon-name="utility:table" size="x-small" class="im-chev"></lightning-icon>
+                                                <span class="im-tablecard-sub">{section.imFilledLabel}</span>
+                                                <template lwc:if={section.imMissing}><span class="im-miss-tag">{section.imMissing}</span></template>
+                                                <template lwc:if={section.imTrigger}><span class="im-trigger-tag">APPROVAL TRIGGER</span></template>
+                                            </div>
+                                            <button type="button" class="im-openbtn" data-id={section.id} onclick={handleImTableOpen}>{section.imOpenLabel}</button>
+                                        </div>
+                                    </template>
+                                    <template lwc:if={section.imShowGrid}>
+                                        <template lwc:if={section.imOpen}><div class="im-gm-bg" data-id={section.id} onclick={handleImTableClose}></div></template>
+                                        <div class={section.imShellCls}>
+                                            <template lwc:if={section.imOpen}>
+                                                <div class="im-gm-head">
+                                                    <span class="im-gm-title">{section.imLabel}</span>
+                                                    <span class="im-gm-headbtns">
+                                                        <!-- the computed values of this table (unit price / cost, realization, weight) -->
+                                                        <template lwc:if={section.hasCalc}>
+                                                            <button class={section.calcBtnCls} type="button" data-id={section.id}
+                                                                    onclick={handleCalcOpen} title="Show the calculated values of this table">
+                                                                <lightning-icon icon-name="utility:formula" size="xx-small" class="hm-calc-icon"></lightning-icon>
+                                                                <span>{section.calcShort}</span>
+                                                            </button>
+                                                        </template>
+                                                        <button type="button" class="im-gm-x" data-id={section.id} onclick={handleImTableClose} title="Close">&times;</button>
+                                                    </span>
+                                                </div>
+                                            </template>
+                                            <div class={section.imBodyCls}>
+                                <!-- BOM items: item | qty consumed | amount -->
+                                <template lwc:if={section.imIsPairs}>
+                                    <div class="im-pairs">
+                                        <div class="im-pairs-head"><span>Item</span><span class="im-pairs-num">Qty consumed</span><span class="im-pairs-num">Amount</span></div>
+                                        <template for:each={section.imPairs} for:item="pr">
+                                            <div key={pr.key} class={pr.cls}>
+                                                <span class="im-pairs-item">{pr.item}</span>
+                                                <span class="im-pairs-num">{pr.qty} <span class="im-pairs-unit">{pr.unit}</span></span>
+                                                <span class="im-pairs-num im-pairs-amt">{pr.amt}<template lwc:if={pr.fc}><span class="im-fc">{pr.fc}</span></template></span>
+                                            </div>
+                                        </template>
+                                        <div class="im-pairs-row im-pairs-total"><span class="im-pairs-item">TOTAL</span><span></span><span class="im-pairs-num im-pairs-amt">{section.imPairsTotal}<template lwc:if={section.imPairsTotalFc}><span class="im-fc">{section.imPairsTotalFc}</span></template></span></div>
+                                    </div>
+                                </template>
+                                <template lwc:if={section.imGridShown}>
+                                <div class={section.gridWrapperClass} style={section.imGridStyle}>
+
+                                    <template for:each={section.cardFields} for:item="field">
+
+                                        <div key={field.apiName} class={field.containerClass} style={field.imStyle}>
+
+                                            <template lwc:if={field.isHeader}>
+                                                <span class="header-text">{field.imLabelText}<template lwc:if={field.imRequired}><span class="im-req">*</span></template></span><template lwc:if={field.imUnit}><span class="im-hdr-unit">{field.imUnit}</span></template>
+                                            </template>
+
+                                            <template lwc:else>
+
+                                                <div class="field-label-cell">
+                                                    <span class={field.labelClass}>{field.imLabelText}</span>
+                                                </div>
+
+                                                <div class={field.dividerClass}></div>
+
+                                                <div class="field-input-cell">
+
+                                                    <template lwc:if={field.isPicklist}>
+                                                        <template lwc:if={field.isDependentBlocked}>
+                                                            <select class="hm-in hm-select" disabled><option value=""></option></select>
+                                                        </template>
+                                                        <template lwc:elseif={field.readOnly}>
+                                                            <span class="readonly-value">{field.value}</span>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <select class="hm-in hm-select"
+                                                                data-name={field.apiName} data-section={section.id}
+                                                                onchange={handleFieldChange}>
+                                                                <option value="" disabled hidden selected={field.hmBlankSelected}></option>
+                                                                <template for:each={field.hmOptions} for:item="opt">
+                                                                    <option key={opt.value} value={opt.value} selected={opt.selected}>{opt.label}</option>
+                                                                </template>
+                                                            </select>
+                                                        </template>
+                                                        <template lwc:if={field.unit}><span class="field-unit">{field.unit}</span></template>
+                                                    </template>
+                                                    
+                                                    <template lwc:if={field.isNumber}>
+                                                        <template lwc:if={field.readOnly}>
+                                                            <span class="readonly-value">{field.value}</span>
+                                                            <template lwc:if={field.imFc}><span class="im-fc">{field.imFc}</span></template>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <input type="text" class="hm-in hm-number"
+                                                                value={field.value}
+                                                                data-name={field.apiName} data-section={section.id}
+                                                                onchange={handleFieldChange} oninput={handleHmTyping} />
+                                                        </template>
+                                                        <template lwc:if={field.unit}><span
+                                                                class="field-unit">{field.unit}</span></template>
+                                                    </template>
+
+                                                    <template lwc:if={field.isText}>
+                                                        <template lwc:if={field.readOnly}>
+                                                            <span class="readonly-value">{field.value}</span>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <input type="text" class="hm-in hm-text"
+                                                                value={field.value} data-name={field.apiName}
+                                                                data-section={section.id}
+                                                                onchange={handleFieldChange} oninput={handleHmTyping} />
+                                                        </template>
+                                                    </template>
+
+                                                    <template lwc:if={field.isTextarea}>
+                                                        <template lwc:if={field.readOnly}>
+                                                            <span class="readonly-value">{field.value}</span>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <textarea class="hm-in hm-textarea" rows="2"
+                                                                data-name={field.apiName} data-section={section.id}
+                                                                onchange={handleFieldChange} oninput={handleHmTyping}></textarea>
+                                                        </template>
+                                                    </template>
+
+                                                    <template lwc:if={field.isDate}>
+                                                        <template lwc:if={field.readOnly}>
+                                                            <span class="readonly-value">{field.displayValue}</span>
+                                                        </template>
+                                                        <template lwc:else>
+                                                            <input type="date" class="hm-in hm-date"
+                                                                value={field.value}
+                                                                data-name={field.apiName}
+                                                                data-section={section.id}
+                                                                onchange={handleFieldChange} />
+                                                        </template>
+                                                    </template>
+
+                                                    <template lwc:if={field.isCheckbox}>
+                                                        <div class="checkbox-wrapper">
+                                                            <label class="hm-toggle">
+                                                                <input type="checkbox" class="hm-toggle-in"
+                                                                    checked={field.hmChecked} data-name={field.apiName}
+                                                                    data-section={section.id} onchange={handleFieldChange}
+                                                                    disabled={field.readOnly} />
+                                                                <span class="hm-toggle-track"><span class="hm-toggle-knob"></span></span>
+                                                                <span class="hm-toggle-text">{field.hmToggleText}</span>
+                                                            </label>
+                                                        </div>
+                                                    </template>
+
+                                                    <!-- Core SUB-TYPE x QUANTITY multiselect widget (Path B) -->
+                                                    <template lwc:if={field.isSubtypeQtyGrid}>
+                                                        <div class="sqg-wrap" style="width:100%;">
+                                                            <template lwc:if={field.isDependentBlocked}>
+                                                                <span class="sqg-blocked" style="color:#706e6b; font-style:italic; font-size:11px;">Select a material type first.</span>
+                                                            </template>
+                                                            <template lwc:else>
+                                                                <div class="sqg-inline">
+                                                                <div class="sqg-list" style="max-height:150px; overflow-y:auto; border:1px solid #dddbda; border-radius:3px; padding:4px;">
+                                                                    <template for:each={field.subtypeOptions} for:item="opt">
+                                                                        <label key={opt.value} class="sqg-opt" style="display:flex; align-items:center; font-size:12px; padding:1px 0;">
+                                                                            <input type="checkbox" checked={opt.checked}
+                                                                                data-name={field.apiName} data-subtype={opt.value}
+                                                                                onchange={handleSubtypeCheckToggle}
+                                                                                disabled={field.readOnly} class="sqg-cb" style="margin-right:5px;" />
+                                                                            <span>{opt.label}</span>
+                                                                        </label>
+                                                                    </template>
+                                                                </div>
+                                                                <template lwc:if={field.qtyRows.length}>
+                                                                    <div class="sqg-qty-table" style="margin-top:4px; border-top:1px solid #dddbda;">
+                                                                        <template for:each={field.qtyRows} for:item="row">
+                                                                            <div key={row.key} class="sqg-qty-row" style="display:flex; align-items:center; font-size:11px; padding:2px 0; gap:4px;">
+                                                                                <span class="sqg-name" style="flex:1 1 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title={row.subtype}>{row.subtype}</span>
+                                                                                <span class="sqg-qty-cell" style="width:64px;">
+                                                                                    <input type="number" step="any" min="0" class="hm-in hm-number hm-sqg-qty"
+                                                                                        value={row.qty} data-name={field.apiName} data-subtype={row.subtype}
+                                                                                        onchange={handleSubtypeQtyChange} disabled={field.readOnly} />
+                                                                                </span>
+                                                                                <span class="sqg-wt" style="width:52px; text-align:right;">{row.rowWeight}</span>
+                                                                            </div>
+                                                                        </template>
+                                                                        <div class="sqg-total-row" style="display:flex; font-size:11px; font-weight:700; color:#16325c; padding-top:3px; border-top:1px solid #f0f0f0; gap:4px;">
+                                                                            <span class="sqg-name" style="flex:1 1 0;">TOTAL</span>
+                                                                            <span class="sqg-qty-cell" style="width:64px; text-align:center;">{field.totalQuantity}</span>
+                                                                            <span class="sqg-wt" style="width:52px; text-align:right;">{field.totalWeight}</span>
+                                                                        </div>
+                                                    </div>
+                                                                </template>
+                                                                </div>
+
+                                                                <!-- launcher stays ENABLED in read-only so the saved selection can be
+                                                                     viewed in the popup (all controls inside it are disabled then).
+                                                                     Reetabrata (24th July 2026) -->
+                                                                <button class="sqg-mobile-launch" type="button"
+                                                                    data-name={field.apiName} onclick={handleSqgSheetOpen}>
+                                                                    <span class="sqg-launch-txt">{field.sqgLaunchLabel}</span>
+                                                                    <lightning-icon icon-name="utility:chevronright" size="xx-small"></lightning-icon>
+                                                                </button>
+
+                                                                <template lwc:if={field.sqgSheetOpen}>
+                                                                    <div class="sqg-sheet-backdrop" data-name={field.apiName} onclick={handleSqgSheetClose}></div>
+                                                                    <div class="sqg-sheet">
+                                                                        <div class="sqg-sheet-head">
+                                                                            <span class="sqg-sheet-title">{field.sqgSheetTitle}</span>
+                                                                            <button class="sqg-sheet-x" type="button" data-name={field.apiName}
+                                                                                onclick={handleSqgSheetClose} title="Close">
+                                                                                <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="sqg-sheet-body">
+                                                                            <div class="sqg-list sqg-sheet-list">
+                                                                                <template for:each={field.subtypeOptions} for:item="opt">
+                                                                                    <label key={opt.value} class="sqg-opt">
+                                                                                        <input type="checkbox" checked={opt.checked}
+                                                                                            data-name={field.apiName} data-subtype={opt.value}
+                                                                                            onchange={handleSubtypeCheckToggle}
+                                                                                            disabled={field.readOnly} class="sqg-cb" />
+                                                                                        <span>{opt.label}</span>
+                                                                                    </label>
+                                                                                </template>
+                                                                            </div>
+                                                                            <template lwc:if={field.qtyRows.length}>
+                                                                                <div class="sqg-qty-table sqg-sheet-qty">
+                                                                                    <template for:each={field.qtyRows} for:item="row">
+                                                                                        <div key={row.key} class="sqg-qty-row">
+                                                                                            <span class="sqg-name" title={row.subtype}>{row.subtype}</span>
+                                                                                            <span class="sqg-qty-cell">
+                                                                                                <input type="number" step="any" min="0" class="hm-in hm-number hm-sqg-qty"
+                                                                                                    value={row.qty} data-name={field.apiName} data-subtype={row.subtype}
+                                                                                                    onchange={handleSubtypeQtyChange} disabled={field.readOnly} />
+                                                                                            </span>
+                                                                                            <span class="sqg-wt">{row.rowWeight}</span>
+                                                                                        </div>
+                                                                                    </template>
+                                                                                    <div class="sqg-total-row">
+                                                                                        <span class="sqg-name">TOTAL</span>
+                                                                                        <span class="sqg-qty-cell">{field.totalQuantity}</span>
+                                                                                        <span class="sqg-wt">{field.totalWeight}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                        <div class="sqg-sheet-foot">
+                                                                            <button class="sqg-sheet-done" type="button" data-name={field.apiName}
+                                                                                onclick={handleSqgSheetClose}>DONE</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </template>
+                                                        </div>
+                                                    </template>
+
+                                                </div>
+
+                                                <template lwc:if={field.imErr}><div class="im-err">{field.imErr}</div></template>
+
+                                                <div class="field-action-cell">
+                                                    <template lwc:if={field.readOnly}><span></span></template>
+                                                    <template lwc:else>
+                                                        <template lwc:if={field.hasValue}>
+                                                            <button class="clear-btn" data-name={field.apiName}
+                                                                data-section={section.id} onclick={handleClearField}
+                                                                title="Clear">
+                                                                <lightning-icon icon-name="utility:clear"
+                                                                    size="xx-small"></lightning-icon>
+                                                            </button>
+                                                        </template>
+                                                    </template>
+                                                </div>
+
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                                </template>
+                                            </div>
+                                            <template lwc:if={section.imOpen}>
+                                                <div class="im-gm-foot">
+                                                    <div class="im-legend"><span class="im-legend-in">Editable</span><span class="im-legend-ro">Calculated / fixed</span><span class="im-legend-req">* Required</span></div>
+                                                    <template lwc:if={imDoneErr}><span class="im-done-err">{imDoneErr}</span></template>
+                                                    <button type="button" class="im-openbtn" data-id={section.id} onclick={handleImTableDone}>DONE</button>
+                                                </div>
+                                            </template>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template lwc:else>
+                                    <div class="hm-empty-card">
+                                        <span>All values in this section are calculated.</span>
+                                        <button class="hm-calc-btn hm-calc-btn-inline" type="button" data-id={section.id} onclick={handleCalcOpen}>
+                                            <lightning-icon icon-name="utility:formula" size="xx-small" class="hm-calc-icon"></lightning-icon>
+                                            <span>{section.calcLabel}</span>
+                                        </button>
+                                    </div>
+                                </template>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </template>
+            </div>
+
+            <!-- CALCULATED VALUES panel -->
+            <template lwc:if={hmCalcOpen}>
+                <div class="im-gm-bg hm-calc-backdrop" onclick={handleCalcClose}></div>
+                <div class={hmCalcSheetCls} role="dialog">
+                    <div class="im-gm-head hm-calc-head">
+                        <span class="im-gm-title hm-calc-title">{hmCalcTitle}<span class="im-gm-sub">Calculated values</span></span>
+                        <button class="im-gm-x hm-calc-x" type="button" onclick={handleCalcClose} title="Close">&times;</button>
+                    </div>
+                    <div class="im-gm-body hm-calc-body">
+                        <!-- several items / rows: a table in the shape of the table the values come from
+                             (one column per item, or one row per table row) -->
+                        <template lwc:if={hmCalcGrid}>
+                            <div class="im-cg-wrap">
+                                <table class={hmCalcGridCls}>
+                                    <thead>
+                                        <tr>
+                                            <th class="im-cg-corner">{hmCalcGrid.corner}</th>
+                                            <template for:each={hmCalcGrid.cols} for:item="col">
+                                                <th key={col.key} class={col.cls}>{col.label}<template lwc:if={col.unit}><span class="im-cg-unit">{col.unit}</span></template></th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <template for:each={hmCalcGrid.rows} for:item="grow">
+                                            <tr key={grow.key} class={grow.cls}>
+                                                <th class="im-cg-lbl" scope="row">{grow.label}<template lwc:if={grow.unit}><span class="im-cg-unit">{grow.unit}</span></template></th>
+                                                <template for:each={grow.cells} for:item="gc">
+                                                    <td key={gc.key} class={gc.cls}>{gc.value}<template lwc:if={gc.unit}><span class="calc-unit"> {gc.unit}</span></template><template lwc:if={gc.fc}><span class="im-fc im-cg-fc">{gc.fc}</span></template></td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <template lwc:if={hmCalcHasExtra}>
+                                <div class="im-calc-tbl im-calc-tbl_extra">
+                                    <template for:each={hmCalcExtra} for:item="row">
+                                        <div key={row.key} class={row.cls}>
+                                            <span class="calc-label">{row.label}</span>
+                                            <span class="calc-value">{row.value}<span class="calc-unit">{row.unit}</span><template lwc:if={row.fc}><span class="im-fc im-fc_calc">{row.fc}</span></template></span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                        </template>
+                        <template lwc:else>
+                        <div class="im-calc-tbl">
+                        <template for:each={hmCalcRows} for:item="row">
+                            <template lwc:if={row.isGroup}>
+                                <div key={row.key} class="calc-group">{row.label}</div>
+                            </template>
+                            <template lwc:else>
+                                <div key={row.key} class={row.cls}>
+                                    <span class="calc-label">{row.label}</span>
+                                    <span class="calc-value">{row.value}<span class="calc-unit">{row.unit}</span><template lwc:if={row.fc}><span class="im-fc im-fc_calc">{row.fc}</span></template></span>
+                                </div>
+                            </template>
+                        </template>
+                        </div>
+                        <!-- [im] KIT line: its BOM ITEM DETAILS (item | qty consumed | amount), all computed -->
+                        <template lwc:if={hmCalcBom}>
+                            <div class="im-calc-bom">
+                                <div class="calc-group im-calc-bom-title">BOM ITEM DETAILS</div>
+                                <div class="im-pairs">
+                                    <div class="im-pairs-head"><span>Item</span><span class="im-pairs-num">Qty consumed</span><span class="im-pairs-num">Amount</span></div>
+                                    <template for:each={hmCalcBom.pairs} for:item="pr">
+                                        <div key={pr.key} class={pr.cls}>
+                                            <span class="im-pairs-item">{pr.item}</span>
+                                            <span class="im-pairs-num">{pr.qty} <span class="im-pairs-unit">{pr.unit}</span></span>
+                                            <span class="im-pairs-num im-pairs-amt">{pr.amt}<template lwc:if={pr.fc}><span class="im-fc">{pr.fc}</span></template></span>
+                                        </div>
+                                    </template>
+                                    <div class="im-pairs-row im-pairs-total"><span class="im-pairs-item">TOTAL</span><span></span><span class="im-pairs-num im-pairs-amt">{hmCalcBom.total}<template lwc:if={hmCalcBom.totalFc}><span class="im-fc">{hmCalcBom.totalFc}</span></template></span></div>
+                                </div>
+                            </div>
+                        </template>
+                        </template>
+                    </div>
+                    <div class="im-gm-foot hm-calc-foot">
+                        <button class="im-openbtn hm-calc-done" type="button" onclick={handleCalcClose}>DONE</button>
+                    </div>
+                </div>
+            </template>
+
+        </div>
+      </div>
+    </template>
+</template>

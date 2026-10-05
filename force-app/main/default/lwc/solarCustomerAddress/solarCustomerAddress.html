@@ -1,0 +1,33 @@
+<template>
+    <div class="slds-grid slds-wrap" style="gap: 15px;">
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="STREET" name="ba_street" value={addressData.ba_street} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="CITY" name="ba_city" value={addressData.ba_city} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="ZIP-CODE" name="ba_zip_code" value={addressData.ba_zip_code} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="STATE" name="ba_state" value={addressData.ba_state} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="COUNTRY" name="ba_country" value={addressData.ba_country} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="PHONE NUMBER" name="ba_phone" value={addressData.ba_phone} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="EMAIL" name="ba_email" value={addressData.ba_email} read-only="true"></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="WEBSITE" name="ba_website" value={addressData.ba_website} read-only="true"></lightning-input>
+        </div>
+    </div>
+    
+    <div class="slds-m-top_large slds-text-align_right">
+        <lightning-button label="Cancel" onclick={handleCancel} class="slds-m-right_small"></lightning-button>
+        <lightning-button variant="brand" label="Apply" onclick={handleApply}></lightning-button>
+    </div>
+</template>

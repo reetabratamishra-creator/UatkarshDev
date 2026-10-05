@@ -1,0 +1,51 @@
+<template>
+    <div class="slds-grid slds-wrap" style="gap: 15px;">
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-textarea label="Subject Line" name="tc_subject_line" value={termsData.tc_subject_line} onchange={handleFieldChange}></lightning-textarea>
+        </div>
+        <div class="slds-col slds-size_1-of-2 slds-p-right_small">
+            <lightning-input type="number" label="ADVANCE PAYMENT %" name="tc_advance_payment" value={termsData.tc_advance_payment} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-2">
+            <lightning-input type="number" label="Warranty (in months)" name="tc_warranty_in_months" value={termsData.tc_warranty_in_months} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="Delivery Days" name="tc_delivery_days" value={termsData.tc_delivery_days} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-combobox label="PAYMENT TERMS" name="tc_payment_terms_picklist" value={termsData.tc_payment_terms_picklist} options={paymentTermOptions} onchange={handleFieldChange}></lightning-combobox>
+        </div>
+        
+        <template lwc:if={isAgainstLC}>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input type="number" label="(I) USANCE INTEREST IN BUYER SCOPE(IN NUMBER OF DAYS)" name="tc_lc_buyer_interest_days" value={termsData.tc_lc_buyer_interest_days} onchange={handleFieldChange}></lightning-input>
+            </div>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input type="number" label="(II) USANCE INTEREST IN SELLER SCOPE(IN NUMBER OF DAYS)" name="tc_lc_seller_interest_days" value={termsData.tc_lc_seller_interest_days} onchange={handleFieldChange}></lightning-input>
+            </div>
+        </template>
+        
+        <template lwc:if={isAgainstVFS}>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input type="number" label="INTEREST COMPONENT ON VFS FOR SELLER" name="tc_vfs_seller_interest" value={termsData.tc_vfs_seller_interest} onchange={handleFieldChange}></lightning-input>
+            </div>
+        </template>
+        
+        <template lwc:if={isAgainstPDC}>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input type="number" label="AGAINST PDC" name="tc_PDC_interest" value={termsData.tc_PDC_interest} onchange={handleFieldChange}></lightning-input>
+            </div>
+        </template>
+        
+        <template lwc:if={isAgainstOpenCredit}>
+            <div class="slds-col slds-size_1-of-1">
+                <lightning-input type="number" label="NO. OF OPEN CREDIT DAYS" name="tc_open_credit_days" value={termsData.tc_open_credit_days} onchange={handleFieldChange}></lightning-input>
+            </div>
+        </template>
+    </div>
+    
+    <div class="slds-m-top_large slds-text-align_right">
+        <lightning-button label="Cancel" onclick={handleCancel} class="slds-m-right_small"></lightning-button>
+        <lightning-button variant="brand" label="Apply" onclick={handleApply}></lightning-button>
+    </div>
+</template>

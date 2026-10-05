@@ -1,0 +1,39 @@
+<template>
+    <div class="slds-grid slds-wrap" style="gap: 15px;">
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-textarea label="OFFER VALIDITY" name="tc_offer_validity" value={termsData.tc_offer_validity} onchange={handleFieldChange}></lightning-textarea>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="DELIVERY SCHEDULE" name="tc_delivery_schedule" value={termsData.tc_delivery_schedule} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-combobox label="PRICE VARIATION CLAUSE" name="tc_price_variation" value={termsData.tc_price_variation} options={yesNoOptions} onchange={handleFieldChange}></lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-textarea label="PAYMENT TERMS" name="tc_payment_terms" value={termsData.tc_payment_terms} onchange={handleFieldChange}></lightning-textarea>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-combobox label="TRANSPORTATION" name="tc_transportation" value={termsData.tc_transportation} options={transportationOptions} onchange={handleFieldChange}></lightning-combobox>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="VEHICLE LOAD" name="tc_vehicle_load" value={termsData.tc_vehicle_load} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-textarea label="TOLERANCE" name="tc_tolerance" value={termsData.tc_tolerance} onchange={handleFieldChange}></lightning-textarea>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="INSPECTION" name="tc_inspection" value={termsData.tc_inspection} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-input type="text" label="PRE DISPATCH INSPECTION" name="tc_pre_dispatch_inspection" value={termsData.tc_pre_dispatch_inspection} onchange={handleFieldChange}></lightning-input>
+        </div>
+        <div class="slds-col slds-size_1-of-1">
+            <lightning-textarea label="Note:" name="Note" value={termsData.Note} onchange={handleFieldChange}></lightning-textarea>
+        </div>
+    </div>
+    
+    <div class="slds-m-top_large slds-text-align_right">
+        <lightning-button label="Cancel" onclick={handleCancel} class="slds-m-right_small"></lightning-button>
+        <lightning-button variant="brand" label="Apply" onclick={handleApply}></lightning-button>
+    </div>
+</template>
