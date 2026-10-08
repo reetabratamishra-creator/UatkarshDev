@@ -226,7 +226,8 @@ public class SteelPipesWordMHTMLController {
                         Decimal tfc = d(row.get('total_fob_fc'));
                         Decimal tfinr = d(row.get('total_fob_inr'));
                         
-                        pr.put('od', d(row.get('od')));
+                        Decimal odVal = (row.get('customOD') != null && d(row.get('customOD')) > 0) ? d(row.get('customOD')) : ((row.get('custom_od') != null && d(row.get('custom_od')) > 0) ? d(row.get('custom_od')) : d(row.get('od')));
+                        pr.put('od', odVal);
                         pr.put('wall_thickness', d(row.get('wall_thickness')));
                         pr.put('grade', s(row.get('grade')));
                         pr.put('pipe_length', d(row.get('pipe_length')));

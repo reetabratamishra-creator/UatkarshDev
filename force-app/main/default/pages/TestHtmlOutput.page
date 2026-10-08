@@ -1,0 +1,28 @@
+<apex:page standardController="Quote" extensions="QuoteExportController"
+           showHeader="false" standardStylesheets="false" sidebar="false">
+<apex:repeat value="{!docSections}" var="sec">
+    <apex:outputPanel layout="none" rendered="{!sec.isTable}">
+        <table class="peb-spec-table">
+            <thead>
+                <tr>
+                    <th><apex:outputText value="{!sec.h1}"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <apex:repeat value="{!sec.tableRows}" var="r">
+                    <apex:outputPanel layout="none" rendered="{!r.isSubHeader}">
+                        <tr class="subhead-row">
+                            <td colspan="{!sec.colSpanStr}"><b><apex:outputText value="{!r.c1}"/></b></td>
+                        </tr>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="none" rendered="{!!r.isSubHeader}">
+                        <tr>
+                            <td><apex:outputText value="{!r.c1}"/></td>
+                        </tr>
+                    </apex:outputPanel>
+                </apex:repeat>
+            </tbody>
+        </table>
+    </apex:outputPanel>
+</apex:repeat>
+</apex:page>

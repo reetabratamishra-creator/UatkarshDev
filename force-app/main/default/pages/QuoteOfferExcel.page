@@ -152,8 +152,80 @@
                     </apex:outputPanel>
                 </tr>
             </apex:repeat>
+ 
+            <apex:outputPanel rendered="{!AND(coreLineItems.size > 0, NOT(isRegularOnly))}" layout="none">
+                <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
+                <tr>
+                    <td colspan="{!12 + specialHeaderCols.size}" class="no-border">
+                        <h3 style="text-decoration: underline; margin-bottom: 5px; margin-top: 15px;">CORE PIPES</h3>
+                    </td>
+                </tr>
+                <tr style="background-color: #FFFF00;">
+                    <th class="text-center">SL No</th>
+                    <th class="text-center" colspan="3">Pipe Description</th>
+                    <th class="text-center">Zinc Coating</th>
+                    <th class="text-center">Length (M)</th>
+                    <th class="text-center">Kg/mtr</th>
+                    <th class="text-center">UOM</th>
+                    <th class="text-center">Quantity</th>
+                    <th class="text-center">Rate</th>
+                    <th class="text-center">Total</th>
+                    <th class="text-center">GST @18%</th>
+                    <th class="text-center">Total Price</th>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+                <apex:repeat value="{!coreLineItems}" var="cRow">
+                    <tr>
+                        <td class="text-center">{!cRow['SlNo']}</td>
+                        <td colspan="3">{!cRow['special_description']}</td>
+                        <td class="text-center">{!IF(ISBLANK(cRow['zincCoating']), '360 GSM', cRow['zincCoating'])}</td>
+                        <td class="text-center">{!IF(ISBLANK(cRow['pipeLengthDisplay']), '-', cRow['pipeLengthDisplay'])}</td>
+                        <td class="text-center">
+                            <apex:outputText value="{0, number, #,##0.00}" rendered="{!cRow['kgPerMeter'] != null && cRow['kgPerMeter'] > 0}"><apex:param value="{!cRow['kgPerMeter']}"/></apex:outputText><apex:outputText value="-" rendered="{!OR(cRow['kgPerMeter'] == null, cRow['kgPerMeter'] == 0)}"/>
+                        </td>
+                        <td class="text-center">{!cRow['uom']}</td>
+                        <td class="text-center"><apex:outputText value="{0, number, #,##0}"><apex:param value="{!cRow['quantity']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!cRow['unitCost']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!cRow['pdf_base_total']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!cRow['pdf_gst_amount']}"/></apex:outputText></td>
+                        <td class="text-right"><apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!cRow['pdf_total_price']}"/></apex:outputText></td>
+                        <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                            <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                        </apex:outputPanel>
+                    </tr>
+                </apex:repeat>
+                <tr>
+                    <td colspan="12" class="text-right" style="font-weight: bold;">Sub Total:</td>
+                    <td class="text-right" style="font-weight: bold;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!coreTotalAmount}"/></apex:outputText>
+                    </td>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+                <tr>
+                    <td colspan="12" class="text-right" style="font-weight: bold;">GST @18%:</td>
+                    <td class="text-right" style="font-weight: bold;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!coreTotalGst}"/></apex:outputText>
+                    </td>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+                <tr>
+                    <td colspan="12" class="text-right" style="font-weight: bold;">Grand Total:</td>
+                    <td class="text-right" style="font-weight: bold;">
+                        <apex:outputText value="{0, number, #,##0.00}"><apex:param value="{!coreTotalFinal}"/></apex:outputText>
+                    </td>
+                    <apex:outputPanel rendered="{!specialHeaderCols.size > 1}" layout="none">
+                        <td colspan="{!specialHeaderCols.size - 1}" class="no-border"></td>
+                    </apex:outputPanel>
+                </tr>
+            </apex:outputPanel>
 
-            <apex:outputPanel rendered="{!specialLineItems.size > 0}" layout="none">
+            <apex:outputPanel rendered="{!OR(specialLineItems.size > 0, coreLineItems.size > 0)}" layout="none">
                 <tr><td colspan="{!12 + specialHeaderCols.size}" class="no-border"></td></tr>
                 <tr>
                     <td colspan="{!11 + specialHeaderCols.size}" class="text-right no-border" style="font-weight: bold; font-size: 12px;">OVERALL GRAND TOTAL:</td>

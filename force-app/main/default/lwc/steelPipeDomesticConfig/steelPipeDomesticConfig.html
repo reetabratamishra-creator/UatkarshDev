@@ -218,17 +218,22 @@
                                 <template for:each={pipes} for:item="pipe" for:index="index">
                                     <tr key={pipe.key}>
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="steelType" value={pipe.steelType} options={pipe.steelTypeOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <div class="slds-select_container">
+                                                <select class="slds-select steel-type-select" disabled={isReadOnly} data-index={index} data-field="steelType" onchange={handleFieldChange}>
+                                                    <option value="Black Steel" selected={pipe.isBlackSteel}>Black Steel</option>
+                                                    <option value="Galvanized Iron (GI)" selected={pipe.isGalvanized}>Galvanized Iron (GI)</option>
+                                                </select>
+                                            </div>
                                         </td>
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="designation" value={pipe.designation} options={pipe.designationOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="designation" value={pipe.designation} options={pipe.designationOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="standardSpecGrade" value={pipe.standardSpecGrade} options={pipe.standardOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="standardSpecGrade" value={pipe.standardSpecGrade} options={standardOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <td>
                                             <template if:false={isReadOnly}>
-                                                <lightning-combobox data-index={index} data-field="shapeType" value={pipe.shapeType} options={pipe.shapeOptions} onchange={handleFieldChange} variant="label-hidden" disabled={pipe.isShapeDisabled}></lightning-combobox>
+                                                <lightning-combobox data-index={index} data-field="shapeType" value={pipe.shapeType} options={pipe.shapeOptions} onchange={handleFieldChange} variant="label-hidden" disabled={pipe.isShapeDisabled} dropdown-alignment="auto"></lightning-combobox>
                                             </template>
                                             <template if:true={isReadOnly}>
                                                 <span>{pipe.shapeType}</span>
@@ -243,10 +248,10 @@
                                                 <lightning-input disabled value="N/A" variant="label-hidden" class="short-input"></lightning-input>
                                             </template>
                                             <template if:true={pipe.isShapeDriven}>
-                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="sizeNb" value={pipe.sizeNb} options={pipe.sizeOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="sizeNb" value={pipe.sizeNb} options={pipe.sizeOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                             </template>
                                             <template if:true={pipe.isNbFirst}>
-                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="sizeNb" value={pipe.sizeNb} options={pipe.sizeOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="sizeNb" value={pipe.sizeNb} options={pipe.sizeOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                             </template>
                                             <template if:true={pipe.isNbDriven}>
                                                 <lightning-input disabled value={pipe.mappedNB} variant="label-hidden" class="short-input"></lightning-input>
@@ -277,7 +282,7 @@
                                                 </template>
                                                 <template if:false={pipe.isCustomDriven}>
                                                     <template if:false={pipe.isClassDefault}>
-                                                        <lightning-combobox data-index={index} data-field="pipeClass" value={pipe.pipeClass} options={pipe.classOptions} onchange={handleFieldChange} variant="label-hidden" required="true" disabled={pipe.isClassDisabled}></lightning-combobox>
+                                                        <lightning-combobox data-index={index} data-field="pipeClass" value={pipe.pipeClass} options={pipe.classOptions} onchange={handleFieldChange} variant="label-hidden" required="true" disabled={pipe.isClassDisabled} dropdown-alignment="auto"></lightning-combobox>
                                                     </template>
                                                     <template if:true={pipe.isClassDefault}>
                                                         <lightning-input type="text" data-index={index} data-field="pipeClass" value={pipe.pipeClass} onchange={handleFieldChange} variant="label-hidden" placeholder="Wall Thickness" required="true"></lightning-input>
@@ -313,7 +318,7 @@
                                         </td>
                                         <!-- END FINISH -->
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="endFinish" value={pipe.endFinish} options={pipe.endFinishOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="endFinish" value={pipe.endFinish} options={pipe.endFinishOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <!-- END FINISH EXTRA RATE -->
                                         <td>
@@ -336,7 +341,7 @@
                                         </td>
                                         <!-- GRADE -->
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="gradeType" value={pipe.gradeType} options={pipe.gradeOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="gradeType" value={pipe.gradeType} options={pipe.gradeOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <!-- GRADE EXTRA RATE -->
                                         <td>
@@ -360,7 +365,7 @@
                                         <!-- PAINT: only applicable for MS/CS designation -->
                                         <td>
                                             <template if:true={pipe.isPaintApplicable}>
-                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="paintType" value={pipe.paintType} options={pipe.paintOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="paintType" value={pipe.paintType} options={pipe.paintOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                             </template>
                                             <template if:false={pipe.isPaintApplicable}>
                                                 <lightning-input disabled value="N/A" variant="label-hidden" class="short-input"></lightning-input>
@@ -383,7 +388,7 @@
                                         <!-- ZINC COATING: only applicable for GI designation -->
                                         <td>
                                             <template if:true={pipe.isZincApplicable}>
-                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="zincCoating" value={pipe.zincCoating} options={pipe.zincOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                                <lightning-combobox disabled={isReadOnly} data-index={index} data-field="zincCoating" value={pipe.zincCoating} options={pipe.zincOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                             </template>
                                             <template if:false={pipe.isZincApplicable}>
                                                 <lightning-input disabled value="N/A" variant="label-hidden" class="short-input"></lightning-input>
@@ -413,7 +418,7 @@
                                             <lightning-input disabled={isReadOnly} style="min-width: 140px;" type="number" step="1" maxlength="15" max="999999999999999" data-index={index} data-field="quantity" value={pipe.quantity} onchange={handleFieldChange} variant="label-hidden"></lightning-input>
                                         </td>
                                         <td>
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="uom" value={pipe.uom} options={pipe.uomOptions} onchange={handleFieldChange} variant="label-hidden"></lightning-combobox>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="uom" value={pipe.uom} options={uomOptions} onchange={handleFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <td>
                                             <lightning-input disabled type="number" step="0.01" data-index={index} data-field="discount" value={pipe.discount} onchange={handleFieldChange} variant="label-hidden" readonly></lightning-input>
@@ -491,17 +496,21 @@
                     </div>
                     
                     <div class="table-scroll">
-                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" style="width: 100%; min-width: 1470px;">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_col-bordered" style="width: 100%; min-width: 1850px;">
                             <thead>
                                 <tr class="slds-line-height_reset bg-blue">
                                     <th style="width: 60px; min-width: 60px; text-align: center;">SL.NO</th>
-                                    <th style="min-width: 420px;">PIPE DESCRIPTION</th>
-                                    <th style="width: 130px; min-width: 130px;">UOM</th>
-                                    <th style="width: 180px; min-width: 180px;">QUANTITY</th>
-                                    <th style="width: 150px; min-width: 150px;">RATE</th>
+                                    <th style="min-width: 400px;">PIPE DESCRIPTION</th>
+                                    <th style="width: 150px; min-width: 150px;">ZINC COATING</th>
+                                    <th style="width: 130px; min-width: 130px;">ZINC EXTRA RATE</th>
+                                    <th style="width: 110px; min-width: 110px;">LENGTH (M)</th>
+                                    <th style="width: 120px; min-width: 120px;">UOM</th>
+                                    <th style="width: 140px; min-width: 140px;">QUANTITY</th>
+                                    <th style="width: 120px; min-width: 120px;">KG/METER</th>
+                                    <th style="width: 130px; min-width: 130px;">RATE</th>
                                     <th style="width: 140px; min-width: 140px;">COMMISSION / INSPECTION</th>
                                     <th style="width: 130px; min-width: 130px;">{gstColumnHeader}</th>
-                                    <th style="width: 200px; min-width: 200px;">COST</th>
+                                    <th style="width: 160px; min-width: 160px;">COST</th>
                                     <th style="width: 60px; min-width: 60px; text-align: center;">DEL</th>
                                 </tr>
                             </thead>
@@ -511,17 +520,34 @@
                                         <td style="text-align: center; vertical-align: middle; width: 60px; min-width: 60px;">
                                              <strong>{item.slNo}</strong>
                                         </td>
-                                        <td style="min-width: 420px;">
-                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="description" value={item.description} options={corePipeOptions} onchange={handleManualFieldChange} variant="label-hidden" placeholder="Select Description..."></lightning-combobox>
-                                        </td>
-                                        <td style="width: 130px; min-width: 130px;">
-                                            <lightning-combobox disabled="true" style="min-width: 120px;" data-index={index} data-field="uom" value={item.uom} options={uomOptions} variant="label-hidden"></lightning-combobox>
-                                        </td>
-                                        <td style="width: 180px; min-width: 180px;">
-                                            <lightning-input disabled={isReadOnly} style="min-width: 160px;" type="number" step="0.01" data-index={index} data-field="quantity" value={item.quantity} onchange={handleManualFieldChange} variant="label-hidden"></lightning-input>
+                                        <td style="min-width: 400px;">
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="description" value={item.description} options={corePipeOptions} onchange={handleManualFieldChange} variant="label-hidden" placeholder="Select Description..." dropdown-alignment="auto"></lightning-combobox>
                                         </td>
                                         <td style="width: 150px; min-width: 150px;">
-                                            <lightning-input disabled={isReadOnly} style="min-width: 130px;" type="number" step="0.01" data-index={index} data-field="rate" value={item.rate} min={item.minRate} onchange={handleManualFieldChange} onblur={handleManualRateBlur} variant="label-hidden"></lightning-input>
+                                            <lightning-combobox disabled={isReadOnly} data-index={index} data-field="zincCoating" value={item.zincCoating} options={zincOptions} onchange={handleManualFieldChange} variant="label-hidden" dropdown-alignment="auto"></lightning-combobox>
+                                        </td>
+                                        <td style="width: 130px; min-width: 130px;">
+                                            <template if:true={isReadOnly}>
+                                                <lightning-input disabled type="number" step="0.01" value={item.zincRate} variant="label-hidden"></lightning-input>
+                                            </template>
+                                            <template if:false={isReadOnly}>
+                                                <lightning-input disabled={item.isZincRateDisabled} type="number" step="0.01" min="0" data-index={index} data-field="zincRate" value={item.zincRate} onchange={handleManualFieldChange} variant="label-hidden"></lightning-input>
+                                            </template>
+                                        </td>
+                                        <td style="width: 110px; min-width: 110px;">
+                                            <lightning-input disabled={isReadOnly} type="number" step="0.01" min="0" data-index={index} data-field="pipeLength" value={item.pipeLength} onchange={handleManualFieldChange} variant="label-hidden"></lightning-input>
+                                        </td>
+                                        <td style="width: 120px; min-width: 120px;">
+                                            <lightning-combobox disabled="true" style="min-width: 110px;" data-index={index} data-field="uom" value={item.uom} options={uomOptions} variant="label-hidden"></lightning-combobox>
+                                        </td>
+                                        <td style="width: 140px; min-width: 140px;">
+                                            <lightning-input disabled={isReadOnly} style="min-width: 120px;" type="number" step="0.01" data-index={index} data-field="quantity" value={item.quantity} onchange={handleManualFieldChange} variant="label-hidden"></lightning-input>
+                                        </td>
+                                        <td style="width: 120px; min-width: 120px;">
+                                            <lightning-input disabled style="min-width: 100px;" type="number" step="0.01" value={item.kgPerMeter} variant="label-hidden" readonly></lightning-input>
+                                        </td>
+                                        <td style="width: 130px; min-width: 130px;">
+                                            <lightning-input disabled={isReadOnly} style="min-width: 110px;" type="number" step="0.01" data-index={index} data-field="rate" value={item.rate} min={item.minRate} onchange={handleManualFieldChange} onblur={handleManualRateBlur} variant="label-hidden"></lightning-input>
                                         </td>
                                         <td style="width: 140px; min-width: 140px;">
                                             <lightning-input disabled style="min-width: 120px;" type="number" step="0.01" value={item.commissionAmount} variant="label-hidden" readonly></lightning-input>
@@ -529,8 +555,8 @@
                                         <td style="width: 130px; min-width: 130px;">
                                             <lightning-input disabled style="min-width: 110px;" type="number" step="0.01" value={item.gstAmount} variant="label-hidden" readonly></lightning-input>
                                         </td>
-                                        <td style="width: 200px; min-width: 200px;">
-                                            <lightning-input disabled style="min-width: 180px;" type="number" step="0.01" value={item.cost} variant="label-hidden" readonly></lightning-input>
+                                        <td style="width: 160px; min-width: 160px;">
+                                            <lightning-input disabled style="min-width: 140px;" type="number" step="0.01" value={item.cost} variant="label-hidden" readonly></lightning-input>
                                         </td>
                                         <td style="text-align: center; vertical-align: middle; width: 60px; min-width: 60px;">
                                             <template if:false={isReadOnly}>

@@ -1362,11 +1362,18 @@ export default class SteelPipeExportConfig extends LightningElement {
         }
         
         // 9. Total Value Calculations (QUOTED PRICE determines actual invoice/quoted total FOB and CFR)
-        let quotedPricePerKgFc = uomMultiplier > 0 ? (pipe.quotedPriceFc / uomMultiplier) : 0;
-        let totalFobFc = quotedPricePerKgFc * (pipe.totalWeight * 1000);
+        let totalFobFc = 0;
+        let quotedPrice = parseFloat(pipe.quotedPriceFc) || 0;
+        if (pipe.uom === 'Pieces') {
+            totalFobFc = (parseFloat(pipe.totalPieces) || 0) * quotedPrice;
+        } else if (pipe.uom === 'Meters') {
+            totalFobFc = (parseFloat(pipe.totalMeters) || 0) * quotedPrice;
+        } else { // MT
+            totalFobFc = (parseFloat(pipe.totalWeight) || 0) * quotedPrice;
+        }
         pipe.totalFobFc = Number(totalFobFc.toFixed(2));
         
-        pipe.totalFobInr = Number((totalFobFc * exRate).toFixed(2));
+        pipe.totalFobInr = Number((pipe.totalFobFc * exRate).toFixed(2));
         
         let fobRodtepAddon = Number((pipe.totalFobInr * rodtepRate).toFixed(2));
         let fobIncentiveAddon = Number((pipe.totalFobInr * incentiveRate).toFixed(2));

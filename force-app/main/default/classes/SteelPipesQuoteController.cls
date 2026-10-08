@@ -393,6 +393,22 @@ public class SteelPipesQuoteController {
                     
                     Map<String, String> scheduleMap = new Map<String, String>();
                     Map<String, Decimal> cfrMap = new Map<String, Decimal>();
+                    Map<String, Map<String, Object>> coreConfigMap = new Map<String, Map<String, Object>>();
+                    
+                    if (jsonData.containsKey('_configuredPipesDomestic') && jsonData.get('_configuredPipesDomestic') != null) {
+                        try {
+                            List<Object> domList = (List<Object>) jsonData.get('_configuredPipesDomestic');
+                            for (Object dObj : domList) {
+                                if (dObj instanceof Map<String, Object>) {
+                                    Map<String, Object> dMap = (Map<String, Object>) dObj;
+                                    String dDesc = dMap.get('special_description') != null ? String.valueOf(dMap.get('special_description')).trim() : (dMap.get('Special_Description__c') != null ? String.valueOf(dMap.get('Special_Description__c')).trim() : '');
+                                    if (String.isNotBlank(dDesc)) {
+                                        coreConfigMap.put(dDesc.toLowerCase(), dMap);
+                                    }
+                                }
+                            }
+                        } catch(Exception e) {}
+                    }
                     
                     if (jsonData.containsKey('_configuredPipesExport') && jsonData.get('_configuredPipesExport') != null) {
                         List<Object> exportRows = (List<Object>) jsonData.get('_configuredPipesExport');
@@ -634,7 +650,8 @@ public class SteelPipesQuoteController {
                         row.put('rate', rate);
                         row.put('total_price', total);
                         
-                        Decimal od = row.get('od') != null ? Decimal.valueOf(String.valueOf(row.get('od'))) : 0.0;
+                        Decimal customOd = row.get('customOD') != null ? Decimal.valueOf(String.valueOf(row.get('customOD'))) : (row.get('custom_od') != null ? Decimal.valueOf(String.valueOf(row.get('custom_od'))) : 0.0);
+                        Decimal od = (customOd > 0.0) ? customOd : (row.get('od') != null ? Decimal.valueOf(String.valueOf(row.get('od'))) : 0.0);
                         
                         String cc = row.get('currency_code') != null ? String.valueOf(row.get('currency_code')) : '';
                         if(String.isBlank(cc) && row.get('currencyCode') != null) {
@@ -653,11 +670,40 @@ public class SteelPipesQuoteController {
                         Decimal wt = row.get('wall_thickness') != null ? Decimal.valueOf(String.valueOf(row.get('wall_thickness'))) : 0.0;
                         if(wt == 0.0 && row.get('wallThickness') != null) wt = Decimal.valueOf(String.valueOf(row.get('wallThickness')));
 
-                        Decimal pl = row.get('pipe_length') != null ? Decimal.valueOf(String.valueOf(row.get('pipe_length'))) : 0.0;
-                        if(pl == 0.0 && row.get('pipeLength') != null) pl = Decimal.valueOf(String.valueOf(row.get('pipeLength')));
+                        Decimal pl = 0.0;
+                        String plStr = '';
+                        if (row.get('pipe_length') != null) {
+                            plStr = String.valueOf(row.get('pipe_length')).trim();
+                        } else if (row.get('pipeLength') != null) {
+                            plStr = String.valueOf(row.get('pipeLength')).trim();
+                        }
+                        if (String.isNotBlank(plStr) && plStr != 'NA' && plStr != '-') {
+                            try { pl = Decimal.valueOf(plStr); } catch (Exception e) {}
+                        }
 
-                        Decimal kgm = row.get('kg_per_meter') != null ? Decimal.valueOf(String.valueOf(row.get('kg_per_meter'))) : 0.0;
-                        if(kgm == 0.0 && row.get('kgPerMeter') != null) kgm = Decimal.valueOf(String.valueOf(row.get('kgPerMeter')));
+                        Decimal kgm = 0.0;
+                        String kgmStr = '';
+                        if (row.get('kg_per_meter') != null) {
+                            kgmStr = String.valueOf(row.get('kg_per_meter')).trim();
+                        } else if (row.get('kgPerMeter') != null) {
+                            kgmStr = String.valueOf(row.get('kgPerMeter')).trim();
+                        }
+                        if (String.isNotBlank(kgmStr) && kgmStr != 'NA' && kgmStr != '-') {
+                            try { kgm = Decimal.valueOf(kgmStr); } catch (Exception e) {}
+                        }
+
+                        String zc = row.get('zinc_coating') != null ? String.valueOf(row.get('zinc_coating')).trim() : '';
+                        if (String.isBlank(zc) && row.get('zincCoating') != null) zc = String.valueOf(row.get('zincCoating')).trim();
+                        if (String.isBlank(zc) && row.get('Zinc_Coating__c') != null) zc = String.valueOf(row.get('Zinc_Coating__c')).trim();
+
+                        Decimal zr = 0.0;
+                        if (row.get('zinc_rate') != null) {
+                            try { zr = Decimal.valueOf(String.valueOf(row.get('zinc_rate')).trim()); } catch (Exception e) {}
+                        } else if (row.get('zincRate') != null) {
+                            try { zr = Decimal.valueOf(String.valueOf(row.get('zincRate')).trim()); } catch (Exception e) {}
+                        } else if (row.get('Zinc_Rate__c') != null) {
+                            try { zr = Decimal.valueOf(String.valueOf(row.get('Zinc_Rate__c')).trim()); } catch (Exception e) {}
+                        }
 
                         Decimal tp = row.get('total_pieces') != null ? Decimal.valueOf(String.valueOf(row.get('total_pieces'))) : 0.0;
                         if(tp == 0.0 && row.get('totalPieces') != null) tp = Decimal.valueOf(String.valueOf(row.get('totalPieces')));
@@ -711,6 +757,50 @@ public class SteelPipesQuoteController {
                             || specialDescStr.containsIgnoreCase('GUIDE Counter Weight Tube');
 
                         if (isCore) {
+                            if (coreConfigMap.containsKey(specialDescStr.toLowerCase())) {
+                                Map<String, Object> cCfg = coreConfigMap.get(specialDescStr.toLowerCase());
+                                if (String.isBlank(zc) || zc == 'N/A') {
+                                    if (cCfg.get('zinc_coating') != null) zc = String.valueOf(cCfg.get('zinc_coating')).trim();
+                                    else if (cCfg.get('zincCoating') != null) zc = String.valueOf(cCfg.get('zincCoating')).trim();
+                                    else if (cCfg.get('Zinc_Coating__c') != null) zc = String.valueOf(cCfg.get('Zinc_Coating__c')).trim();
+                                }
+                                if (kgm == 0.0) {
+                                    Object kObj = cCfg.get('kg_per_meter') != null ? cCfg.get('kg_per_meter') : (cCfg.get('kgPerMeter') != null ? cCfg.get('kgPerMeter') : cCfg.get('Weight_Per_Meter__c'));
+                                    if (kObj != null) {
+                                        try { kgm = Decimal.valueOf(String.valueOf(kObj)); } catch (Exception e) {}
+                                    }
+                                }
+                                if (String.isBlank(plStr) || plStr == 'NA' || plStr == '-' || plStr == '0' || plStr == '0.0') {
+                                    Object lObj = cCfg.get('pipe_length') != null ? cCfg.get('pipe_length') : (cCfg.get('pipeLength') != null ? cCfg.get('pipeLength') : cCfg.get('Length__c'));
+                                    if (lObj != null) {
+                                        String lStr = String.valueOf(lObj).trim();
+                                        if (String.isNotBlank(lStr) && lStr != 'NA' && lStr != '0' && lStr != '0.0') {
+                                            plStr = lStr;
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (String.isBlank(zc) || zc == 'N/A') {
+                                zc = '360 GSM';
+                            }
+                            if (kgm == 0.0) {
+                                if (specialDescStr.containsIgnoreCase('Small Tube')) kgm = 1.9;
+                                else if (specialDescStr.containsIgnoreCase('Large Tube')) kgm = 4.0;
+                                else if (specialDescStr.containsIgnoreCase('BRACKET')) kgm = 3.1;
+                                else if (specialDescStr.containsIgnoreCase('GUIDE')) kgm = 1.9;
+                            }
+                            String plDisplay = '-';
+                            if (String.isNotBlank(plStr) && plStr != 'NA' && plStr != '-' && plStr != '0' && plStr != '0.0') {
+                                plDisplay = plStr;
+                            } else if (specialDescStr.containsIgnoreCase('GUIDE')) {
+                                plDisplay = '5.6';
+                            }
+
+                            row.put('zincCoating', zc);
+                            row.put('zincRate', zr);
+                            row.put('kgPerMeter', kgm);
+                            row.put('pipeLengthDisplay', plDisplay);
                             row.put('special_description', specialDescStr);
                             row.put('SlNo', coreSlNo++);
                             totalAmount += pdf_base_total;

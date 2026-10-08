@@ -584,6 +584,14 @@
                         <lightning-formatted-number value={totals.totalWithMargin} maximum-fraction-digits="0"></lightning-formatted-number>
                     </div>
                     <div class="tot-row">
+                        <span>Total Weight (Kg)</span>
+                        <lightning-formatted-number value={totals.totalWeightAll} maximum-fraction-digits="2"></lightning-formatted-number>
+                    </div>
+                    <div class="tot-row">
+                        <span>Benchmark Threshold Price (₹{benchmarkRate}/Kg)</span>
+                        <lightning-formatted-number value={totals.totalPriceCalc} maximum-fraction-digits="0"></lightning-formatted-number>
+                    </div>
+                    <div class="tot-row">
                         <span class="margin-label">
                             GST
                             <lightning-input type="number" variant="label-hidden" min="0" step="any"

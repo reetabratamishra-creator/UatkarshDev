@@ -1522,11 +1522,28 @@ public class HighMastWeightCalcController {
     // ═══════════════════════════════════════════════════════════════════════
     private void buildCustomizedMastData() {
         if (isStadiumMast) {
+            // MULTIPLE MAN RIDING LIFT / LADDER WITH CAGE - one sheet per copy. Copy 1 is the
+            // original mrl_ / lwc_ block, copy c is m{c}_mrl_ / l{c}_lwc_; the count fields say
+            // how many. A quote without the count fields gives exactly one copy, so it prints
+            // as before. Each MRL copy c carries its own KIT line kit_line_{c}. Deepanjan (6th Oct 2026)
             if (cmBoolK('man_riding_lift')){
-                addCustomizedRow('mrl_', 'MAN RIDING LIFT');
-                applyKitCostingToCustomizedRow(rowDataList[rowDataList.size() - 1]); 
+                Integer c = 0;
+                for (String p : stadiumCopyPrefixes('mrl_', 'man_riding_lift_count', 'm')) {
+                    c++;
+                    Integer before = rowDataList.size();
+                    addCustomizedRow(p, c == 1 ? 'MAN RIDING LIFT' : 'MAN RIDING LIFT ' + c);
+                    if (rowDataList.size() > before) {          // the copy had a NO OF SEGMENT
+                        applyKitCostingToCustomizedRow(rowDataList[rowDataList.size() - 1], c);
+                    }
+                }
             }
-            if (cmBoolK('ladder_with_cage')) addCustomizedRow('lwc_', 'LADDER WITH CAGE');
+            if (cmBoolK('ladder_with_cage')) {
+                Integer c = 0;
+                for (String p : stadiumCopyPrefixes('lwc_', 'ladder_with_cage_count', 'l')) {
+                    c++;
+                    addCustomizedRow(p, c == 1 ? 'LADDER WITH CAGE' : 'LADDER WITH CAGE ' + c);
+                }
+            }
         } else if (isFlagMast) {
             buildFlagMastData();      // row-driven, LM shape
             buildFlagMastExtras();    // accessory + additional tables (one set per quote)
@@ -1770,12 +1787,14 @@ public class HighMastWeightCalcController {
         if (isFm) {
             wKey = 'fms_est_weight'; bKey = 'fms_base_price';
             uKey = 'fms_unit_price'; cKey = 'fms_unit_cost';
-        } else if (p == 'mrl_') {
-            wKey = 'mrl_man_riding_total_weight'; bKey = 'mrl_man_riding_base_price';
-            uKey = 'mrl_man_riding_unit_price';   cKey = 'mrl_man_riding_unit_cost';
+        } else if (p.endsWith('mrl_')) {
+            // Read off p so Stadium copies 2..10 (m{c}_mrl_ / l{c}_lwc_) resolve too; for
+            // copy 1 ('mrl_' / 'lwc_') these are the very same keys as before. Deepanjan (6th Oct 2026)
+            wKey = p + 'man_riding_total_weight'; bKey = p + 'man_riding_base_price';
+            uKey = p + 'man_riding_unit_price';   cKey = p + 'man_riding_unit_cost';
         } else {
-            wKey = 'lwc_ladder_cage_weight';    bKey = 'lwc_ladder_cage_base_price';
-            uKey = 'lwc_ladder_cage_unit_price'; cKey = 'lwc_ladder_cage_unit_cost';
+            wKey = p + 'ladder_cage_weight';    bKey = p + 'ladder_cage_base_price';
+            uKey = p + 'ladder_cage_unit_price'; cKey = p + 'ladder_cage_unit_cost';
         }
  
         Decimal segWt = decVal(wKey, 0);
@@ -1824,7 +1843,43 @@ public class HighMastWeightCalcController {
 // exactly as addCustomizedRow() built it (showCosting = false).
 // ═══════════════════════════════════════════════════════════════
 private void applyKitCostingToCustomizedRow(RowData rd) {
-    Integer kitLineNum = findKitLineForRow(rd.rowIndex, rd.mastHeight);
+    applyKitCostingToCustomizedRow(rd, findKitLineForRow(rd.rowIndex, rd.mastHeight));
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STADIUM MAST - MULTIPLE MAN RIDING LIFT / LADDER WITH CAGE. Deepanjan (6th October 2026)
+// Copy 1 saves under the original mrl_ / lwc_ keys, copy c (2..10) under m{c}_mrl_ /
+// l{c}_lwc_ - same field names, only the prefix differs. The count comes from
+// man_riding_lift_count / ladder_with_cage_count (blank on an older quote -> 1).
+// ═══════════════════════════════════════════════════════════════════════
+// ['mrl_', 'm2_mrl_', ... ] / ['lwc_', 'l2_lwc_', ... ] up to the saved count (1..10).
+private List<String> stadiumCopyPrefixes(String base, String countKey, String copyMark) {
+    List<String> out = new List<String>{ base };
+    Integer cnt = decVal(countKey, 1).intValue();
+    if (cnt < 1)  cnt = 1;
+    if (cnt > 10) cnt = 10;
+    for (Integer c = 2; c <= cnt; c++) out.add(copyMark + c + '_' + base);
+    return out;
+}
+
+// KIT costing for Man Riding Lift copy c: kit_line_{c} when its mast height matches the
+// row (each MRL copy saves its own KIT line under its own number), otherwise the
+// pre-existing height lookup. Deepanjan (6th October 2026)
+private void applyKitCostingToCustomizedRow(RowData rd, Integer copyIdx) {
+    Integer kitLineNum = 0;
+    if (copyIdx != null && copyIdx >= 1 && copyIdx <= 10) {
+        String kitMastHt = sGet('kit_line_' + copyIdx + '_lm_mast_height', '');
+        Decimal rowHt = 0, kitHt = 0;
+        try { rowHt = Decimal.valueOf(rd.mastHeight); } catch (Exception ex) {}
+        try { kitHt = Decimal.valueOf(kitMastHt);     } catch (Exception ex) {}
+        if (String.isNotBlank(kitMastHt) && (kitHt == rowHt || kitHt == rowHt * 10)) kitLineNum = copyIdx;
+    }
+    if (kitLineNum == 0) kitLineNum = findKitLineForRow(rd.rowIndex, rd.mastHeight);
+    applyKitCostingForKitLine(rd, kitLineNum);
+}
+
+// The pre-existing body: fills the KIT config + costing block from kit_line_{kitLineNum}.
+private void applyKitCostingForKitLine(RowData rd, Integer kitLineNum) {
     String  kitPfx      = 'kit_line_' + kitLineNum + '_';
  
     // No KIT data for this row -> leave row untouched (no costing)

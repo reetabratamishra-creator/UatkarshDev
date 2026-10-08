@@ -195,7 +195,7 @@ public class SteelPipesExcelMHTMLController {
                         totalAmount  += total; // Domestic
                         
                         // Export Specific Fields
-                        Decimal od = row.get('od') != null ? d(row.get('od')) : 0;
+                        Decimal od = (row.get('customOD') != null && d(row.get('customOD')) > 0) ? d(row.get('customOD')) : ((row.get('custom_od') != null && d(row.get('custom_od')) > 0) ? d(row.get('custom_od')) : (row.get('od') != null ? d(row.get('od')) : 0));
                         Decimal pipeLength = row.get('pipe_length') != null ? d(row.get('pipe_length')) : 0;
                         Decimal totalPieces = row.get('total_pieces') != null ? d(row.get('total_pieces')) : 0;
                         Decimal totalMeters = row.get('total_meters') != null ? d(row.get('total_meters')) : 0;

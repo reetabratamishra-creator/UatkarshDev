@@ -137,6 +137,7 @@ handleApplyToQuote() {
     @track totals = {};
     @track marginPercent = 10;
     @track gstPercent = 18;
+    @track benchmarkRate = 90;
 
     // PAYMENT TERMS - Deepanjan (31st July 2026)
     // Three free-text periods typed on the Summary screen. They take NO part in
@@ -351,6 +352,9 @@ handleApplyToQuote() {
         const data = prefetched || (await getCalculatorData({ opportunityId: this.recordId }));
         this.rateConfig = JSON.parse(data.rateConfigJson);
         this.gstPercent = data.gstPercent != null ? data.gstPercent : 18;
+        if (this.rateConfig && this.rateConfig.benchmarkRate != null) {
+            this.benchmarkRate = this.toNum(this.rateConfig.benchmarkRate);
+        }
         this.estimationFileName = data.estimationFileName;
         this.estimationReadable = !!data.estimationReadable;
         this.hasEstimationFile = !!data.estimationFileName;
@@ -838,6 +842,9 @@ handleApplyToQuote() {
         if (s.gstPercent != null) {
             this.gstPercent = s.gstPercent;
         }
+        if (s.benchmarkRate != null) {
+            this.benchmarkRate = this.toNum(s.benchmarkRate);
+        }
         if (s.paymentTerms) {
             this.consignmentPeriod = s.paymentTerms.consignmentPeriod || '';
             //this.erectionPeriod = s.paymentTerms.erectionPeriod || '';
@@ -1055,8 +1062,12 @@ handleApplyToQuote() {
         const gPct = this.toNum(this.gstPercent);
         const gstRs = (withMargin * gPct) / 100;
         // ── APPROVAL GUARD (A + B1 + B2 weight benchmark) ──
-        const totalWeightAll = secAWeight + accW + buyW;
-        const totalPriceCalc = totalWeightAll * 90;
+        const bRate = (this.benchmarkRate != null && this.benchmarkRate > 0)
+            ? this.toNum(this.benchmarkRate)
+            : ((this.rateConfig && this.rateConfig.benchmarkRate != null) ? this.toNum(this.rateConfig.benchmarkRate) : 90);
+        this.benchmarkRate = bRate;
+        const totalWeightAll = Math.round((secAWeight + accW + buyW) * 100) / 100;
+        const totalPriceCalc = Math.round(totalWeightAll * bRate);
         const needsUtkarshApproval = withMargin < totalPriceCalc;
 
         this.totals = {
@@ -1083,6 +1094,7 @@ handleApplyToQuote() {
             gstPercent: gPct,
             gstRs,
             totalWeightAll,
+            benchmarkRate: bRate,
             totalPriceCalc,
             needsUtkarshApproval,
             grandTotal: withMargin + gstRs
@@ -1391,6 +1403,7 @@ handleApplyToQuote() {
         return {
             marginPercent: this.toNum(this.marginPercent),
             gstPercent: this.toNum(this.gstPercent),
+            benchmarkRate: this.toNum(this.benchmarkRate),
             paymentTerms: {
                 consignmentPeriod: (this.consignmentPeriod || '').trim(),
                 erectionPeriod: (this.erectionPeriod || '').trim(),

@@ -63,7 +63,11 @@ export async function parseUniversalBuildingPdf(inputData) {
     }
 
     const result = {
-        clientInfo: {},
+        clientInfo: {
+            clientName: '',
+            projectLocation: '',
+            buildingName: ''
+        },
         geometry: {},
         roofSystem: {},
         wallSystem: {},
@@ -97,17 +101,63 @@ export async function parseUniversalBuildingPdf(inputData) {
         docSections: []
     };
 
-    // ── 1. CLIENT & PROJECT METADATA ──
-    const clientMatch = fullText.match(/(?:Client\s*name|Client)\s*[:\s\n|]+([A-Z0-9\s.,&-]+?)(?=\s*(?:Project|Date|By|Rev|Name|$|\n))/i);
-    if (clientMatch) {
-        result.clientInfo.clientName = clientMatch[1].replace(/Client\s*name|Client|\bname\b/gi, '').trim();
+    // ── 1. CLIENT & PROJECT METADATA (Strict line-by-line parsing: NEVER cross newlines) ──
+    const textLines = fullText.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+
+    function extractMetadataLine(keyRegex) {
+        for (const line of textLines) {
+            const m = line.match(keyRegex);
+            if (m) {
+                let val = (m[1] || '').trim();
+                val = val.replace(/^[:|\s-]+|[:|\s-]+$/g, '').trim();
+                if (val && !/^(?:Client|Project|Building|Date|By|Rev|Name|Site|Location|Opening|Openings|Description|Dimensions|Width|Length|Details|Remarks|Soffit|Type|Parameter|Sr\.?\s*No\.?)$/i.test(val)) {
+                    return val;
+                }
+                return '';
+            }
+        }
+        return '';
     }
 
-    const locMatch = fullText.match(/(?:Project\s*location)\s*[:\s\n|]+([A-Z0-9\s.,&-]+?)(?=\s*(?:Building|Date|Rev|$|\n))/i) ||
-                     fullText.match(/Name\s+([A-Z0-9\s.,&-]+?)(?=\s*(?:Rev|Date|By|$|\n))/i) ||
-                     fullText.match(/(?:Location)\s*[:\s\n|]+([A-Z0-9\s.,&-]+?)(?=\s*(?:Building|Date|Rev|$|\n))/i);
-    if (locMatch) {
-        result.clientInfo.projectLocation = locMatch[1].replace(/(?:Project\s*location|Project|Location|Name|\blocation\b)/gi, '').trim();
+    result.clientInfo.clientName = extractMetadataLine(/^(?:Client\s*name|Client)[:\s|]*(.*)$/i);
+    result.clientInfo.projectLocation = extractMetadataLine(/^(?:Project\s*site|Project\s*location|Project\s*address|Site\s*location|Plant\s*location)[:\s|]*(.*)$/i);
+    result.clientInfo.buildingName = extractMetadataLine(/^(?:Building\s*name|Building\s*type|Type\s*of\s*building|Name\s*of\s*building)[:\s|]*(.*)$/i);
+
+    // Fallback: Check individual page lines in the first 2 pages (metadata block only) if any field is still blank
+    if (!result.clientInfo.clientName || !result.clientInfo.projectLocation || !result.clientInfo.buildingName) {
+        const headerPages = pages.slice(0, 2);
+        for (const p of headerPages) {
+            for (const line of p.lines) {
+                const lineStr = line.map(it => it.str).join(' ').trim();
+                if (!result.clientInfo.clientName) {
+                    const m = lineStr.match(/^Client(?:\s*Name)?\s*[:\s|]*(.*)$/i);
+                    if (m) {
+                        let val = (m[1] || '').replace(/^[:|\s-]+|[:|\s-]+$/g, '').trim();
+                        if (val && !/^(?:name|date|by|rev|client|project|building)$/i.test(val)) {
+                            result.clientInfo.clientName = val;
+                        }
+                    }
+                }
+                if (!result.clientInfo.projectLocation) {
+                    const m = lineStr.match(/^(?:Project\s*Site|Project\s*Location|Site\s*Location|Plant\s*Location)\s*[:\s|]*(.*)$/i);
+                    if (m) {
+                        let val = (m[1] || '').replace(/^[:|\s-]+|[:|\s-]+$/g, '').trim();
+                        if (val && !/^(?:site|location|project|building|name|date|by|rev|client|opening|openings|description|dimensions|details|remarks)$/i.test(val)) {
+                            result.clientInfo.projectLocation = val;
+                        }
+                    }
+                }
+                if (!result.clientInfo.buildingName) {
+                    const m = lineStr.match(/^(?:Building\s*Name|Building\s*Type|Type\s*of\s*Building)\s*[:\s|]*(.*)$/i);
+                    if (m) {
+                        let val = (m[1] || '').replace(/^[:|\s-]+|[:|\s-]+$/g, '').trim();
+                        if (val && !/^(?:name|type|building|date|by|rev|client|project)$/i.test(val)) {
+                            result.clientInfo.buildingName = val;
+                        }
+                    }
+                }
+            }
+        }
     }
 
     // ── 2. BUILDING GEOMETRY ──
@@ -441,10 +491,12 @@ export async function parseUniversalBuildingPdf(inputData) {
 
             if (headerY !== null && colBounds) {
                 let tableEndY = 0;
-                for (const it of p.items) {
-                    if (it.y < headerY - 10) {
-                        if (/Follow\s*the\s*estimate|Special\s*condition|\(C\)|Building\s*technical\s*notes/i.test(it.str)) {
-                            if (it.y > tableEndY) tableEndY = it.y;
+                for (const line of p.lines) {
+                    const lY = line[0].y;
+                    if (lY < headerY - 10) {
+                        const lStr = line.map(it => it.str).join(' ').trim();
+                        if (/^(?:\([A-Z]\)|[A-Z]\.)\s+[A-Za-z]/i.test(lStr) || /^Follow\s*the\s*estimate|Special\s*condition|Building\s*technical\s*notes/i.test(lStr)) {
+                            if (lY > tableEndY) tableEndY = lY;
                         }
                     }
                 }
@@ -728,6 +780,28 @@ export async function parseUniversalBuildingPdf(inputData) {
     return result;
 }
 
+function cleanPebText(str) {
+    if (!str || typeof str !== 'string') return str || '';
+    return str
+        .replace(/\bS\s+teel\b/g, 'Steel')
+        .replace(/\bs\s+teel\b/g, 'steel')
+        .replace(/\bSTEEL\b/g, 'STEEL')
+        .replace(/\bo\s+f\b/gi, 'of')
+        .replace(/\bC\s*\/\s*C\b/g, 'C/C')
+        .replace(/\bGalvalum\s+e\b/gi, 'Galvalume')
+        .replace(/\bGal\s+valume\b/gi, 'Galvalume')
+        .replace(/\bdown\s+co\s*mer\b/gi, 'down comer')
+        .replace(/\bco\s+mer\b/gi, 'comer')
+        .replace(/\bO\s+ne\b/g, 'One')
+        .replace(/\bP\s+aint\b/g, 'Paint')
+        .replace(/\bcoat\s+s\b/gi, 'coats')
+        .replace(/\b0\.\s+(\d+)\b/g, '0.$1')
+        .replace(/\b1\s*:\s*10\b/g, '1:10')
+        .replace(/\bAZ\s*-\s*150\b/gi, 'AZ-150')
+        .replace(/\s{2,}/g, ' ')
+        .trim();
+}
+
 function extractUniversalDocSections(pages, result) {
     let startPageIdx = -1;
     let startLineIdx = -1;
@@ -757,13 +831,10 @@ function extractUniversalDocSections(pages, result) {
         }
     }
 
-    const isSectionHeader = (lineStr) => {
-        if (/^(?:\([A-Z]\)|[A-Z]\.|\d+\.)\s*(?:DESIGN\s*CRITERIA|Building\s*Descriptions?|Project\s*Summary|Building\s*technical\s*notes)/i.test(lineStr)) return true;
-        if (/^DESIGN\s*CRITERIA$/i.test(lineStr)) return true;
-        if (/^[A-Z]\.\d+(?:\.\d+)*\s+[A-Za-z]/i.test(lineStr)) return true;
-        if (/^C\.1\s+Building/i.test(lineStr)) return true;
-        return false;
-    };
+    const isMajorHeader = (lineStr) => /^(?:\([A-Z]\)|[A-Z]\.)\s+[A-Za-z]/i.test(lineStr);
+    const isSubHeader = (lineStr) => /^[A-Z]\.\d+(?:\.\d+)*\s+[A-Za-z]/i.test(lineStr);
+    const isSectionHeader = (lineStr) => isMajorHeader(lineStr) || isSubHeader(lineStr) || /^DESIGN\s*CRITERIA$/i.test(lineStr);
+    const isListItem = (lineStr) => /^\d+[\).]\s+/.test(lineStr) || /^[•\-–]\s+/.test(lineStr);
 
     const rawSections = [];
     let curSection = null;
@@ -772,9 +843,9 @@ function extractUniversalDocSections(pages, result) {
         const { pageNum, lineStr, items } = rawLines[i];
         if (isSectionHeader(lineStr)) {
             if (curSection) rawSections.push(curSection);
-            curSection = { title: lineStr, pageNum, lines: [] };
+            curSection = { title: lineStr, isMajor: isMajorHeader(lineStr), pageNum, lines: [] };
         } else {
-            if (!curSection) curSection = { title: '(A) DESIGN CRITERIA', pageNum, lines: [] };
+            if (!curSection) curSection = { title: '(A) DESIGN CRITERIA', isMajor: true, pageNum, lines: [] };
             curSection.lines.push({ pageNum, lineStr, items });
         }
     }
@@ -786,8 +857,8 @@ function extractUniversalDocSections(pages, result) {
         const title = sec.title;
         const lines = sec.lines;
 
-        const isChapter = /^(?:\([A-Z]\)|C\.1(?!\.)|C\.1\.5(?!\.)|C\.1\.8(?!\.))\s+[A-Za-z]/i.test(title) && lines.length === 0;
-        if (isChapter) {
+        // 1. Major chapters without lines
+        if (sec.isMajor && lines.length === 0) {
             structuredSections.push({
                 title: title,
                 subtitle: '',
@@ -801,6 +872,7 @@ function extractUniversalDocSections(pages, result) {
             continue;
         }
 
+        // 2. (A) DESIGN CRITERIA
         if (/DESIGN\s*CRITERIA/i.test(title)) {
             const notes = lines.map(l => l.lineStr).filter(s => s && !/^Building$/i.test(s));
             structuredSections.push({
@@ -816,34 +888,129 @@ function extractUniversalDocSections(pages, result) {
             continue;
         }
 
-        // List sections: Technical notes, Material specs, Assumptions, Deviations
-        if (/technical\s*notes|Specification\s*of\s*materials|assumptions|deviations/i.test(title)) {
-            const listItems = [];
-            let curItem = '';
-            for (const l of lines) {
-                const s = l.lineStr;
-                if (/^\d+[\).]\s*/.test(s)) {
-                    if (curItem) listItems.push(curItem.trim());
-                    curItem = s;
-                } else {
-                    curItem += ' ' + s;
-                }
-            }
-            if (curItem) listItems.push(curItem.trim());
+        // 3. (B) Project Summary - Standalone 2-cell box + Subtitle + 3-column table
+        if (/Project\s*Summary/i.test(title)) {
             structuredSections.push({
                 title: title,
                 subtitle: '',
-                sectionType: 'list',
+                sectionType: 'chapter',
                 colCount: 0,
                 tableHeaders: [],
                 tableRows: [],
-                listItems: listItems,
+                listItems: [],
                 notes: []
             });
+            let curTable = null;
+            let subtitle = '';
+            for (const l of lines) {
+                const s = l.lineStr;
+                if (/^Total\s*no\.\s*of\s*Buildings/i.test(s)) {
+                    const match = s.match(/^Total\s*no\.\s*of\s*Buildings\s*[:\s]*(.*)$/i);
+                    let right = (match && match[1]) ? match[1].trim() : '';
+                    if (!right) {
+                        right = l.items.filter(it => it.x >= 350).map(it => it.str).join(' ').trim() || '01';
+                    }
+                    structuredSections.push({
+                        title: '',
+                        subtitle: '',
+                        sectionType: 'table',
+                        colCount: 2,
+                        tableHeaders: [],
+                        tableRows: [{ c1: 'Total no. of Buildings', c2: right, c3: '', c4: '', c5: '', c6: '', isSubHeader: false }],
+                        listItems: [],
+                        notes: []
+                    });
+                    continue;
+                }
+                if (/^\(if\s*more\s*than\s*one/i.test(s)) {
+                    subtitle = s;
+                    continue;
+                }
+                if (/^UTILITY\s*OF\s*BUILDING/i.test(s)) {
+                    curTable = {
+                        title: '',
+                        subtitle: subtitle,
+                        sectionType: 'table',
+                        colCount: 3,
+                        tableHeaders: ['UTILITY OF BUILDING.', 'No. OF BUILDING', 'Total Area (Sqm.)'],
+                        tableRows: [],
+                        listItems: [],
+                        notes: []
+                    };
+                    structuredSections.push(curTable);
+                    continue;
+                }
+                if (/^\(Sqm\.\)/i.test(s)) continue;
+                if (curTable) {
+                    if (/Total\s*area/i.test(s)) {
+                        const num = l.items[l.items.length - 1].str;
+                        curTable.tableRows.push({ c1: '', c2: 'Total area', c3: num, c4: '', c5: '', c6: '', isSubHeader: false });
+                    } else {
+                        let c1 = l.items.filter(it => it.x < 260).map(it => it.str).join(' ').trim();
+                        let c2 = l.items.filter(it => it.x >= 260 && it.x < 420).map(it => it.str).join(' ').trim();
+                        let c3 = l.items.filter(it => it.x >= 420).map(it => it.str).join(' ').trim();
+                        if (!c1 && !c2 && !c3) {
+                            if (l.items.length >= 3) {
+                                c1 = l.items.slice(0, l.items.length - 2).map(it => it.str).join(' ').trim();
+                                c2 = l.items[l.items.length - 2].str;
+                                c3 = l.items[l.items.length - 1].str;
+                            } else if (l.items.length === 2) {
+                                c1 = l.items[0].str;
+                                c2 = l.items[1].str;
+                            }
+                        }
+                        if (c1 || c2 || c3) {
+                            curTable.tableRows.push({ c1, c2, c3, c4: '', c5: '', c6: '', isSubHeader: false });
+                        }
+                    }
+                }
+            }
             continue;
         }
 
-        // Software used (A.3)
+        // 4. List Sections (Technical notes, assumptions, deviations, etc.) with dynamic embedded table detection
+        if (/technical\s*notes|Specification\s*of\s*materials|assumptions|deviations/i.test(title) || (lines.length > 0 && lines.some(l => isListItem(l.lineStr)))) {
+            const blocks = partitionSectionLines(lines);
+            for (let b = 0; b < blocks.length; b++) {
+                const block = blocks[b];
+                const blockTitle = (b === 0) ? title : '';
+
+                if (block.type === 'table') {
+                    const dynTable = parseDynamicTable(blockTitle, block.lines);
+                    if (dynTable && dynTable.tableRows.length > 0) {
+                        structuredSections.push(dynTable);
+                    }
+                } else {
+                    const listItems = [];
+                    let curItem = '';
+                    for (const l of block.lines) {
+                        const s = l.lineStr;
+                        if (isListItem(s)) {
+                            if (curItem) listItems.push(cleanPebText(curItem.trim()));
+                            curItem = s;
+                        } else {
+                            curItem += (curItem ? ' ' : '') + s;
+                        }
+                    }
+                    if (curItem) listItems.push(cleanPebText(curItem.trim()));
+                    if (listItems.length > 0) {
+                        structuredSections.push({
+                            title: blockTitle,
+                            subtitle: '',
+                            sectionType: 'list',
+                            colCount: 0,
+                            tableHeaders: [],
+                            tableRows: [],
+                            listItems: listItems,
+                            notes: []
+                        });
+                    }
+                }
+            }
+            continue;
+        }
+
+        // 5. Software used (A.3)
         if (/Software\s*used/i.test(title)) {
             const tableRows = [];
             for (const l of lines) {
@@ -859,7 +1026,7 @@ function extractUniversalDocSections(pages, result) {
                 const match = title.match(/Software\s*used:\s*(.*)/i);
                 const val = match ? match[1].trim() : lines.map(l => l.lineStr).join(' ');
                 tableRows.push(
-                    { c1: 'Primary & bracing', c2: val || 'STAAD-PRO Connect Edition', c3: '2D', c4: '', c5: '', c6: '', isSubHeader: false },
+                    { c1: 'Primary & bracing', c2: val || 'STAAD-PRO Connect Edition', c3: '3D', c4: '', c5: '', c6: '', isSubHeader: false },
                     { c1: 'Secondary', c2: 'Spread Sheet (Excel)', c3: '2D', c4: '', c5: '', c6: '', isSubHeader: false }
                 );
             }
@@ -876,37 +1043,45 @@ function extractUniversalDocSections(pages, result) {
             continue;
         }
 
-        // Accessories with pre-parsed result
-        if (/Accessories/i.test(title) && result && result.accessories && result.accessories.length > 0) {
-            const notes = [];
+        // 6. Accessories (C.1.8.7) - Strictly parsed from section lines, ending cleanly before Section D
+        if (/Accessories/i.test(title)) {
+            const tableHeaders = ['', 'Description', 'Quantity', 'Remarks'];
+            const tableRows = [];
+            let curRow = null;
             for (const l of lines) {
-                const s = l.lineStr;
-                if (/^(?:Special\s*condition|Follow\s*the\s*estimate)/i.test(s)) {
-                    notes.push(s);
+                if (/^Description\s+Quantity/i.test(l.lineStr)) continue;
+                const srItem = l.items.find(it => it.x < 100 && /^\d+[\.)]?$/.test(it.str));
+                const srX = srItem ? srItem.x : -1;
+                const descText = l.items.filter(it => it !== srItem && it.x >= (srX >= 0 ? srX + 10 : 80) && it.x < 170).map(it => it.str).join(' ').trim();
+                const qtyText = l.items.filter(it => it !== srItem && it.x >= 170 && it.x < 350).map(it => it.str).join(' ').trim();
+                const remText = l.items.filter(it => it !== srItem && it.x >= 350).map(it => it.str).join(' ').trim();
+
+                if (srItem) {
+                    if (curRow) tableRows.push(curRow);
+                    const cleanNum = srItem.str.replace(/[\.)]$/, '');
+                    curRow = { c1: cleanNum, c2: descText, c3: qtyText, c4: remText, c5: '', c6: '', isSubHeader: false };
+                } else if (curRow) {
+                    if (descText) curRow.c2 += (curRow.c2 ? ' ' : '') + descText;
+                    if (qtyText) curRow.c3 += (curRow.c3 ? ' ' : '') + qtyText;
+                    if (remText) curRow.c4 += (curRow.c4 ? ' ' : '') + remText;
                 }
             }
-            const tableRows = result.accessories.map(a => ({
-                c1: a.srNo || '',
-                c2: a.description || '',
-                c3: a.size || '',
-                c4: a.quantity || '',
-                c5: a.remark || '',
-                c6: '',
-                isSubHeader: false
-            }));
+            if (curRow) tableRows.push(curRow);
+
             structuredSections.push({
                 title: title,
-                subtitle: 'Standard Building Accessories –',
+                subtitle: '',
                 sectionType: 'table',
-                colCount: 5,
-                tableHeaders: ['Sr. No.', 'Description', 'Size', 'Quantity', 'Remark'],
-                tableRows: tableRows,
+                colCount: 4,
+                tableHeaders,
+                tableRows,
                 listItems: [],
-                notes: notes
+                notes: []
             });
             continue;
         }
 
+        // 7. Generic Table Parser for all other tables
         const secObj = parseGenericSectionTable(title, lines);
         structuredSections.push(secObj);
     }
@@ -914,11 +1089,233 @@ function extractUniversalDocSections(pages, result) {
     return structuredSections;
 }
 
+function isTableStartLine(l) {
+    if (!l || !l.items || l.items.length === 0) return false;
+
+    // 1. Table with Serial Number: e.g. "1 Sheeting Profile UIL Profiled..."
+    const bareDigitItem = l.items.find(it => it.x < 120 && /^\d+$/.test(it.str.trim()));
+    if (bareDigitItem) {
+        const others = l.items.filter(it => it !== bareDigitItem);
+        if (others.some(it => it.x >= 220) || others.length >= 2) {
+            return true;
+        }
+    }
+
+    // 2. Serial number with dot/paren BUT with distinct column gap (> 45px) between items
+    const srItem = l.items.find(it => it.x < 120 && /^\d+[\).]$/.test(it.str.trim()));
+    if (srItem) {
+        for (let j = 0; j < l.items.length - 1; j++) {
+            const rightEdge = l.items[j].x + (l.items[j].w || (l.items[j].str.length * 5.5));
+            const nextLeft = l.items[j + 1].x;
+            if (nextLeft - rightEdge > 45) {
+                return true;
+            }
+        }
+    }
+
+    // 3. Header keywords across columns
+    const hasHdrKeywords = /^(?:Sr\.?\s*No\.?|Description|Parameter|Location|Quantity|Remarks|Specification)/i.test(l.lineStr);
+    if (hasHdrKeywords && l.items.length >= 2) return true;
+
+    // 4. Two-column spread with gap > 40px
+    const leftItems = l.items.filter(it => it.x < 240);
+    const rightItems = l.items.filter(it => it.x >= 240);
+    if (leftItems.length > 0 && rightItems.length > 0) {
+        const lastLeftX = Math.max(...leftItems.map(it => it.x + (it.w || (it.str.length * 5.5))));
+        const firstRightX = Math.min(...rightItems.map(it => it.x));
+        if (firstRightX - lastLeftX > 40) return true;
+    }
+
+    return false;
+}
+
+function partitionSectionLines(lines) {
+    const blocks = [];
+    let curBlock = null;
+
+    for (let i = 0; i < lines.length; i++) {
+        const l = lines[i];
+
+        if (curBlock && curBlock.type === 'table') {
+            const isListBullet = /^\d+[\).]\s+[A-Za-z]/.test(l.lineStr) || /^[•\-–]\s+/.test(l.lineStr);
+
+            if (isListBullet && !isTableStartLine(l)) {
+                curBlock = { type: 'list', lines: [l] };
+                blocks.push(curBlock);
+            } else {
+                curBlock.lines.push(l);
+            }
+        } else {
+            if (isTableStartLine(l)) {
+                curBlock = { type: 'table', lines: [l] };
+                blocks.push(curBlock);
+            } else {
+                if (!curBlock || curBlock.type !== 'list') {
+                    curBlock = { type: 'list', lines: [] };
+                    blocks.push(curBlock);
+                }
+                curBlock.lines.push(l);
+            }
+        }
+    }
+
+    return blocks;
+}
+
+function parseDynamicTable(title, lines) {
+    if (!lines || lines.length === 0) return null;
+
+    const hasSrCol = lines.some(l => l.items.some(it => it.x < 120 && /^\d+[\).]?$/.test(it.str.trim())));
+    const hasCol4 = lines.some(l => l.items.some(it => it.x >= 350) && l.items.some(it => it.x >= 170 && it.x < 350));
+
+    let colCount = 2;
+    let colWidths = ['40%', '60%'];
+    let tableHeaders = [];
+
+    let dataStartIdx = 0;
+    const firstLine = lines[0];
+    if (/^(?:Sr\.?\s*No\.?|Parameter|Description|Location|Item|Sl\.?\s*No\.?)/i.test(firstLine.lineStr)) {
+        dataStartIdx = 1;
+        if (hasCol4) {
+            colCount = 4;
+            colWidths = ['8%', '32%', '30%', '30%'];
+            const c1 = firstLine.items.filter(it => it.x < 100).map(it => it.str).join(' ').trim();
+            const c2 = firstLine.items.filter(it => it.x >= 100 && it.x < 220).map(it => it.str).join(' ').trim();
+            const c3 = firstLine.items.filter(it => it.x >= 220 && it.x < 350).map(it => it.str).join(' ').trim();
+            const c4 = firstLine.items.filter(it => it.x >= 350).map(it => it.str).join(' ').trim();
+            tableHeaders = [c1 || 'Sr. No.', c2 || 'Description', c3 || 'Quantity', c4 || 'Remarks'];
+        } else if (hasSrCol) {
+            colCount = 3;
+            colWidths = ['6%', '34%', '60%'];
+            const c1 = firstLine.items.filter(it => it.x < 120).map(it => it.str).join(' ').trim();
+            const c2 = firstLine.items.filter(it => it.x >= 120 && it.x < 240).map(it => it.str).join(' ').trim();
+            const c3 = firstLine.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+            tableHeaders = [c1 || 'Sr. No.', c2 || 'Description', c3 || 'Specification'];
+        } else {
+            colCount = 2;
+            colWidths = ['40%', '60%'];
+            const c1 = firstLine.items.filter(it => it.x < 250).map(it => it.str).join(' ').trim();
+            const c2 = firstLine.items.filter(it => it.x >= 250).map(it => it.str).join(' ').trim();
+            tableHeaders = [c1 || 'Parameter', c2 || 'Value'];
+        }
+    } else {
+        if (hasCol4) {
+            colCount = 4;
+            colWidths = ['8%', '32%', '30%', '30%'];
+        } else if (hasSrCol) {
+            colCount = 3;
+            colWidths = ['6%', '34%', '60%'];
+        }
+    }
+
+    const tableRows = [];
+    const rowObjs = [];
+
+    for (let i = dataStartIdx; i < lines.length; i++) {
+        const l = lines[i];
+
+        if (colCount === 4) {
+            const srItem = l.items.find(it => it.x < 100 && /^\d+[\).]?$/.test(it.str.trim()));
+            const c2Text = l.items.filter(it => it !== srItem && it.x >= 80 && it.x < 220).map(it => it.str).join(' ').trim();
+            const c3Text = l.items.filter(it => it !== srItem && it.x >= 220 && it.x < 350).map(it => it.str).join(' ').trim();
+            const c4Text = l.items.filter(it => it !== srItem && it.x >= 350).map(it => it.str).join(' ').trim();
+
+            if (srItem) {
+                const cleanSr = srItem.str.replace(/[\).]$/, '');
+                rowObjs.push({
+                    c1: cleanSr,
+                    c2: c2Text,
+                    c3: c3Text,
+                    c4: c4Text
+                });
+            } else if (rowObjs.length > 0) {
+                const prev = rowObjs[rowObjs.length - 1];
+                if (c2Text) prev.c2 += (prev.c2 ? ' ' : '') + c2Text;
+                if (c3Text) prev.c3 += (prev.c3 ? ' ' : '') + c3Text;
+                if (c4Text) prev.c4 += (prev.c4 ? ' ' : '') + c4Text;
+            }
+        } else if (colCount === 3) {
+            const srItem = l.items.find(it => it.x < 120 && /^\d+[\).]?$/.test(it.str.trim()));
+            const midText = l.items.filter(it => it !== srItem && it.x >= 80 && it.x < 240).map(it => it.str).join(' ').trim();
+            const rightText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+
+            if (srItem) {
+                const cleanSr = srItem.str.replace(/[\).]$/, '');
+                rowObjs.push({
+                    c1: cleanSr,
+                    c2: midText,
+                    c3: rightText
+                });
+            } else {
+                if (rowObjs.length === 0) {
+                    rowObjs.push({
+                        c1: '',
+                        c2: midText,
+                        c3: rightText
+                    });
+                } else {
+                    const prevRow = rowObjs[rowObjs.length - 1];
+                    const nextLine = (i + 1 < lines.length) ? lines[i + 1] : null;
+                    const nextHasSr = nextLine && nextLine.items.some(it => it.x < 120 && /^\d+[\).]?$/.test(it.str.trim()));
+                    const nextHasRight = nextLine && nextLine.items.some(it => it.x >= 240);
+
+                    if (!midText && rightText && prevRow.c3 && nextHasSr && !nextHasRight) {
+                        prevRow.pendingForNext = (prevRow.pendingForNext ? prevRow.pendingForNext + ' ' : '') + rightText;
+                    } else {
+                        if (midText) prevRow.c2 += (prevRow.c2 ? ' ' : '') + midText;
+                        if (rightText) prevRow.c3 += (prevRow.c3 ? ' ' : '') + rightText;
+                    }
+                }
+            }
+        } else {
+            // 2 columns
+            const left = l.items.filter(it => it.x < 250).map(it => it.str).join(' ').trim();
+            const right = l.items.filter(it => it.x >= 250).map(it => it.str).join(' ').trim();
+            if (left) {
+                rowObjs.push({ c1: left, c2: right });
+            } else if (right && rowObjs.length > 0) {
+                rowObjs[rowObjs.length - 1].c2 += (rowObjs[rowObjs.length - 1].c2 ? ' ' : '') + right;
+            }
+        }
+    }
+
+    for (let r = 0; r < rowObjs.length; r++) {
+        const curr = rowObjs[r];
+        if (curr.pendingForNext && r + 1 < rowObjs.length) {
+            const next = rowObjs[r + 1];
+            next.c3 = (curr.pendingForNext + (next.c3 ? ' ' + next.c3 : '')).trim();
+            delete curr.pendingForNext;
+        }
+
+        tableRows.push({
+            c1: cleanPebText(curr.c1 || ''),
+            c2: cleanPebText(curr.c2 || ''),
+            c3: cleanPebText(curr.c3 || ''),
+            c4: cleanPebText(curr.c4 || ''),
+            c5: '', c6: '',
+            isSubHeader: false
+        });
+    }
+
+    return {
+        title: title || '',
+        subtitle: '',
+        sectionType: 'table',
+        colCount,
+        colWidths,
+        tableHeaders,
+        tableRows,
+        listItems: [],
+        notes: []
+    };
+}
+
 function parseGenericSectionTable(title, lines) {
     const tableRows = [];
     const notes = [];
     let subtitle = '';
     let tableHeaders = [];
+    let colWidths = [];
     let colCount = 2;
 
     const dataLines = [];
@@ -938,7 +1335,7 @@ function parseGenericSectionTable(title, lines) {
     // ── 1. Codes / Standards (A.1) ──
     if (/Codes/i.test(title)) {
         colCount = 2;
-        tableHeaders = ['Codes/Standards', 'Design Standard / Code'];
+        tableHeaders = ['Codes/Standards', ''];
         let curRow = null;
         for (const l of dataLines) {
             if (/^Codes\/Standards$/i.test(l.lineStr)) continue;
@@ -957,7 +1354,7 @@ function parseGenericSectionTable(title, lines) {
     // ── 2. Design Loads (A.2) ──
     else if (/Design\s*Loads/i.test(title)) {
         colCount = 2;
-        tableHeaders = ['Design Load Parameter', 'Value'];
+        tableHeaders = [];
         let curRow = null;
         for (const l of dataLines) {
             const left = l.items.filter(it => it.x < 280).map(it => it.str).join(' ').trim();
@@ -989,7 +1386,7 @@ function parseGenericSectionTable(title, lines) {
     // ── 3. Deflection Limits (A.4) ──
     else if (/Deflection\s*Limits/i.test(title)) {
         colCount = 2;
-        tableHeaders = ['Structural Element / Load Case', 'Deflection Limit'];
+        tableHeaders = [];
         let curRow = null;
         for (const l of dataLines) {
             const s = l.lineStr;
@@ -1040,7 +1437,7 @@ function parseGenericSectionTable(title, lines) {
     // ── 5. Building Geometry / C.1 Description ──
     else if (/Building\s*Description$/i.test(title)) {
         colCount = 2;
-        tableHeaders = ['Parameter', 'Description'];
+        tableHeaders = [];
         for (const l of dataLines) {
             const left = l.items.filter(it => it.x < 250).map(it => it.str).join(' ').trim();
             const right = l.items.filter(it => it.x >= 250).map(it => it.str).join(' ').trim();
@@ -1065,9 +1462,10 @@ function parseGenericSectionTable(title, lines) {
             }
 
             const srItem = l.items.find(it => it.x < 140 && /^\d+$/.test(it.str));
-            const itemText = l.items.filter(it => it.x >= 130 && it.x < 236).map(it => it.str).join(' ').trim();
-            const descText = l.items.filter(it => it.x >= 236 && it.x < 415).map(it => it.str).join(' ').trim();
-            const remText = l.items.filter(it => it.x >= 415).map(it => it.str).join(' ').trim();
+            const srX = srItem ? srItem.x : -1;
+            const itemText = l.items.filter(it => it !== srItem && it.x > srX && it.x < 230).map(it => it.str).join(' ').trim();
+            const descText = l.items.filter(it => it.x >= 230 && it.x < 400).map(it => it.str).join(' ').trim();
+            const remText = l.items.filter(it => it.x >= 400).map(it => it.str).join(' ').trim();
 
             if (srItem) {
                 if (curRow) tableRows.push(curRow);
@@ -1082,111 +1480,206 @@ function parseGenericSectionTable(title, lines) {
     }
     // ── 7. Bracing System (C.1.2) ──
     else if (/Bracing\s*System/i.test(title)) {
-        colCount = 2;
-        tableHeaders = ['Location / Element', 'Member Type'];
-        let curRow = null;
-        for (const l of dataLines) {
-            const srItem = l.items.find(it => it.x < 140 && /^\d+$/.test(it.str));
-            const left = l.items.filter(it => it.x >= 100 && it.x < 220).map(it => it.str).join(' ').trim();
-            const right = l.items.filter(it => it.x >= 220).map(it => it.str).join(' ').trim();
+        colCount = 3;
+        tableHeaders = [];
+        colWidths = ['6%', '44%', '50%'];
+        const rows = [
+            { c1: '1', r1Span: 3, c2: 'Roof', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Side Columns up to Crane/Mezzanine/ Opening', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Side Columns over Crane/Mezzanine/ Opening', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '2', r1Span: 1, c2: 'Intermediate Columns up to Crane/Mezzanine/ Opening', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '3', r1Span: 1, c2: 'Intermediate Columns over Crane/Mezzanine/ Opening', c3: '', c4: '', c5: '', c6: '', isSubHeader: false }
+        ];
 
-            if (srItem || (left && right)) {
-                if (curRow) tableRows.push(curRow);
-                curRow = { c1: (srItem ? srItem.str + ' ' : '') + left, c2: right, c3: '', c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (left && !right) {
-                if (curRow) {
-                    curRow.c1 += (curRow.c1 ? ' ' : '') + left;
-                } else {
-                    curRow = { c1: left, c2: '', c3: '', c4: '', c5: '', c6: '', isSubHeader: false };
-                }
-            } else if (right && curRow) {
-                curRow.c2 += (curRow.c2 ? ' ' : '') + right;
-            }
+        for (const l of dataLines) {
+            const right = l.items.filter(it => it.x >= 220).map(it => it.str).join(' ').trim();
+            const left = l.items.filter(it => it.x >= 90 && it.x < 220).map(it => it.str).join(' ').trim();
+            if (/Roof/i.test(left) && right) rows[0].c3 = right;
+            if (/Side\s*Columns\s*up/i.test(left) && right) rows[1].c3 = right;
+            if (/Side\s*Columns\s*over/i.test(left) && right) rows[2].c3 = right;
+            if (/Intermediate.*up/i.test(left) && right) rows[3].c3 = right;
+            if (/Intermediate.*over/i.test(left) && right) rows[4].c3 = right;
         }
-        if (curRow) tableRows.push(curRow);
+
+        for (const r of rows) {
+            tableRows.push(r);
+        }
     }
     // ── 8. Support Conditions (C.1.3) ──
     else if (/Support\s*Conditions/i.test(title)) {
         colCount = 3;
-        tableHeaders = ['Sr. No.', 'Item', 'Support Condition'];
-        let curRow = null;
+        tableHeaders = [];
+        colWidths = ['6%', '44%', '50%'];
+        const rows = [
+            { c1: '1', c2: 'Main Column', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '2', c2: 'Internal Column', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '3', c2: 'Wind Column', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '4', c2: 'Mezzanine Supporting Column', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '5', c2: 'Crane Leg', c3: '', c4: '', c5: '', c6: '', isSubHeader: false }
+        ];
+
         for (const l of dataLines) {
-            const srItem = l.items.find(it => it.x < 140 && /^\d+$/.test(it.str));
-            const itemText = l.items.filter(it => it.x >= 100 && it.x < 220).map(it => it.str).join(' ').trim();
+            const lineStr = l.lineStr || l.items.map(it => it.str).join(' ');
             const suppText = l.items.filter(it => it.x >= 220).map(it => it.str).join(' ').trim();
 
-            if (srItem) {
-                if (curRow) tableRows.push(curRow);
-                curRow = { c1: srItem.str, c2: itemText, c3: suppText, c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (curRow) {
-                if (itemText) curRow.c2 += (curRow.c2 ? ' ' : '') + itemText;
-                if (suppText) curRow.c3 += (curRow.c3 ? ' ' : '') + suppText;
+            if (/Main\s*Column/i.test(lineStr)) {
+                rows[0].c3 = cleanPebText(suppText || 'Fixed');
+            } else if (/Internal\s*Column/i.test(lineStr)) {
+                rows[1].c3 = cleanPebText(suppText || 'Pinned');
+            } else if (/Wind\s*Column/i.test(lineStr)) {
+                rows[2].c3 = cleanPebText(suppText || 'Pinned');
+            } else if (/Mezzanine/i.test(lineStr)) {
+                if (suppText) rows[3].c3 = cleanPebText(suppText);
+            } else if (/Crane\s*Leg/i.test(lineStr)) {
+                if (suppText) rows[4].c3 = cleanPebText(suppText);
             }
         }
-        if (curRow) tableRows.push(curRow);
+
+        for (const r of rows) {
+            tableRows.push(r);
+        }
     }
     // ── 9. Surface Preparation & Minimum Thickness (C.1.4) ──
     else if (/Surface\s*Preparation/i.test(title)) {
-        colCount = 3;
-        tableHeaders = ['Sr. No.', 'Item', 'Specification / Thickness'];
-        let curRow = null;
+        colCount = 4;
+        tableHeaders = [];
+        colWidths = ['6%', '30%', '44%', '20%'];
+
+        const rows = [
+            // 1. Surface preparation
+            { c1: '1', r1Span: 3, c2: 'Surface preparation', c2Span: 3, isC2Bold: true, skipC3: true, skipC4: true, c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Primary Member', c3: '', c3Span: 2, skipC4: true, c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Secondary Member', c3: '', c3Span: 2, skipC4: true, c5: '', c6: '', isSubHeader: false },
+            // 2. Minimum thickness criteria
+            { c1: '2', r1Span: 3, c2: 'Minimum thickness criteria', c2Span: 3, isC2Bold: true, skipC3: true, skipC4: true, c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Primary Member (mm)', c3: '', c4: '', alignC4: 'center', c5: '', c6: '', isSubHeader: false },
+            { skipC1: true, c2: 'Secondary Member (mm)', c3: '', c4: '', alignC4: 'center', c5: '', c6: '', isSubHeader: false },
+            // 3. Built - ups welding type
+            { c1: '3', r1Span: 1, c2: 'Built - ups welding type', c3: '', c3Span: 2, skipC4: true, c5: '', c6: '', isSubHeader: false }
+        ];
+
+        let primaryPrep = [];
+        let secPrep = [];
+        let primaryThk = '';
+        let primaryFy = '';
+        let secThk = '';
+        let secFy = '';
+        let weldingType = '';
+
+        let inThickness = false;
+        let inWelding = false;
+        let curTarget = null;
+
         for (const l of dataLines) {
-            const s = l.lineStr;
-            if (/^(?:Surface\s*preparation|Minimum\s*thickness\s*criteria)/i.test(s)) {
-                if (curRow) tableRows.push(curRow);
-                curRow = null;
-                tableRows.push({ c1: s, c2: '', c3: '', c4: '', c5: '', c6: '', isSubHeader: true });
+            const lineStr = l.lineStr;
+            if (/Minimum\s*thickness\s*criteria/i.test(lineStr)) {
+                inThickness = true;
+                curTarget = null;
+                continue;
+            }
+            if (/Built\s*-\s*ups\s*welding/i.test(lineStr)) {
+                inWelding = true;
+                curTarget = 'welding';
+                const wText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+                if (wText) weldingType = (weldingType ? weldingType + ' ' : '') + wText;
                 continue;
             }
 
-            const srItem = l.items.find(it => it.x < 140 && /^\d+$/.test(it.str));
-            const itemText = l.items.filter(it => it.x >= 100 && it.x < 250).map(it => it.str).join(' ').trim();
-            const specText = l.items.filter(it => it.x >= 250).map(it => it.str).join(' ').trim();
+            if (!inThickness && !inWelding) {
+                if (/Primary/i.test(lineStr)) curTarget = 'primaryPrep';
+                else if (/Secondary/i.test(lineStr)) curTarget = 'secPrep';
 
-            if (srItem && itemText) {
-                if (curRow) tableRows.push(curRow);
-                curRow = { c1: srItem.str, c2: itemText, c3: specText, c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (itemText && specText && !srItem) {
-                if (curRow) tableRows.push(curRow);
-                curRow = { c1: '', c2: itemText, c3: specText, c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (srItem && curRow && !curRow.c1) {
-                curRow.c1 = srItem.str;
-                if (specText) curRow.c3 += (curRow.c3 ? ' ' : '') + specText;
-            } else if (curRow) {
-                if (itemText) curRow.c2 += (curRow.c2 ? ' ' : '') + itemText;
-                if (specText) curRow.c3 += (curRow.c3 ? ' ' : '') + specText;
+                if (curTarget === 'primaryPrep') {
+                    const pText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+                    if (pText) primaryPrep.push(pText);
+                } else if (curTarget === 'secPrep') {
+                    const sText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+                    if (sText) secPrep.push(sText);
+                }
+            } else if (inThickness && !inWelding) {
+                if (/Primary/i.test(lineStr)) {
+                    primaryThk = l.items.filter(it => it.x >= 240 && it.x < 420).map(it => it.str).join(' ').trim();
+                    primaryFy = l.items.filter(it => it.x >= 420).map(it => it.str).join(' ').trim();
+                } else if (/Secondary/i.test(lineStr)) {
+                    secThk = l.items.filter(it => it.x >= 240 && it.x < 420).map(it => it.str).join(' ').trim();
+                    secFy = l.items.filter(it => it.x >= 420).map(it => it.str).join(' ').trim();
+                }
+            } else if (inWelding) {
+                const wText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+                if (wText) weldingType = (weldingType ? weldingType + ' ' : '') + wText;
             }
         }
-        if (curRow) tableRows.push(curRow);
-    }
-    // ── 10. Roof System & Wall System ──
-    else if (/Roof\s*System|Wall\s*System/i.test(title)) {
-        colCount = 3;
-        tableHeaders = ['Sr. No.', 'Item', 'Description'];
-        let curRow = null;
-        let pendingDesc = '';
 
+        const cleanStr = (s) => (s || '').replace(/\bO ne\b/g, 'One').replace(/\bcoat s\b/g, 'coats').replace(/\bP aint\b/g, 'Paint').replace(/\s+/g, ' ').trim();
+
+        rows[1].c3 = cleanStr(primaryPrep.join(' '));
+        rows[2].c3 = cleanStr(secPrep.join(' '));
+        rows[4].c3 = cleanStr(primaryThk);
+        rows[4].c4 = cleanStr(primaryFy);
+        rows[5].c3 = cleanStr(secThk);
+        rows[5].c4 = cleanStr(secFy);
+        rows[6].c3 = cleanStr(weldingType);
+
+        for (const r of rows) {
+            tableRows.push(r);
+        }
+    }
+    // ── 10. Roof System (C.1.5) ──
+    else if (/Roof\s*System/i.test(title)) {
+        colCount = 3;
+        tableHeaders = [];
+        colWidths = ['6%', '34%', '60%'];
+        const rows = [
+            { c1: '1', c2: 'Sheeting Profile', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '2', c2: 'Thickness of Sheet (TCT)', c3: '', c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '3', c2: 'Material of Construction', c3: 'BARE', isC3Bold: true, c4: '', c5: '', c6: '', isSubHeader: false },
+            { c1: '4', c2: 'Eave Condition', c3: '', c4: '', c5: '', c6: '', isSubHeader: false }
+        ];
+
+        let eaveParts = [];
+        for (const l of dataLines) {
+            const lineStr = l.lineStr || l.items.map(it => it.str).join(' ');
+            const valText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
+
+            if (/Sheeting\s*Profile/i.test(lineStr) && valText) {
+                rows[0].c3 = cleanPebText(valText);
+            } else if (/Thickness/i.test(lineStr) && valText) {
+                rows[1].c3 = cleanPebText(valText);
+            } else if (/Material/i.test(lineStr)) {
+                if (/BARE/i.test(valText)) rows[2].c3 = 'BARE';
+                const extra = valText.replace(/BARE/gi, '').trim();
+                if (extra) eaveParts.push(cleanPebText(extra));
+            } else if (/Gutter/i.test(lineStr) || /Galvalume/i.test(lineStr) || /down\s*comer/i.test(lineStr) || /Eave\s*Condition/i.test(lineStr)) {
+                if (valText) eaveParts.push(cleanPebText(valText));
+            }
+        }
+
+        if (eaveParts.length > 0) {
+            rows[3].c3 = cleanPebText(eaveParts.join(' '));
+        }
+
+        for (const r of rows) {
+            tableRows.push(r);
+        }
+    }
+    // ── 10b. Wall System (C.1.6) ──
+    else if (/Wall\s*System/i.test(title)) {
+        colCount = 3;
+        tableHeaders = [];
+        colWidths = ['6%', '34%', '60%'];
+        let curRow = null;
         for (const l of dataLines) {
             const srItem = l.items.find(it => it.x < 140 && /^\d+$/.test(it.str));
-            const itemText = l.items.filter(it => it.x >= 100 && it.x < 260).map(it => it.str).join(' ').trim();
-            const descText = l.items.filter(it => it.x >= 260).map(it => it.str).join(' ').trim();
+            const srX = srItem ? srItem.x : -1;
+            const itemText = l.items.filter(it => it !== srItem && it.x > srX && it.x < 240).map(it => it.str).join(' ').trim();
+            const descText = l.items.filter(it => it.x >= 240).map(it => it.str).join(' ').trim();
 
             if (srItem) {
                 if (curRow) tableRows.push(curRow);
-                const combinedDesc = pendingDesc ? pendingDesc + ' ' + descText : descText;
-                pendingDesc = '';
-                curRow = { c1: srItem.str, c2: itemText, c3: combinedDesc.trim(), c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (descText && !itemText && !srItem) {
-                if (curRow && !curRow.c3) {
-                    curRow.c3 = descText;
-                } else if (curRow && curRow.c3) {
-                    curRow.c3 += ' ' + descText;
-                } else {
-                    pendingDesc = (pendingDesc ? pendingDesc + ' ' : '') + descText;
-                }
+                curRow = { c1: srItem.str, c2: cleanPebText(itemText), c3: cleanPebText(descText), c4: '', c5: '', c6: '', isSubHeader: false };
             } else if (curRow) {
-                if (itemText) curRow.c2 += (curRow.c2 ? ' ' : '') + itemText;
-                if (descText) curRow.c3 += (curRow.c3 ? ' ' : '') + descText;
+                if (itemText) curRow.c2 += (curRow.c2 ? ' ' : '') + cleanPebText(itemText);
+                if (descText) curRow.c3 += (curRow.c3 ? ' ' : '') + cleanPebText(descText);
             }
         }
         if (curRow) tableRows.push(curRow);
@@ -1207,15 +1700,78 @@ function parseGenericSectionTable(title, lines) {
     }
     // ── 12. Mezzanine (C.1.8.1) ──
     else if (/Mezzanine/i.test(title)) {
-        colCount = 4;
-        tableHeaders = ['Location', 'Dimensions (WxL)', 'Clear Height / Loads', 'Deck / Staircase'];
+        colCount = 10;
+        tableHeaders = [
+            'Sr. No. (Per Floor)',
+            'Location',
+            'Width (m)',
+            'Length (m)',
+            'Clear Height (m)',
+            'Dead Load (KN/M2)',
+            'Live Load (KN/M2)',
+            'Deck Sheet Thickness',
+            'Staircase',
+            'Total Area'
+        ];
+        colWidths = ['8%', '10%', '9%', '9%', '10%', '11%', '11%', '14%', '9%', '9%'];
+
         for (const l of dataLines) {
-            if (/^Sr\.\s*No\.|^\(Per|Floor\)/i.test(l.lineStr)) continue;
-            if (l.items.length >= 4) {
-                tableRows.push({ c1: l.items[0].str, c2: l.items[1].str, c3: l.items[2].str, c4: l.items[3].str, c5: '', c6: '', isSubHeader: false });
-            } else if (l.items.length >= 1) {
-                tableRows.push({ c1: l.items.map(x => x.str).join(' '), c2: '', c3: '', c4: '', c5: '', c6: '', isSubHeader: false });
+            const s = l.lineStr;
+            if (/^Sr\.\s*No\./i.test(s) || /^\(Per/i.test(s) || /^Floor\)/i.test(s) ||
+                (/\(m\)/i.test(s) && /Height/i.test(s)) ||
+                (/\(KN\/M2\)/i.test(s) && /Load/i.test(s)) ||
+                (/Deck\s*Sheet/i.test(s) && /Staircase/i.test(s))) {
+                continue;
             }
+
+            if (l.items.length >= 10) {
+                tableRows.push({
+                    c1: l.items[0].str,
+                    c2: l.items[1].str,
+                    c3: l.items[2].str,
+                    c4: l.items[3].str,
+                    c5: l.items[4].str,
+                    c6: l.items[5].str,
+                    c7: l.items[6].str,
+                    c8: l.items[7].str,
+                    c9: l.items[8].str,
+                    c10: l.items[9].str,
+                    isSubHeader: false
+                });
+            } else if (l.items.length === 1 && /^N\/?A$/i.test(l.items[0].str)) {
+                tableRows.push({
+                    c1: 'N/A', c2: 'N/A', c3: 'N/A', c4: 'N/A', c5: 'N/A',
+                    c6: 'N/A', c7: 'N/A', c8: 'N/A', c9: 'N/A', c10: 'N/A',
+                    isSubHeader: false
+                });
+            } else if (l.items.length > 0) {
+                const rowObj = {
+                    c1: '', c2: '', c3: '', c4: '', c5: '',
+                    c6: '', c7: '', c8: '', c9: '', c10: '',
+                    isSubHeader: false
+                };
+                for (const it of l.items) {
+                    if (it.x < 85) rowObj.c1 += (rowObj.c1 ? ' ' : '') + it.str;
+                    else if (it.x < 145) rowObj.c2 += (rowObj.c2 ? ' ' : '') + it.str;
+                    else if (it.x < 202) rowObj.c3 += (rowObj.c3 ? ' ' : '') + it.str;
+                    else if (it.x < 245) rowObj.c4 += (rowObj.c4 ? ' ' : '') + it.str;
+                    else if (it.x < 290) rowObj.c5 += (rowObj.c5 ? ' ' : '') + it.str;
+                    else if (it.x < 340) rowObj.c6 += (rowObj.c6 ? ' ' : '') + it.str;
+                    else if (it.x < 395) rowObj.c7 += (rowObj.c7 ? ' ' : '') + it.str;
+                    else if (it.x < 450) rowObj.c8 += (rowObj.c8 ? ' ' : '') + it.str;
+                    else if (it.x < 510) rowObj.c9 += (rowObj.c9 ? ' ' : '') + it.str;
+                    else rowObj.c10 += (rowObj.c10 ? ' ' : '') + it.str;
+                }
+                tableRows.push(rowObj);
+            }
+        }
+
+        if (tableRows.length === 0) {
+            tableRows.push({
+                c1: 'N/A', c2: 'N/A', c3: 'N/A', c4: 'N/A', c5: 'N/A',
+                c6: 'N/A', c7: 'N/A', c8: 'N/A', c9: 'N/A', c10: 'N/A',
+                isSubHeader: false
+            });
         }
     }
     // ── 13. Canopy / Lean to ──
@@ -1299,32 +1855,39 @@ function parseGenericSectionTable(title, lines) {
         }
         if (curRow) tableRows.push(curRow);
     }
-    // ── Fallback generic 2-column table ──
+    // ── Fallback dynamic table parser (2, 3, or 4 columns) ──
     else {
-        colCount = 2;
-        tableHeaders = ['Parameter', 'Description'];
-        let curRow = null;
-        for (const l of dataLines) {
-            const left = l.items.filter(it => it.x < 250).map(it => it.str).join(' ').trim();
-            const right = l.items.filter(it => it.x >= 250).map(it => it.str).join(' ').trim();
-            if (left) {
-                if (curRow) tableRows.push(curRow);
-                curRow = { c1: left, c2: right, c3: '', c4: '', c5: '', c6: '', isSubHeader: false };
-            } else if (right && curRow) {
-                curRow.c2 += (curRow.c2 ? ' ' : '') + right;
-            }
+        const dynTable = parseDynamicTable(title, dataLines);
+        if (dynTable) {
+            colCount = dynTable.colCount;
+            colWidths = dynTable.colWidths;
+            tableHeaders = dynTable.tableHeaders;
+            dynTable.tableRows.forEach(r => tableRows.push(r));
         }
-        if (curRow) tableRows.push(curRow);
     }
+
+    tableRows.forEach(r => {
+        if (r.c1) r.c1 = cleanPebText(r.c1);
+        if (r.c2) r.c2 = cleanPebText(r.c2);
+        if (r.c3) r.c3 = cleanPebText(r.c3);
+        if (r.c4) r.c4 = cleanPebText(r.c4);
+        if (r.c5) r.c5 = cleanPebText(r.c5);
+        if (r.c6) r.c6 = cleanPebText(r.c6);
+        if (r.c7) r.c7 = cleanPebText(r.c7);
+        if (r.c8) r.c8 = cleanPebText(r.c8);
+        if (r.c9) r.c9 = cleanPebText(r.c9);
+        if (r.c10) r.c10 = cleanPebText(r.c10);
+    });
 
     return {
         title,
         subtitle,
         sectionType: 'table',
         colCount,
+        colWidths,
         tableHeaders,
         tableRows,
         listItems: [],
-        notes
+        notes: (notes || []).map(cleanPebText)
     };
 }

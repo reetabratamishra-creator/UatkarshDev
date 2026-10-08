@@ -854,7 +854,8 @@ System.debug(' br desc '+ brPudesc);
             }
             String accHead = 'Supply of MID-HINGE ACCESSORIES';
             String accTxt  = mhpAccTextFor(m, n);
-            String accBody = accTxt.startsWith(accHead) ? accTxt.substring(accHead.length()) : ' - ' + accTxt;
+            System.debug('accText : '+ accTxt);
+            String accBody = accTxt.startsWith(accHead) ? accTxt.substring(accHead.length()) : ' - ' + accTxt +'alongwith LOCK & MANUAL HANDLE';
             descPole += '<span class="desc-bolt">'
                       + '<span class="desc-label" style="font-weight:bold;">' + accHead + '</span>'
                       + cmEsc(accBody) + '.</span>';
@@ -931,10 +932,14 @@ System.debug(' br desc '+ brPudesc);
         // not from the _Final_Apex_Lines item names (those are generic).
         List<String> accNames = new List<String>();
         for (Integer i = 1; i <= 10; i++) {
-            String nm = strVal(m, 'c' + i + '_mhp_acc_accessory', '');
-            if (String.isNotBlank(nm)) {
-                accNames.add(nm.trim());
+            String winch = strVal(m, 'c' + i + '_mhp_acc_winch_value', '');
+            String wire = strVal(m, 'c' + i + '_mhp_acc_wire_rope_value', '');
+            if (String.isNotBlank(winch)) {
+                accNames.add(winch.trim());
+                accNames.add(wire.trim());
+                System.debug('937 acc Names :'+ accNames);
             }
+            System.debug('937 acc Names :'+ accNames);
         }
         Decimal accUnitRate = accBaseTotal.setScale(2, RoundingMode.HALF_UP);
         Decimal accGST      = (accUnitRate * gstPct / 100).setScale(2, RoundingMode.HALF_UP);
@@ -2393,8 +2398,10 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
         // the legacy base_amount key. base_amount itself is being hidden in the estimator
         // (it duplicates BASE MAN RIDING PRICE / LADDER WITH CAGE BASE PRICE on screen),
         // so it can no longer be the only source. Deepanjan (21st Aug 2026)
-        Decimal basePrice = decVal(m, p == 'mrl_' ? 'mrl_man_riding_base_price'
-                                                  : 'lwc_ladder_cage_base_price', 0);
+        // Read off p so Stadium copies 2..10 (m{c}_mrl_ / l{c}_lwc_) resolve too; for
+        // copy 1 this is the same key as before. Deepanjan (6th October 2026)
+        Decimal basePrice = decVal(m, p.endsWith('mrl_') ? p + 'man_riding_base_price'
+                                                         : p + 'ladder_cage_base_price', 0);
         return basePrice > 0 ? basePrice : decVal(m, p + 'base_amount', 0);
     }
 
@@ -2780,8 +2787,20 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
             // Each prefix is one product: mrl_ is the mast with its Man Rider and
             // accessories, lwc_ is the mast with its foundation bolts and ladder.
             // Deepanjan (18th August 2026)
-            if (cmBool(m, 'man_riding_lift'))  { cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, 'mrl_'); }
-            if (cmBool(m, 'ladder_with_cage')) { cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, 'lwc_'); }
+            // MULTIPLE MAN RIDING LIFT / LADDER WITH CAGE - one product (own line item, own
+            // sub-total) per copy. Copy 1 is the original mrl_ / lwc_ block, copy c is
+            // m{c}_mrl_ / l{c}_lwc_; the count fields say how many. A quote without the
+            // count fields gives exactly one copy, so it prints as before. Deepanjan (6th Oct 2026)
+            if (cmBool(m, 'man_riding_lift')) {
+                for (String p : stadiumCopyPrefixes(m, 'mrl_', 'man_riding_lift_count', 'm')) {
+                    cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, p);
+                }
+            }
+            if (cmBool(m, 'ladder_with_cage')) {
+                for (String p : stadiumCopyPrefixes(m, 'lwc_', 'ladder_with_cage_count', 'l')) {
+                    cmProductStart.add(mastGroups.size()); sl = cmStadiumGroups(m, gstPct, freight, sl, p);
+                }
+            }
         } else if (isFlagMast) {
             // SEGMENT ABOVE 5 recipe: r{n}_lm_* rows. cmFlagGroups() reads
             // r{n}_fm_* and would emit nothing. Deepanjan (22nd July 2026)
@@ -3001,14 +3020,17 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
             return sl;
         }
  
-        Boolean isMrl   = (p == 'mrl_');
+        // p is 'mrl_' / 'lwc_' for copy 1 and 'm{c}_mrl_' / 'l{c}_lwc_' for copy c, so every
+        // key below is read off p - for copy 1 that is the very same key as before.
+        // Deepanjan (6th October 2026)
+        Boolean isMrl   = p.endsWith('mrl_');
         String  variant = isMrl ? 'MAN RIDING LIFT' : 'LADDER WITH CAGE';
 
-        Decimal segPrice  = decVal(m, isMrl ? 'mrl_man_riding_unit_price'
-                                            : 'lwc_ladder_cage_unit_price', 0)
+        Decimal segPrice  = decVal(m, isMrl ? p + 'man_riding_unit_price'
+                                            : p + 'ladder_cage_unit_price', 0)
                                 .setScale(2, RoundingMode.HALF_UP);
-        Decimal segWeight = decVal(m, isMrl ? 'mrl_man_riding_total_weight'
-                                            : 'lwc_ladder_cage_weight', 0);
+        Decimal segWeight = decVal(m, isMrl ? p + 'man_riding_total_weight'
+                                            : p + 'ladder_cage_weight', 0);
         Decimal qty = decVal(m, p + 'quantity', 1);
         if (qty == 0) qty = 1;
 
@@ -3156,11 +3178,11 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
         }
         // ── Accessories ──
         if (isMrl) {
-            Decimal accRate = decVal(m, 'mrl_mast_acc_foundation_unit_price', 0)
+            Decimal accRate = decVal(m, p + 'mast_acc_foundation_unit_price', 0)
                                 .setScale(2, RoundingMode.HALF_UP);
-            Decimal accQty  = decVal(m, 'mrl_mast_acc_quantity', 1);
+            Decimal accQty  = decVal(m, p + 'mast_acc_quantity', 1);
             if (accQty == 0) accQty = 1;
-            String  accDesc = strVal(m, 'mrl_mast_acc_description', '');
+            String  accDesc = strVal(m, p + 'mast_acc_description', '');
             if (accRate > 0 || String.isNotBlank(accDesc)) {
                 mastGroups.add(cmGroup(String.valueOf(sl++),
                     'Supply of standard Manrider System'
@@ -3168,9 +3190,9 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
                     '', accRate, gstPct, accQty, freight));
             }
         } else {
-            String  accDesc = strVal(m, 'lwc_acc_description', '');
-            Decimal accWt   = decVal(m, 'lwc_acc_weight', 0);
-            Decimal accRate = decVal(m,'lwc_unit_price',0).setScale(2, RoundingMode.HALF_UP);
+            String  accDesc = strVal(m, p + 'acc_description', '');
+            Decimal accWt   = decVal(m, p + 'acc_weight', 0);
+            Decimal accRate = decVal(m, p + 'unit_price',0).setScale(2, RoundingMode.HALF_UP);
             if (String.isNotBlank(accDesc) || accWt > 0) {
                 mastGroups.add(cmGroup(String.valueOf(sl++),
                     'Supply of standard Man-Riding Ladder with Safety Cage system'
@@ -3192,13 +3214,17 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
         // ── NEW: Man Riding Lift — KIT accessories group, only if a matching KIT is configured ──
         if (isMrl) {
             Integer slBeforeKit = sl;
-            sl = addMrlKitAccessoryGroup(m, mastHt, qty, segCount, gstPct, freight, sl);
+            // KIT line of THIS copy: kit_line_{c} when its mast height matches, else the first
+            // unused KIT line with that height (same lookup as before). Deepanjan (6th Oct 2026)
+            sl = addMrlKitAccessoryGroup(m, mastHt, qty, segCount, gstPct, freight, sl,
+                                         findKitLineForStadiumCopy(m, stadiumCopyIndex(p), mastHt));
             // addMrlKitAccessoryGroup only fires on a quote that carries KIT data. A
             // Segment Above 5 Stadium quote has none, so its Additional Accessories block
             // never reached the offer. Emit it when the KIT group did not.
             // Deepanjan (21st Aug 2026)
             if (isSegmentAbove5 && sl == slBeforeKit) {
-                sl = addStadiumSeg5AccessoryGroup(m, mastHt, qty, gstPct, freight, sl);
+                // Copy c reads its own m{c}_lm_* block (copy 1: lm_*). Deepanjan (6th Oct 2026)
+                sl = addStadiumSeg5AccessoryGroup(m, mastHt, qty, gstPct, freight, sl, stadiumSeg5AccPrefix(p));
             }
         }
                                             
@@ -3210,18 +3236,30 @@ private void buildLightingPoleGroups(Map<String, Object> m, Decimal gstPct, Stri
     // print the same words at the same rate. Deepanjan (21st Aug 2026)
     private Integer addStadiumSeg5AccessoryGroup(Map<String,Object> m, Decimal mastHt, Decimal qty,
                                                  Decimal gstPct, String freight, Integer sl) {
-        Decimal accRate = decVal(m, 'lm_acc_total_rate', 0);
-        if (accRate <= 0) accRate = decVal(m, 'lm_acc_rate', 0);
+        return addStadiumSeg5AccessoryGroup(m, mastHt, qty, gstPct, freight, sl, 'lm_');
+    }
+
+    // Stadium copy c (m{c}_mrl_) keeps its Additional Accessories under m{c}_lm_*; copy 1
+    // under the original lm_*. lmP is that prefix. Deepanjan (6th October 2026)
+    private String stadiumSeg5AccPrefix(String p) {
+        Integer c = stadiumCopyIndex(p);
+        return c <= 1 ? 'lm_' : 'm' + c + '_lm_';
+    }
+
+    private Integer addStadiumSeg5AccessoryGroup(Map<String,Object> m, Decimal mastHt, Decimal qty,
+                                                 Decimal gstPct, String freight, Integer sl, String lmP) {
+        Decimal accRate = decVal(m, lmP + 'acc_total_rate', 0);
+        if (accRate <= 0) accRate = decVal(m, lmP + 'acc_rate', 0);
 
         String winchSpec = withDrum(withUnit(
-                              specOrBlank(strVal(m, 'lm_type_of_winch', ''))
+                              specOrBlank(strVal(m, lmP + 'type_of_winch', ''))
                                   .replace(' kg', 'Kg').replace(' KG', 'Kg'),
-                              strVal(m, 'lm_winch_unit', '')),
-                              strVal(m, 'lm_winch_drum', ''));
-        String toolSpec  = withUnit(specOrBlank(strVal(m, 'lm_type_of_power_tool', '')),
-                                    strVal(m, 'lm_power_tool_unit', ''));
-        String ropeSpec  = withUnit(specOrBlank(strVal(m, 'lm_type_of_wire_rope', '')),
-                                    strVal(m, 'lm_wire_rope_unit', ''));
+                              strVal(m, lmP + 'winch_unit', '')),
+                              strVal(m, lmP + 'winch_drum', ''));
+        String toolSpec  = withUnit(specOrBlank(strVal(m, lmP + 'type_of_power_tool', '')),
+                                    strVal(m, lmP + 'power_tool_unit', ''));
+        String ropeSpec  = withUnit(specOrBlank(strVal(m, lmP + 'type_of_wire_rope', '')),
+                                    strVal(m, lmP + 'wire_rope_unit', ''));
 
         if (accRate <= 0 && String.isBlank(winchSpec)
                          && String.isBlank(toolSpec) && String.isBlank(ropeSpec)) return sl;
@@ -3835,13 +3873,76 @@ private Integer findKitLineForHeight(Map<String,Object> m, Decimal mastHt) {
     }
     return 0;   // no matching KIT line found
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// STADIUM MAST - MULTIPLE MAN RIDING LIFT / LADDER WITH CAGE. Deepanjan (6th October 2026)
+// The estimator saves copy 1 under the original mrl_ / lwc_ keys and copy c (2..10) under
+// m{c}_mrl_ / l{c}_lwc_ - the same field names, only the prefix differs. The number of
+// copies is man_riding_lift_count / ladder_with_cage_count (blank on an older quote -> 1).
+// A copy whose NO OF SEGMENT is empty prints nothing (cmStadiumGroups already returns).
+// Each Man Riding Lift copy c saves its own KIT line as kit_line_{c}. Twin of the same
+// helpers in HighMastSOWController - keep the two in step.
+// ═══════════════════════════════════════════════════════════════════════
+private Set<Integer> stadiumKitUsed = new Set<Integer>();   // KIT lines already printed
+
+// ['mrl_', 'm2_mrl_', ... ] / ['lwc_', 'l2_lwc_', ... ] up to the saved count (1..10).
+private List<String> stadiumCopyPrefixes(Map<String,Object> m, String base,
+                                         String countKey, String copyMark) {
+    List<String> out = new List<String>{ base };
+    Integer cnt = decVal(m, countKey, 1).intValue();
+    if (cnt < 1)  cnt = 1;
+    if (cnt > 10) cnt = 10;
+    for (Integer c = 2; c <= cnt; c++) out.add(copyMark + c + '_' + base);
+    return out;
+}
+
+// 'mrl_' / 'lwc_' -> 1; 'm2_mrl_' / 'l2_lwc_' -> 2 ...
+private Integer stadiumCopyIndex(String p) {
+    if (String.isBlank(p)) return 1;
+    Matcher mc = Pattern.compile('^[ml](\\d+)_').matcher(p);
+    if (mc.find()) {
+        try { return Integer.valueOf(mc.group(1)); } catch (Exception ex) {}
+    }
+    return 1;
+}
+
+// KIT line for Man Riding Lift copy c: kit_line_{c} when its mast height matches this
+// copy's height, otherwise the first KIT line with that height that no copy has used yet
+// (the pre-existing lookup), otherwise 0 = no KIT.
+private Integer findKitLineForStadiumCopy(Map<String,Object> m, Integer copyIdx, Decimal mastHt) {
+    if (copyIdx != null && copyIdx >= 1 && copyIdx <= 10 && !stadiumKitUsed.contains(copyIdx)) {
+        String kitMastHtStr = strVal(m, 'kit_line_' + copyIdx + '_lm_mast_height', '');
+        if (String.isNotBlank(kitMastHtStr)) {
+            Decimal kitHt = 0;
+            try { kitHt = Decimal.valueOf(kitMastHtStr); } catch (Exception ex) {}
+            if (kitHt == mastHt || kitHt == mastHt * 10) return copyIdx;
+        }
+    }
+    for (Integer k = 1; k <= 10; k++) {
+        if (stadiumKitUsed.contains(k)) continue;
+        String kitMastHtStr = strVal(m, 'kit_line_' + k + '_lm_mast_height', '');
+        if (String.isBlank(kitMastHtStr)) continue;
+        Decimal kitHt = 0;
+        try { kitHt = Decimal.valueOf(kitMastHtStr); } catch (Exception ex) {}
+        if (kitHt == mastHt || kitHt == mastHt * 10) return k;
+    }
+    return 0;
+}
  
 // Adds one extra group row for MRL KIT accessories, ONLY if a matching
 // kit_line_N exists and is priced. Returns the updated sl counter.
 private Integer addMrlKitAccessoryGroup(Map<String,Object> m, Decimal mastHt, Decimal qty,
                                          Integer segCount, Decimal gstPct, String freight, Integer sl) {
-    Integer kitLineNum = findKitLineForHeight(m, mastHt);
-    if (kitLineNum == 0) return sl;   // no KIT data -> unchanged behavior
+    return addMrlKitAccessoryGroup(m, mastHt, qty, segCount, gstPct, freight, sl, findKitLineForHeight(m, mastHt));
+}
+
+// Same, for a KIT line already resolved by the caller (Stadium copy c -> kit_line_c).
+// Deepanjan (6th October 2026)
+private Integer addMrlKitAccessoryGroup(Map<String,Object> m, Decimal mastHt, Decimal qty,
+                                         Integer segCount, Decimal gstPct, String freight, Integer sl,
+                                         Integer kitLineNum) {
+    if (kitLineNum == null || kitLineNum == 0) return sl;   // no KIT data -> unchanged behavior
+    stadiumKitUsed.add(kitLineNum);
  
     String kit = 'kit_line_' + kitLineNum + '_';
  
@@ -4470,10 +4571,9 @@ private String getWindSpeedSuffix() {
             if (String.isBlank(nm)) continue;
             String n = nm.trim();
 
-            if (n.containsIgnoreCase('LOCK') && n.containsIgnoreCase('MANUAL HANDLE')) {
+            
                 tailPart = 'LOCK & MANUAL HANDLE';
-            }
-            else if (n.containsIgnoreCase('WIRE ROPE')) {
+            if (n.containsIgnoreCase('WIRE ROPE')) {
                 mainParts.add('6mm WIRE ROPE WITH FASTENERS');
             }
             else if (n.containsIgnoreCase('WINCH')) {
