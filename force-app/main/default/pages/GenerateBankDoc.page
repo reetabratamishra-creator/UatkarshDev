@@ -183,6 +183,11 @@
                 vertical-align: top;
                 word-wrap: break-word;
                 line-height: 1.25;
+                /* Reetabrata (8th October 2026): the V2 building-description
+                   parser keeps "a) ... / b) ..." items on their own lines
+                   inside a cell as \n; pre-wrap prints those breaks. Older
+                   quotes carry no \n in their cells, so they are unchanged. */
+                white-space: pre-wrap;
             }
             table.peb-spec-table th {
                 font-weight: bold !important;

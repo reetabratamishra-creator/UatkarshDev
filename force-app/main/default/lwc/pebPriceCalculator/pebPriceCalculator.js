@@ -7,7 +7,7 @@ import getEstimationFileBase64 from '@salesforce/apex/PEBPriceCalcController.get
 import getBuildingDescriptionFileBase64 from '@salesforce/apex/PEBPriceCalcController.getBuildingDescriptionFileBase64';
 import saveCalculation from '@salesforce/apex/PEBPriceCalcController.saveCalculation';
 import generatePdf from '@salesforce/apex/PEBPriceCalcController.generatePdf';
-import { parseUniversalBuildingPdf } from 'c/pebBuildingParser';
+import { parseBuildingPdfV2 as parseUniversalBuildingPdf } from 'c/pebBuildingParserV2';
 
 
 const UNIT_OPTIONS = ['Sq.M', 'Kg', 'No.s', 'RM', 'Mtr', 'Ltr', 'Piece'].map((u) => ({ label: u, value: u }));
